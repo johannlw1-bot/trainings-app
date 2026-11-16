@@ -1,31 +1,62 @@
-:root {
-  color-scheme: light dark;
+/* Design-Regeln und Begründungen stehen in DESIGN.md. Werte nur hier über die Variablen ändern. */
 
-  --bg: #f4f5f7;
-  --surface: #ffffff;
-  --text: #15171a;
-  --text-muted: #6b7280;
-  --border: #dfe2e7;
-  --accent: #1f6feb;
-
-  --tabbar-height: 56px;
-  --gutter: 16px;
-
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 16px;
-  line-height: 1.4;
-  -webkit-text-size-adjust: 100%;
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url('./fonts/archivo-latin-variable.woff2') format('woff2');
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111317;
-    --surface: #1b1e24;
-    --text: #f1f3f5;
-    --text-muted: #9aa1ac;
-    --border: #2c3038;
-    --accent: #5b9dff;
-  }
+:root {
+  color-scheme: dark;
+
+  /* Farben */
+  --bg: #0b0c0e;
+  --surface: #17191d;
+  --surface-2: #23262c;
+  --line: #2e3238;
+  --text: #f5f6f7;
+  --text-muted: #9499a1;
+  --text-faint: #666b73;
+  --accent: #dcff1a;
+  --on-accent: #0b0c0e;
+  --danger: #ff6b5e;
+
+  /* Diagramme */
+  --chart-mark: #4b5058;
+  --chart-line: #8b9099;
+  --chart-grid: #24272c;
+
+  /* Abstände (4er-Raster) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Rundungen */
+  --radius-card: 28px;
+  --radius-inner: 18px;
+  --radius-pill: 999px;
+
+  /* Maße */
+  --tap: 52px;
+  --tabbar-height: 64px;
+  --tabbar-bottom: max(12px, calc(env(safe-area-inset-bottom) - 6px));
+
+  /* Schrift */
+  --font: 'Archivo', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --condensed: 62%;
+
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
 }
 
 *,
@@ -41,6 +72,14 @@ body {
   color: var(--text);
 }
 
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
 /* Unter 16 px zoomt Safari auf dem iPhone beim Antippen ins Feld. */
 input,
 select,
@@ -48,7 +87,15 @@ textarea,
 button {
   font: inherit;
   font-size: max(16px, 1rem);
+  color: inherit;
 }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---------- Seite ---------- */
 
 .app {
   min-height: 100dvh;
@@ -57,49 +104,385 @@ button {
 .page {
   max-width: 480px;
   margin: 0 auto;
-  padding: calc(env(safe-area-inset-top) + var(--gutter))
-    calc(env(safe-area-inset-right) + var(--gutter))
-    calc(env(safe-area-inset-bottom) + var(--tabbar-height) + var(--gutter))
-    calc(env(safe-area-inset-left) + var(--gutter));
+  padding: calc(env(safe-area-inset-top) + var(--space-5))
+    calc(env(safe-area-inset-right) + var(--space-4))
+    calc(var(--tabbar-bottom) + var(--tabbar-height) + var(--space-6))
+    calc(env(safe-area-inset-left) + var(--space-4));
 }
 
-h1 {
-  margin: 0 0 var(--gutter);
-  font-size: 1.75rem;
-  line-height: 1.2;
-}
-
-.tabbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.stack {
   display: flex;
-  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  background: var(--surface);
-  border-top: 1px solid var(--border);
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-.tabbar__tab {
+.page-header {
+  margin-bottom: var(--space-5);
+}
+
+/* ---------- Text ---------- */
+
+.title {
+  margin: 0;
+  font-size: 2.75rem;
+  font-weight: 800;
+  font-stretch: var(--condensed);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.heading {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-stretch: var(--condensed);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.small {
+  font-size: 0.875rem;
+}
+
+/* ---------- Zahlenanzeige ---------- */
+
+.num {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12em;
+  font-weight: 800;
+  font-stretch: var(--condensed);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.num--xl {
+  font-size: 5rem;
+}
+
+.num--l {
+  font-size: 3rem;
+}
+
+.num--m {
+  font-size: 1.75rem;
+}
+
+.num--accent {
+  color: var(--accent);
+}
+
+.num--empty {
+  color: var(--text-faint);
+}
+
+.num__unit {
+  font-size: 0.36em;
+  font-weight: 600;
+  font-stretch: 100%;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.num--m .num__unit {
+  font-size: 0.5em;
+}
+
+/* ---------- Karte ---------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--surface);
+  border-radius: var(--radius-card);
+}
+
+.card__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* Liste innerhalb einer Karte */
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--tap);
+  text-decoration: none;
+}
+
+.list__item + .list__item,
+.list > li + li > .list__item {
+  border-top: 1px solid var(--line);
+}
+
+.list__chevron {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--text-faint);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 1.0625rem;
+  font-weight: 800;
+  font-stretch: 75%;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 80ms ease-out;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.btn--danger {
+  background: transparent;
+  color: var(--danger);
+}
+
+.btn--block {
+  display: flex;
+  width: 100%;
+}
+
+.btn:disabled {
+  background: var(--surface-2);
+  color: var(--text-faint);
+  cursor: default;
+}
+
+/* ---------- Umschalter (Pillen) ---------- */
+
+.segmented {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+}
+
+.segmented__option {
   flex: 1;
-  min-height: var(--tabbar-height);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  min-height: var(--tap);
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  font-stretch: 75%;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.segmented__option small {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-stretch: 100%;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+}
+
+.segmented__option[aria-pressed='true'] {
+  background: var(--text);
+  color: var(--bg);
+}
+
+/* ---------- Eingabefeld ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field__input {
+  width: 100%;
+  min-height: 64px;
+  padding: 0 var(--space-4);
+  border: 2px solid transparent;
+  border-radius: var(--radius-inner);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 2rem;
+  font-weight: 800;
+  font-stretch: var(--condensed);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.field__input::placeholder {
+  color: var(--text-faint);
+}
+
+.field__input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ---------- Diagramm ---------- */
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart__grid {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+
+.chart__mark {
+  fill: var(--chart-mark);
+}
+
+.chart__line {
+  fill: none;
+  stroke: var(--chart-line);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart__highlight {
+  fill: var(--accent);
+}
+
+.chart__halo {
+  fill: var(--accent);
+  opacity: 0.18;
+}
+
+.chart__axis {
+  fill: var(--text-faint);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- Schwebende Tab-Leiste ---------- */
+
+.tabbar {
+  position: fixed;
+  left: 50%;
+  bottom: var(--tabbar-bottom);
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: var(--space-1);
+  width: min(calc(100% - 2 * var(--space-4)), 448px);
+  height: var(--tabbar-height);
+  padding: var(--space-2);
+  background: var(--surface-2);
+  border: 1px solid rgb(255 255 255 / 0.06);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.6);
+}
+
+.tabbar__tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  font-stretch: 75%;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .tabbar__tab[aria-current='page'] {
-  color: var(--accent);
-  font-weight: 600;
+  flex: 2.1;
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .tabbar__icon {
   width: 24px;
   height: 24px;
+  flex: none;
+}
+
+.tabbar__label {
+  display: none;
+}
+
+.tabbar__tab[aria-current='page'] .tabbar__label {
+  display: inline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }

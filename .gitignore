@@ -8,6 +8,9 @@ dist/
 backups/
 exports/
 
+# Fremde Designs als Vorlage, nicht veröffentlichen
+design-referenz/
+
 # Lokales
 .DS_Store
 *.local

@@ -1,14 +1,16 @@
 # Trainings-App
 
-Persönliche Trainings-App als PWA fürs Handy. Ein Nutzer, kein Login, kein Backend. Der vollständige Plan steht in `PLAN.md`.
+Persönliche Trainings-App als PWA fürs Handy. Ein Nutzer, kein Login, kein Backend. Der vollständige Plan steht in `PLAN.md`, das Design in `DESIGN.md`.
 
 ## Grundregeln
 
 - **Sprache der App: Deutsch.** Alle sichtbaren Texte, Fehlermeldungen und Beschriftungen auf Deutsch. Datum als `TT.MM.JJJJ`, Dezimalzahlen mit Komma anzeigen, Eingabe mit Komma und Punkt akzeptieren. Gewichte in kg.
 - **Mobile-first.** Für eine Handbreite von etwa 360–430 px entwerfen, Desktop ist Nebensache. Tippflächen mindestens 44 px, Hauptaktionen im unteren Bildschirmbereich, Zahlenfelder mit `inputmode="decimal"` bzw. `"numeric"`. Safe-Area-Abstände (Notch, Home-Indikator) beachten.
+- **Design: `DESIGN.md` ist verbindlich.** Vor jeder Arbeit an der Oberfläche lesen. Nur dunkel, eine Akzentfarbe (Neongelb) ausschließlich für Hauptbutton, aktiven Tab und hervorgehobene Werte, große fette Zahlen, pillenförmige Buttons, graue Diagramme. Farben, Abstände und Rundungen kommen aus den CSS-Variablen in `src/styles.css`, keine frei gewählten Werte. Neue Bausteine zuerst in `DESIGN.md` und auf der Musterseite (`#/design`) ergänzen. Jede geänderte Seite in 390 px Breite im Browser ansehen.
+- **Schriften lokal.** Archivo liegt in `src/fonts/`. Keine Schriften, Icons oder Stylesheets von Google Fonts oder anderen fremden Servern.
 - **Zielgerät: iPhone, Safari.** Die App wird über „Zum Home-Bildschirm“ installiert. Testziel ist Safari auf dem iPhone, ein Desktop-Browser allein reicht nicht als Nachweis. Eingabefelder (`input`, `select`, `textarea`) haben mindestens 16 px Schriftgröße, sonst zoomt Safari beim Antippen ins Feld.
 - **Daten bleiben lokal.** Speicherung ausschließlich in IndexedDB (Dexie). Keine Netzwerkanfragen mit Nutzerdaten, kein Analytics, keine Schriften oder Skripte von fremden Servern, keine Cloud-Dienste.
-- **Öffentliches Repository.** Der Code liegt öffentlich auf GitHub (GitHub Pages). Keine persönlichen Daten, Backups oder Export-Dateien einchecken.
+- **Öffentliches Repository.** Der Code liegt öffentlich auf GitHub (GitHub Pages). Keine persönlichen Daten, Backups oder Export-Dateien einchecken. Der Ordner `design-referenz/` enthält fremde Designs und bleibt in der `.gitignore`.
 - **Offline-fähig.** Die App muss nach der Installation ohne Internet vollständig funktionieren.
 - **Nichts geht verloren.** Eingaben sofort speichern, nicht erst beim Abschließen. Übungen archivieren statt löschen. Änderungen am Datenbank-Schema nur über eine Dexie-Versionsmigration, die bestehende Daten erhält. Export und Import müssen nach jeder Schemaänderung weiter funktionieren.
 
