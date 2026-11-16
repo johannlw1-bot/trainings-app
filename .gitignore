@@ -1,0 +1,15 @@
+# Abhängigkeiten und Build
+node_modules/
+dist/
+
+# Export- und Backup-Dateien der App (persönliche Daten, das Repository ist öffentlich)
+*backup*.json
+*export*.json
+backups/
+exports/
+
+# Lokales
+.DS_Store
+*.local
+.env
+.env.*
