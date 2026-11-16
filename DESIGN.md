@@ -254,6 +254,18 @@ Zwei oder drei Pillen in einer gemeinsamen Hülle (`.segmented`), zum Beispiel O
 
 `.chips`: kleine Buttons (`.btn--small`) in IBM Plex Sans, die umbrechen dürfen. Für eine Auswahl aus vorhandenen Einträgen, zum Beispiel „Vorhandene Übung übernehmen“.
 
+### Satzzeile
+
+`.set-row` im laufenden Training: Satznummer, Zahlenfeld für das Gewicht, Zahlenfeld für die Wiederholungen, Haken. Über der ersten Zeile stehen einmal die Beschriftungen „kg“ und „Wdh“. Die Eingabe muss mit einer Hand schnell gehen:
+
+- **Grau ist Vorschlag, hell ist eingetragen.** Die Felder zeigen die Werte vom letzten Mal als grauen Platzhalter. Erst was eingetragen ist, steht in heller Schrift und ist gespeichert
+- **Ein Tipp auf den Haken** (`.check-btn`, 56 px) trägt den Vorschlag unverändert ein. Ein zweiter Tipp trägt den Satz wieder aus
+- **Tippen in ein Feld** überschreibt den Vorschlag. Das Feld ist leer, es muss nichts gelöscht werden. Der andere Wert wird aus dem Vorschlag ergänzt
+- Gewicht mit `inputmode="decimal"`, Wiederholungen mit `inputmode="numeric"`, Felder 64 px hoch
+- Der eingetragene Haken ist **hell** (`--text`), nicht gelb: Auf einem Bildschirm stehen viele davon, Gelb bleibt „Training beenden“ vorbehalten
+- Unter den Zeilen stehen „− Satz“ (entfernt die letzte Zeile) und „+ Satz“
+- Die Felder müssen „142,5“ bei 375 px Breite vollständig zeigen. Darunter schrumpft die Schrift mit
+
 ### Tab-Leiste
 
 Schwebt als kompakte Pille mittig über dem Inhalt: höchstens 320 px breit, 64 px hoch, blau (`--tabbar-bg`) mit Schatten nach unten. Sie hat genau **zwei Tabs**, Training und Gewicht, jeweils mit Icon und Beschriftung. Der aktive Tab ist eine neongelbe Pille, der andere gedämpft. Weitere Tabs kommen nicht dazu: Neue Bereiche werden Unterseiten. Auf Unterseiten ist die Tab-Leiste ausgeblendet.

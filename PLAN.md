@@ -110,10 +110,15 @@ Regeln für die Navigation:
 - An Ruhetagen (Mi, Sa, So): Hinweis plus Auswahl Oberkörper/Unterkörper, falls ein Training nachgeholt wird
 - Im laufenden Training: Übungen in Planreihenfolge, pro Übung
   - Zeile „Letztes Mal: 80 kg × 8, 8, 7“ mit Datum
-  - Satzzeilen mit Gewicht und Wiederholungen, vorbefüllt mit den Werten vom letzten Mal
-  - „Satz hinzufügen“ und Satz löschen
-- Jede Eingabe wird sofort gespeichert. Ein geschlossener Browser kostet kein Training
-- „Training beenden“ schließt die Einheit ab
+  - Satzzeilen mit Gewicht und Wiederholungen. Die Werte vom letzten Mal stehen als grauer Vorschlag in den Feldern
+  - Ein Tipp auf den Haken trägt den Vorschlag ein, Tippen in ein Feld überschreibt ihn. Nur eingetragene Sätze werden gespeichert, offene Vorschläge verfallen beim Beenden
+  - Wird heute ein anderes Gewicht eingetragen als letztes Mal, gilt es als Vorschlag für die folgenden Sätze
+  - So viele Zeilen wie Zielsätze im Plan, oder mehr, wenn es letztes Mal mehr waren
+  - „+ Satz“ fügt eine Zeile an, „− Satz“ entfernt die letzte
+- „Letztes Mal“ ist das jüngste beendete Training, in dem die Übung vorkam, egal in welcher Liste
+- Jede Eingabe wird sofort gespeichert. Ein geschlossener Browser kostet kein Training: Das laufende Training ist beim nächsten Öffnen wieder da, auch an einem anderen Tag
+- „Training beenden“ schließt die Einheit ab. Ohne eingetragene Sätze heißt der Button „Training abbrechen“ und verwirft das leere Training
+- Ein heute beendetes Training lässt sich über „Wieder öffnen“ fortsetzen, zum Beispiel nach versehentlichem Beenden
 - Tippen auf den Namen einer Übung öffnet ihre Detailseite mit dem Fortschrittsdiagramm
 - Ganz unten: Liste der vergangenen Trainings nach Datum, neueste zuerst, antippbar zum Ansehen und Korrigieren
 
@@ -185,7 +190,7 @@ public/
 
 1. **Grundgerüst** – Vite-Projekt, Tab-Leiste, leere Seiten, Datenbank-Schema (erledigt)
 2. **Plan** – zwei Listen, Übungen anlegen, bearbeiten, sortieren, archivieren. Der Training-Tab zeigt die Liste des heutigen Tages oder den Ruhetag (erledigt)
-3. **Training loggen** – Einheit starten, Sätze eintragen, „letztes Mal“
+3. **Training loggen** – Einheit starten, Sätze eintragen, „letztes Mal“, beenden, Liste der vergangenen Trainings (erledigt, Ansehen und Korrigieren alter Trainings folgt in Schritt 6)
 4. **Körpergewicht** – Eingabe, Liste, Diagramm mit Durchschnitt
 5. **Fortschritt pro Übung** – Detailseite, nutzt die Diagramm-Komponente aus Schritt 4
 6. **Verlauf und Backup** – Liste der vergangenen Trainings im Training-Tab, Export und Import in den Einstellungen
