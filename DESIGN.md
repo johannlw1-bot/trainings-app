@@ -4,24 +4,41 @@ Verbindlich für jede Seite und jede neue Komponente. Die Werte stehen als CSS-V
 
 ## Leitidee
 
-Dunkel, ruhig, und die Zahl ist der Star. Auf jedem Bildschirm gibt es genau einen Blickfang: das Gewicht, die Wiederholungen oder das Körpergewicht, groß und fett gesetzt. Alles andere tritt zurück. Farbe gibt es nur eine, und sie ist selten.
+Tiefes Marineblau, eine breite, technische Schrift, und die Zahl ist der Star. Auf jedem Bildschirm gibt es genau einen Blickfang: das Gewicht, die Wiederholungen oder das Körpergewicht, groß und fett gesetzt. Alles andere tritt zurück. Blau ist die Grundstimmung, Neongelb die einzige Akzentfarbe, und sie ist selten.
 
 ## Farben
 
-Die App ist ausschließlich dunkel. Es gibt keinen hellen Modus.
+Die App ist ausschließlich dunkel. Es gibt keinen hellen Modus. Alle Flächen sind Abstufungen desselben Blaus, es gibt kein neutrales Grau und kein reines Schwarz.
 
 | Variable | Wert | Verwendung |
 |---|---|---|
-| `--bg` | `#0b0c0e` | Seitenhintergrund, fast schwarz |
-| `--surface` | `#17191d` | Karten |
-| `--surface-2` | `#23262c` | Flächen auf Karten: Eingabefelder, normale Buttons, Tab-Leiste |
-| `--line` | `#2e3238` | Trennlinien in Listen |
-| `--text` | `#f5f6f7` | Text, Zahlen, Überschriften |
-| `--text-muted` | `#9499a1` | Beschriftungen, Einheiten, Erklärtext |
-| `--text-faint` | `#666b73` | Platzhalter, Achsenbeschriftung, deaktivierte Elemente |
+| `--bg` | `#060b1f` | Seitenhintergrund, sehr dunkles Marineblau |
+| `--surface` | `#0f1838` | Karten, dunkelblau |
+| `--surface-2` | `#1c2a5e` | Flächen auf Karten: Eingabefelder, normale Buttons |
+| `--tabbar-bg` | `#162050` | Tab-Leiste |
+| `--line` | `#1f2c5c` | Trennlinien in Listen |
+| `--text` | `#f3f5ff` | Text, Zahlen, Überschriften |
+| `--text-muted` | `#9ba6d1` | Beschriftungen, Einheiten, Erklärtext |
+| `--text-faint` | `#6b77a8` | Platzhalter, Achsenbeschriftung, deaktivierte Elemente |
 | `--accent` | `#dcff1a` | Neongelb, die einzige Akzentfarbe |
-| `--on-accent` | `#0b0c0e` | Schrift und Icons auf Akzentflächen (immer dunkel, nie weiß) |
-| `--danger` | `#ff6b5e` | Nur als Textfarbe für „Löschen“ und Fehlermeldungen |
+| `--on-accent` | `#060b1f` | Schrift und Icons auf Akzentflächen (immer dunkel, nie weiß) |
+| `--danger` | `#ff8a7f` | Nur als Textfarbe für „Löschen“ und Fehlermeldungen |
+
+### Kontraste
+
+Nachgerechnet nach WCAG. Normaler Text braucht mindestens 4,5 : 1.
+
+| Paar | Kontrast |
+|---|---|
+| Text auf Karte | 16,0 : 1 |
+| Gelb auf Karte | 15,2 : 1 |
+| Dunkel auf Gelb (Hauptbutton) | 17,1 : 1 |
+| Text auf normalem Button (`--surface-2`) | 12,5 : 1 |
+| Gedämpfter Text auf Hintergrund | 8,2 : 1 |
+| Gedämpfter Text auf Karte | 7,3 : 1 |
+| Graue Icons in der Tab-Leiste | 5,7 : 1 |
+
+`--text-faint` liegt auf der Karte bei rund 4 : 1 und ist deshalb nur für Platzhalter, Achsentext und deaktivierte Elemente erlaubt, nie für Text, den man lesen muss. Gelbe Schrift steht nur auf `--bg` oder `--surface`, nie auf `--surface-2` in kleiner Größe.
 
 ### Regeln für die Akzentfarbe
 
@@ -38,6 +55,7 @@ Nicht erlaubt: Überschriften, Fließtext, Icons außerhalb des aktiven Tabs, Ra
 
 - Farbverläufe jeder Art, besonders Lila und Blau-Lila
 - Eine zweite Akzentfarbe
+- Neutrales Grau oder reines Schwarz als Fläche
 - Fotos und Illustrationen
 - Emojis als Icons
 - Glas-Effekte, Unschärfe, leuchtende Schatten (Glow)
@@ -45,32 +63,47 @@ Nicht erlaubt: Überschriften, Fließtext, Icons außerhalb des aktiven Tabs, Ra
 
 ## Schrift
 
-Eine Schriftfamilie: **Archivo** als variable Schrift (Gewicht 100–900, Breite 62–125 %), lizenziert unter der SIL Open Font License. Die Datei liegt lokal in `src/fonts/archivo-latin-variable.woff2` und wird von der App selbst ausgeliefert. Es gibt keine Links zu Google Fonts oder anderen fremden Servern.
+Zwei Schriften, beide als variable Schrift lokal in `src/fonts/` und unter der SIL Open Font License. Die App liefert sie selbst aus. Es gibt keine Links zu Google Fonts oder anderen fremden Servern.
 
-Archivo hat zwei Stimmen, die über die Breite gesteuert werden:
+- **Unbounded** (`--font-display`, `unbounded-latin-variable.woff2`): breit und technisch. Für Zahlen, Seitentitel, Überschriften, Buttons und Tab-Beschriftung
+- **IBM Plex Sans** (`--font-body`, `ibm-plex-sans-latin-variable.woff2`): gut lesbar und schmaler. Für Fließtext, Beschriftungen und Einheiten
 
-- **Schmal und fett** (`font-stretch: 62%`, Gewicht 800): Zahlen, Seitentitel, Überschriften
-- **Normal breit** (Gewicht 400–600): Fließtext, Beschriftungen, Einheiten
+Nicht verwenden: Inter, Roboto, Archivo, Systemschriften als bewusste Wahl.
 
-| Stil | Klasse | Größe | Gewicht | Breite | Sonstiges |
+| Stil | Klasse | Schrift | Größe bei 390 px | Gewicht | Sonstiges |
 |---|---|---|---|---|---|
-| Zahl XL | `.num.num--xl` | 80 px | 800 | 62 % | Zeilenhöhe 0,95 |
-| Zahl L | `.num.num--l` | 48 px | 800 | 62 % | |
-| Zahl M | `.num.num--m` | 28 px | 800 | 62 % | |
-| Seitentitel | `.title` | 44 px | 800 | 62 % | Großbuchstaben |
-| Überschrift | `.heading` | 24 px | 800 | 62 % | Großbuchstaben |
-| Button | `.btn` | 17 px | 800 | 75 % | Großbuchstaben, Sperrung 0,04 em |
-| Beschriftung | `.label` | 12 px | 600 | 100 % | Großbuchstaben, Sperrung 0,1 em, `--text-muted` |
-| Fließtext | (Standard) | 16 px | 400 | 100 % | Zeilenhöhe 1,45 |
-| Klein | `.small` | 14 px | 400 | 100 % | |
+| Zahl XL | `.num.num--xl` | Unbounded | 64 px | 800 | Sperrung −0,03 em |
+| Zahl L | `.num.num--l` | Unbounded | 40 px | 800 | Sperrung −0,03 em |
+| Zahl M | `.num.num--m` | Unbounded | 22 px | 800 | |
+| Seitentitel | `.title` | Unbounded | 32 px | 800 | Sperrung −0,02 em |
+| Überschrift | `.heading` | Unbounded | 18 px | 700 | |
+| Button | `.btn` | Unbounded | 15 px | 700 | |
+| Tab | `.tabbar__tab` | Unbounded | 12 px | 700 | |
+| Eingabefeld | `.field__input` | Unbounded | 26 px | 800 | zentriert |
+| Beschriftung | `.label` | IBM Plex Sans | 12 px | 600 | Großbuchstaben, Sperrung 0,1 em |
+| Fließtext | (Standard) | IBM Plex Sans | 16 px | 400 | Zeilenhöhe 1,5 |
+| Klein | `.small` | IBM Plex Sans | 14 px | 400 | |
 
-Regeln:
+Unbounded wird in normaler Groß- und Kleinschreibung gesetzt, nie in durchgehenden Großbuchstaben. Großbuchstaben gibt es nur bei Beschriftungen (`.label`) in IBM Plex Sans.
 
-- Zahlen stehen immer in `.num`, mit Tabellenziffern (`tabular-nums`), damit sie beim Ändern nicht springen
-- Die Einheit steht in `.num__unit`: klein, normal breit, grau, direkt hinter der Zahl
+### Breite Schrift, große Zahlen
+
+Unbounded ist sehr breit: Eine Ziffer braucht etwa 0,75 em, das Komma 0,3 em. Damit Gewichte und Wiederholungen auf dem iPhone Platz haben, gilt:
+
+- **Die Größen sind auf die längsten Werte ausgelegt.** In eine Karte passen bei 390 px Breite 310 px Inhalt. „142,5 kg“ in XL braucht davon etwa 240 px, „142,5 kg“ und „12 Wdh“ nebeneinander in L etwa 250 px
+- **XL und L schrumpfen auf schmalen Geräten mit** (`--num-xl: min(4rem, 16.4vw)`, `--num-l: min(2.5rem, 10.25vw)`). Bei 320 px Breite ist XL noch 52 px groß
+- **Die Einheit steht in IBM Plex Sans** (`.num__unit`), klein und gedämpft. Das spart gegenüber Unbounded gut ein Drittel Breite
+- **Höchstens zwei L-Zahlen nebeneinander**, höchstens drei M-Zahlen. XL steht immer allein in der Zeile
+- **Zahlen umbrechen nie** (`white-space: nowrap`). Reicht der Platz nicht, wird die nächstkleinere Stufe genommen, nicht die Schrift von Hand verkleinert
+- **Nur die Nachkommastellen zeigen, die es braucht:** „80“ statt „80,0“, höchstens eine Nachkommastelle beim Körpergewicht, höchstens zwei bei Hantelgewichten („82,25“)
+- Der Breitentest auf der Musterseite zeigt die längsten Werte. Wer Zahlengrößen ändert, prüft ihn in 390 px und 320 px
+
+Weitere Regeln:
+
+- Zahlen stehen immer in `.num`, mit Tabellenziffern (`tabular-nums`)
 - Dezimalzahlen mit Komma („82,5“), das Malzeichen ist „×“, nicht „x“
 - Eingabefelder nie unter 16 px, sonst zoomt Safari auf dem iPhone ins Feld
-- Großbuchstaben nur für Titel, Überschriften, Buttons und Beschriftungen, nie für ganze Sätze
+- Seitentitel sind kurz (ein Wort, höchstens etwa 13 Zeichen). Längere Titel brechen um
 
 ## Abstände
 
@@ -116,7 +149,7 @@ Kleine Beschriftung, darunter der Seitentitel. Jede Seite beginnt so.
 
 ### Karte
 
-Dunkelgraue Fläche, 28 px Rundung, 24 px Innenabstand, kein Rahmen, kein Schatten. Mehrere Karten stehen in `.stack` mit 16 px Abstand untereinander.
+Dunkelblaue Fläche, 28 px Rundung, 24 px Innenabstand, kein Rahmen, kein Schatten. Mehrere Karten stehen in `.stack` mit 16 px Abstand untereinander.
 
 ```html
 <section class="card">
@@ -132,7 +165,7 @@ Dunkelgraue Fläche, 28 px Rundung, 24 px Innenabstand, kein Rahmen, kein Schatt
 
 ### Zahlenanzeige
 
-Die Zahl schmal und fett, die Einheit klein und grau dahinter. Darüber steht eine Beschriftung, die sagt, was die Zahl bedeutet.
+Die Zahl breit und fett in Unbounded, die Einheit klein und gedämpft in IBM Plex Sans dahinter. Darüber steht eine Beschriftung, die sagt, was die Zahl bedeutet.
 
 ```html
 <p class="label">7-Tage-Durchschnitt</p>
@@ -146,7 +179,7 @@ Die Zahl schmal und fett, die Einheit klein und grau dahinter. Darüber steht ei
 
 ### Buttons
 
-Immer pillenförmig, mindestens 52 px hoch, Text in Großbuchstaben.
+Immer pillenförmig, mindestens 52 px hoch, Text in normaler Schreibweise.
 
 ```html
 <button class="btn btn--primary btn--block">Training starten</button>
@@ -158,23 +191,23 @@ Immer pillenförmig, mindestens 52 px hoch, Text in Großbuchstaben.
 | Variante | Aussehen | Wofür |
 |---|---|---|
 | `.btn--primary` | Neongelb, dunkle Schrift | Die eine Hauptaktion des Bildschirms |
-| `.btn` | Dunkelgrau, helle Schrift | Alle weiteren Aktionen |
-| `.btn--ghost` | Nur graue Schrift | Abbrechen, Zurück |
+| `.btn` | Mittelblau (`--surface-2`), helle Schrift | Alle weiteren Aktionen |
+| `.btn--ghost` | Nur gedämpfte Schrift | Abbrechen, Zurück |
 | `.btn--danger` | Nur rote Schrift | Löschen, immer mit Rückfrage |
 
-`.btn--block` macht den Button so breit wie die Karte. Der Hauptbutton steht im unteren Bereich, mit dem Daumen erreichbar.
+`.btn--block` macht den Button so breit wie die Karte. Der Hauptbutton steht im unteren Bereich, mit dem Daumen erreichbar. Beschriftungen sind kurz, höchstens zwei Wörter, weil die Schrift breit läuft.
 
 ### Umschalter
 
-Zwei oder drei Pillen in einer gemeinsamen Hülle (`.segmented`), zum Beispiel Oberkörper/Unterkörper oder der Zeitraum eines Diagramms. Die gewählte Option ist **weiß**, nicht gelb: Sie ist eine Auswahl, keine Hauptaktion.
+Zwei oder drei Pillen in einer gemeinsamen Hülle (`.segmented`), zum Beispiel Oberkörper/Unterkörper oder der Zeitraum eines Diagramms. Die gewählte Option ist **hell** (`--text`), nicht gelb: Sie ist eine Auswahl, keine Hauptaktion.
 
 ### Eingabefeld
 
-`.field__input`: 64 px hoch, dunkelgraue Fläche, die Zahl groß, schmal, fett und zentriert. Beim Antippen erscheint ein gelber Rahmen. Für Zahlen immer `inputmode="decimal"` oder `"numeric"`.
+`.field__input`: 64 px hoch, mittelblaue Fläche, die Zahl groß, fett und zentriert in Unbounded. Beim Antippen erscheint ein gelber Rahmen. Für Zahlen immer `inputmode="decimal"` oder `"numeric"`. Zwei Felder nebeneinander (Gewicht und Wiederholungen) müssen „142,5“ vollständig zeigen.
 
 ### Tab-Leiste
 
-Schwebt als Pille über dem Inhalt: 16 px Abstand zu den Seiten, 64 px hoch, dunkelgrau mit Schatten nach unten. Der aktive Tab ist eine neongelbe Pille mit Icon und Beschriftung, die anderen drei zeigen nur ihr Icon in Grau.
+Schwebt als Pille über dem Inhalt: 16 px Abstand zu den Seiten, 64 px hoch, blau (`--tabbar-bg`) mit Schatten nach unten. Der aktive Tab ist eine neongelbe Pille mit Icon und Beschriftung, die anderen drei zeigen nur ihr Icon.
 
 ### Icons
 
@@ -182,20 +215,20 @@ Selbst gezeichnete Linien-Icons als SVG: 24 px, Strichstärke 2,25, runde Enden,
 
 ## Diagramme
 
-Diagramme sind grau. Farbe bekommt nur der eine Wert, auf den es ankommt.
+Diagramme sind in gedämpftem Blau gehalten. Gelb bekommt nur der eine Wert, auf den es ankommt.
 
 | Element | Klasse | Aussehen |
 |---|---|---|
-| Hilfslinien | `.chart__grid` | `#24272c`, 1 px, nur waagrecht, höchstens drei |
-| Einzelwerte | `.chart__mark` | Punkte oder Balken in `#4b5058` |
-| Verlaufslinie | `.chart__line` | `#8b9099`, 2,5 px, runde Ecken |
+| Hilfslinien | `.chart__grid` | `#1a2550`, 1 px, nur waagrecht, höchstens drei |
+| Einzelwerte | `.chart__mark` | Punkte oder Balken in `#4a5a9c` |
+| Verlaufslinie | `.chart__line` | `#8f9bc9`, 2,5 px, runde Ecken |
 | Wichtigster Wert | `.chart__highlight` | Neongelber Punkt, 6 px Radius, mit schwachem Hof (`.chart__halo`) |
 | Achsentext | `.chart__axis` | 11 px, Großbuchstaben, `--text-faint` |
 
-- Im Gewichtsdiagramm sind die Tageswerte graue Punkte, der 7-Tage-Durchschnitt ist die Linie, und nur der aktuelle Durchschnitt leuchtet gelb
+- Im Gewichtsdiagramm sind die Tageswerte gedämpfte Punkte, der 7-Tage-Durchschnitt ist die Linie, und nur der aktuelle Durchschnitt leuchtet gelb
 - Im Fortschrittsdiagramm einer Übung leuchtet nur das letzte Training (oder die Bestleistung)
 - Der hervorgehobene Wert steht zusätzlich als große Zahl über dem Diagramm
-- Keine Legende, keine Flächenfüllung unter der Linie, keine senkrechten Hilfslinien, keine zweite Farbe
+- Keine Legende, keine Flächenfüllung unter der Linie, keine senkrechten Hilfslinien, keine zweite Akzentfarbe
 
 ## Bewegung
 
@@ -203,7 +236,7 @@ Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animation
 
 ## Vor dem Fertigmelden prüfen
 
-- In 390 px Breite angesehen, nichts ragt über den Rand
+- In 390 px Breite angesehen, nichts ragt über den Rand. Bei Zahlen und Buttonzeilen zusätzlich in 320 px
 - Genau ein Blickfang pro Bildschirm
 - Höchstens ein gelber Button und eine gelbe Zahl
 - Alle Farben, Abstände und Rundungen kommen aus den Variablen, keine frei gewählten Werte

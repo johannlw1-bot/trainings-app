@@ -1,3 +1,5 @@
+const LINKS = [{ href: '#/design', label: 'Design-Muster' }];
+
 export default function Mehr() {
   return (
     <>
@@ -8,23 +10,25 @@ export default function Mehr() {
 
       <section className="card">
         <ul className="list">
-          <li>
-            <a className="list__item" href="#/design">
-              <span>Design-Muster</span>
-              <svg
-                className="list__chevron"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.25"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M9 6l6 6-6 6" />
-              </svg>
-            </a>
-          </li>
+          {LINKS.map((link) => (
+            <li key={link.href}>
+              <a className="list__item" href={link.href}>
+                <span>{link.label}</span>
+                <svg
+                  className="list__chevron"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.25"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
+              </a>
+            </li>
+          ))}
         </ul>
       </section>
     </>

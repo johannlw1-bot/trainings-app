@@ -23,7 +23,7 @@ Vier Funktionen:
 | UI | **React + TypeScript** | Formulare, Listen und Zustände (laufendes Training) werden ohne Framework schnell unübersichtlich. TypeScript fängt Fehler im Datenmodell früh ab |
 | Speicher | **IndexedDB über Dexie** | Lokale Datenbank im Browser, hält deutlich mehr aus als `localStorage` und erlaubt Abfragen wie „letztes Training mit dieser Übung“ |
 | PWA | **vite-plugin-pwa** | Erzeugt Manifest und Service Worker, damit die App installierbar ist und offline läuft |
-| Styling | **Eigenes CSS mit CSS-Variablen** | Vier Seiten brauchen kein UI-Framework. Das Design (nur dunkel, Neongelb als Akzent, Schrift Archivo lokal) ist in `DESIGN.md` festgelegt |
+| Styling | **Eigenes CSS mit CSS-Variablen** | Vier Seiten brauchen kein UI-Framework. Das Design (Marineblau, Neongelb als Akzent, Schriften Unbounded und IBM Plex Sans lokal) ist in `DESIGN.md` festgelegt |
 | Diagramm | **Selbst gezeichnetes SVG** | Es gibt zwei einfache Liniendiagramme (Körpergewicht, Übungsfortschritt), die sich eine Komponente teilen. Eine Chart-Bibliothek wäre mehr Ballast als Nutzen |
 | Navigation | **Tab-Leiste mit Hash-Routen** (`#/training` usw.) | Kein Router-Paket nötig, funktioniert auf jedem statischen Hoster |
 | Sortieren | **Hoch/Runter-Buttons** | Auf dem Handy zuverlässiger als Drag-and-drop und ohne Zusatzbibliothek. Drag-and-drop kann später nachkommen |

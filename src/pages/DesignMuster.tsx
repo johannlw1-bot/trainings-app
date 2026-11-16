@@ -52,6 +52,21 @@ export default function DesignMuster() {
         </section>
 
         <section className="card">
+          <p className="label">Breitentest · längste Werte</p>
+          <p className="num num--xl">
+            142,5<span className="num__unit">kg</span>
+          </p>
+          <div className="card__row">
+            <p className="num num--l">
+              142,5<span className="num__unit">kg</span>
+            </p>
+            <p className="num num--l">
+              12<span className="num__unit">Wdh</span>
+            </p>
+          </div>
+        </section>
+
+        <section className="card">
           <p className="label">Karte mit Zahl L</p>
           <h2 className="heading">Bankdrücken</h2>
           <div className="card__row">
