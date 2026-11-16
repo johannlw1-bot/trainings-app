@@ -87,10 +87,25 @@ Entscheidungen dahinter:
 
 ## Seitenstruktur
 
-Tab-Leiste unten mit vier Tabs, mit dem Daumen erreichbar.
+So minimalistisch wie möglich: Die Tab-Leiste unten hat nur **zwei Tabs**, Training und Gewicht. Alles andere sind Unterseiten.
 
-### 1. Training (`#/training`) – Startseite
+| Seite | Adresse | Art | Erreichbar über |
+|---|---|---|---|
+| Training | `#/training` | Tab, Startseite | Tab-Leiste |
+| Gewicht | `#/gewicht` | Tab | Tab-Leiste |
+| Plan | `#/plan` | Unterseite | Button „Plan bearbeiten“ im Training-Tab |
+| Übungsdetail | `#/uebung/<id>` | Unterseite | Tippen auf eine Übung im Training-Tab |
+| Einstellungen | `#/einstellungen` | Unterseite | Zahnrad oben rechts auf beiden Tabs |
 
+Regeln für die Navigation:
+
+- **Tab-Seiten** zeigen die Tab-Leiste und oben rechts das Zahnrad
+- **Unterseiten** zeigen oben links einen Zurück-Pfeil und keine Tab-Leiste. Der Pfeil führt dorthin zurück, von wo die Seite geöffnet wurde. Wurde sie direkt aufgerufen, führt er zum Training-Tab
+- Die Seiten „Mehr“ und „Design-Muster“ gibt es nicht mehr
+
+### 1. Training (`#/training`) – Tab, Startseite
+
+- Oben ein kleiner Button „Plan bearbeiten“, der die Plan-Seite öffnet
 - Zeigt das Training des heutigen Wochentags (Oberkörper oder Unterkörper) mit Button „Training starten“
 - An Ruhetagen (Mi, Sa, So): Hinweis plus Auswahl Oberkörper/Unterkörper, falls ein Training nachgeholt wird
 - Im laufenden Training: Übungen in Planreihenfolge, pro Übung
@@ -99,17 +114,18 @@ Tab-Leiste unten mit vier Tabs, mit dem Daumen erreichbar.
   - „Satz hinzufügen“ und Satz löschen
 - Jede Eingabe wird sofort gespeichert. Ein geschlossener Browser kostet kein Training
 - „Training beenden“ schließt die Einheit ab
+- Tippen auf den Namen einer Übung öffnet ihre Detailseite mit dem Fortschrittsdiagramm
+- Ganz unten: Liste der vergangenen Trainings nach Datum, neueste zuerst, antippbar zum Ansehen und Korrigieren
 
-### 2. Plan (`#/plan`)
+### Plan (`#/plan`) – Unterseite
 
 - Umschalter mit zwei Listen: **Oberkörper** (Mo · Do) und **Unterkörper** (Di · Fr). Die Wochentage stehen als Untertitel dabei
 - Übungsliste: hinzufügen, umbenennen, Zielsätze festlegen, mit Hoch/Runter sortieren, entfernen
 - Entfernen nimmt die Übung aus der Liste und archiviert sie. Die geloggten Sätze bleiben
-- Tippen auf eine Übung öffnet ihre Detailseite mit dem Fortschrittsdiagramm
 
-### Übungsdetail (`#/uebung/<id>`)
+### Übungsdetail (`#/uebung/<id>`) – Unterseite
 
-Erreichbar aus dem Plan und aus dem laufenden Training, kein eigener Tab.
+Öffnet sich beim Tippen auf eine Übung im Training-Tab.
 
 - Diagramm: ein Punkt pro Training, verbunden als Linie
 - Umschalter für den angezeigten Wert:
@@ -118,7 +134,7 @@ Erreichbar aus dem Plan und aus dem laufenden Training, kein eigener Tab.
 - Zeitraum umschaltbar (3 Monate, 1 Jahr, alles)
 - Darunter die letzten Trainings dieser Übung mit allen Sätzen
 
-### 3. Gewicht (`#/gewicht`)
+### 2. Gewicht (`#/gewicht`) – Tab
 
 - Eingabefeld für heute, ein Tipp zum Speichern
 - Diagramm: Tageswerte als Punkte, 7-Tage-Durchschnitt als Linie
@@ -127,11 +143,12 @@ Erreichbar aus dem Plan und aus dem laufenden Training, kein eigener Tab.
 
 **7-Tage-Durchschnitt:** Mittelwert aller Einträge der letzten 7 Kalendertage einschließlich des jeweiligen Tages. Fehlende Tage werden ausgelassen, nicht mit 0 oder Schätzwerten gefüllt.
 
-### 4. Mehr (`#/mehr`)
+### Einstellungen (`#/einstellungen`) – Unterseite
 
-- Verlauf: vergangene Trainings nach Datum, antippbar zum Ansehen und Korrigieren
-- Backup: Export und Import
-- Archivierte Übungen
+Erreichbar über das Zahnrad oben rechts auf beiden Tabs.
+
+- Backup: Export und Import als JSON-Datei, mit Datum des letzten Backups
+- Archivierte Übungen ansehen und wiederherstellen
 
 ## Ordnerstruktur (geplant)
 
@@ -144,9 +161,10 @@ src/
     Training.tsx
     Plan.tsx
     Gewicht.tsx
-    Mehr.tsx
     ExerciseDetail.tsx Fortschrittsdiagramm einer Übung
-  components/          Satzzeile, Übungskarte, Liniendiagramm, Tab-Leiste
+    Einstellungen.tsx  Backup, archivierte Übungen
+  nav.ts               Zurück-Navigation der Unterseiten
+  components/          Seitenkopf, Satzzeile, Übungskarte, Liniendiagramm, Tab-Leiste
   lib/
     schedule.ts        Wochentag → Oberkörper/Unterkörper/Ruhetag
     average.ts         7-Tage-Durchschnitt
@@ -166,7 +184,7 @@ public/
 3. **Training loggen** – Einheit starten, Sätze eintragen, „letztes Mal“
 4. **Körpergewicht** – Eingabe, Liste, Diagramm mit Durchschnitt
 5. **Fortschritt pro Übung** – Detailseite, nutzt die Diagramm-Komponente aus Schritt 4
-6. **Verlauf und Backup**
+6. **Verlauf und Backup** – Liste der vergangenen Trainings im Training-Tab, Export und Import in den Einstellungen
 7. **PWA und Hosting** – Manifest, Icons, Service Worker, GitHub Action, Test in Safari auf dem iPhone
 
 Jeder Schritt ergibt eine benutzbare App. Tests gibt es für die Rechenlogik in `lib/` (Wochentag-Zuordnung, Durchschnitt, letztes Mal, Fortschritt, Backup), nicht für die Oberfläche.
@@ -185,6 +203,7 @@ Beantwortet am 16.11.2026:
 | Spätere Wünsche | Fortschrittsdiagramm pro Übung ist wichtig, der Rest kann warten | Als Funktion 4 und Bauschritt 5 aufgenommen |
 | Öffentliches Repository in Ordnung? | Ja | GitHub Pages im kostenlosen Tarif, Code öffentlich sichtbar, Daten nicht |
 | Wert im Fortschrittsdiagramm | Umschalter zwischen höchstem Gewicht und geschätztem 1RM | Übungsdetail-Seite bleibt wie beschrieben |
+| Wie viele Tabs? | Nur zwei: Training und Gewicht. Plan, Übungsdetail und Einstellungen sind Unterseiten mit Zurück-Pfeil | Abschnitt „Seitenstruktur“ neu gefasst, „Mehr“ und „Design-Muster“ entfernt |
 
 ## Zurückgestellt
 

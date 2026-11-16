@@ -1,46 +1,56 @@
 import { useEffect, useState, type ComponentType } from 'react';
 import TabBar from './components/TabBar';
+import { noteNavigation } from './nav';
 import { DEFAULT_TAB, type TabId } from './tabs';
 import Training from './pages/Training';
-import Plan from './pages/Plan';
 import Gewicht from './pages/Gewicht';
-import Mehr from './pages/Mehr';
-import DesignMuster from './pages/DesignMuster';
+import Plan from './pages/Plan';
+import ExerciseDetail from './pages/ExerciseDetail';
+import Einstellungen from './pages/Einstellungen';
 
-/** Jede Route gehört zu einem Tab, der in der Tab-Leiste hervorgehoben wird. */
-const ROUTES: Record<string, { page: ComponentType; tab: TabId }> = {
+export interface PageProps {
+  /** Zweiter Teil der Adresse, z. B. die Übungs-ID in #/uebung/12 */
+  param?: string;
+}
+
+/**
+ * Tab-Seiten haben `tab` gesetzt und zeigen die Tab-Leiste.
+ * Unterseiten haben keinen Tab: Sie zeigen oben einen Zurück-Pfeil und keine Tab-Leiste.
+ */
+const ROUTES: Record<string, { page: ComponentType<PageProps>; tab?: TabId }> = {
   training: { page: Training, tab: 'training' },
-  plan: { page: Plan, tab: 'plan' },
   gewicht: { page: Gewicht, tab: 'gewicht' },
-  mehr: { page: Mehr, tab: 'mehr' },
-  design: { page: DesignMuster, tab: 'mehr' },
+  plan: { page: Plan },
+  uebung: { page: ExerciseDetail },
+  einstellungen: { page: Einstellungen },
 };
 
-function routeFromHash(hash: string): string {
-  const id = hash.replace(/^#\/?/, '').split('/')[0];
-  return id in ROUTES ? id : DEFAULT_TAB;
+function parseHash(hash: string): { route: string; param?: string } {
+  const [route, param] = hash.replace(/^#\/?/, '').split('/');
+  return route in ROUTES ? { route, param } : { route: DEFAULT_TAB };
 }
 
 export default function App() {
-  const [route, setRoute] = useState(() => routeFromHash(window.location.hash));
+  const [location, setLocation] = useState(() => parseHash(window.location.hash));
 
   useEffect(() => {
     const onHashChange = () => {
-      setRoute(routeFromHash(window.location.hash));
+      noteNavigation();
+      setLocation(parseHash(window.location.hash));
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  const { page: Page, tab } = ROUTES[route];
+  const { page: Page, tab } = ROUTES[location.route];
 
   return (
     <div className="app">
-      <main className="page">
-        <Page />
+      <main className={tab ? 'page' : 'page page--sub'}>
+        <Page param={location.param} />
       </main>
-      <TabBar active={tab} />
+      {tab && <TabBar active={tab} />}
     </div>
   );
 }

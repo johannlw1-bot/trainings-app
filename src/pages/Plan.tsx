@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SubpageHeader } from '../components/PageHeader';
 import type { Split } from '../db';
 
 const LISTS: { split: Split; label: string; days: string }[] = [
@@ -12,10 +13,7 @@ export default function Plan() {
 
   return (
     <>
-      <header className="page-header">
-        <p className="label">Zwei Listen, vier Tage</p>
-        <h1 className="title">Plan</h1>
-      </header>
+      <SubpageHeader label="Zwei Listen, vier Tage" title="Plan" />
 
       <div className="stack">
         <div className="segmented" role="group" aria-label="Liste wählen">

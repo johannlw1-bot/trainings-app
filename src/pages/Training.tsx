@@ -1,3 +1,5 @@
+import { PageHeader } from '../components/PageHeader';
+
 const dateFormat = new Intl.DateTimeFormat('de', {
   weekday: 'long',
   day: 'numeric',
@@ -7,19 +9,28 @@ const dateFormat = new Intl.DateTimeFormat('de', {
 export default function Training() {
   return (
     <>
-      <header className="page-header">
-        <p className="label">{dateFormat.format(new Date())}</p>
-        <h1 className="title">Training</h1>
-      </header>
+      <PageHeader label={dateFormat.format(new Date())} title="Training" />
 
-      <section className="card">
-        <h2 className="heading">Noch keine Übungen</h2>
-        <p className="muted">
-          Lege zuerst im Plan fest, welche Übungen zu Oberkörper und Unterkörper gehören.
-        </p>
-        <a className="btn btn--primary btn--block" href="#/plan">
-          Zum Plan
-        </a>
+      <div className="stack">
+        <div>
+          <a className="btn btn--small" href="#/plan">
+            Plan bearbeiten
+          </a>
+        </div>
+
+        <section className="card">
+          <h2 className="heading">Noch keine Übungen</h2>
+          <p className="muted">
+            Lege zuerst im Plan fest, welche Übungen zu Oberkörper und Unterkörper gehören.
+          </p>
+        </section>
+      </div>
+
+      <section className="section">
+        <h2 className="label">Vergangene Trainings</h2>
+        <div className="card">
+          <p className="muted">Noch keine Trainings.</p>
+        </div>
       </section>
     </>
   );

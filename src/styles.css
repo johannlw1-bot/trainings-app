@@ -135,8 +135,64 @@ button {
   gap: var(--space-4);
 }
 
+/* Unterseiten haben keine Tab-Leiste, unten reicht der normale Abstand. */
+.page--sub {
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--space-6));
+}
+
 .page-header {
   margin-bottom: var(--space-5);
+}
+
+/* Tab-Seiten: Titel links, Zahnrad rechts */
+.page-header--row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* Unterseiten: Zurück-Pfeil über dem Titel */
+.page-header__text {
+  margin-top: var(--space-4);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+/* ---------- Runder Icon-Button (Zahnrad, Zurück-Pfeil) ---------- */
+
+.icon-btn {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tippfläche größer als der sichtbare Kreis */
+.icon-btn::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.icon-btn__icon {
+  width: 22px;
+  height: 22px;
 }
 
 /* ---------- Text ---------- */
@@ -316,6 +372,13 @@ button {
   width: 100%;
 }
 
+/* Kleiner Button für Nebenwege wie „Plan bearbeiten“ */
+.btn--small {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  font-size: 0.8125rem;
+}
+
 .btn:disabled {
   background: var(--surface-2);
   color: var(--text-faint);
@@ -454,7 +517,7 @@ button {
   z-index: 10;
   display: flex;
   gap: var(--space-1);
-  width: min(calc(100% - 2 * var(--space-4)), 448px);
+  width: min(calc(100% - 2 * var(--space-4)), 320px);
   height: var(--tabbar-height);
   padding: var(--space-2);
   background: var(--tabbar-bg);
@@ -479,23 +542,14 @@ button {
 }
 
 .tabbar__tab[aria-current='page'] {
-  flex: 2.3;
   background: var(--accent);
   color: var(--on-accent);
 }
 
 .tabbar__icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   flex: none;
-}
-
-.tabbar__label {
-  display: none;
-}
-
-.tabbar__tab[aria-current='page'] .tabbar__label {
-  display: inline;
 }
 
 @media (prefers-reduced-motion: reduce) {

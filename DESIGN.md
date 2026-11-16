@@ -1,6 +1,8 @@
 # Design
 
-Verbindlich für jede Seite und jede neue Komponente. Die Werte stehen als CSS-Variablen in `src/styles.css`. Dort werden sie geändert, nirgends sonst. Eine Musterseite mit allen Bausteinen liegt in der App unter **Mehr → Design-Muster** (`#/design`).
+Verbindlich für jede Seite und jede neue Komponente. Die Werte stehen als CSS-Variablen in `src/styles.css`. Dort werden sie geändert, nirgends sonst.
+
+Die App ist so minimalistisch wie möglich: zwei Tabs, wenige Bausteine, pro Bildschirm eine Aufgabe. Was nicht gebraucht wird, kommt nicht auf den Bildschirm.
 
 ## Leitidee
 
@@ -96,7 +98,7 @@ Unbounded ist sehr breit: Eine Ziffer braucht etwa 0,75 em, das Komma 0,3 em. Da
 - **Höchstens zwei L-Zahlen nebeneinander**, höchstens drei M-Zahlen. XL steht immer allein in der Zeile
 - **Zahlen umbrechen nie** (`white-space: nowrap`). Reicht der Platz nicht, wird die nächstkleinere Stufe genommen, nicht die Schrift von Hand verkleinert
 - **Nur die Nachkommastellen zeigen, die es braucht:** „80“ statt „80,0“, höchstens eine Nachkommastelle beim Körpergewicht, höchstens zwei bei Hantelgewichten („82,25“)
-- Der Breitentest auf der Musterseite zeigt die längsten Werte. Wer Zahlengrößen ändert, prüft ihn in 390 px und 320 px
+- Wer Zahlengrößen ändert oder Zahlen neu anordnet, prüft die längsten Werte („142,5 kg“, „12 Wdh“) in 390 px und 320 px Breite
 
 Weitere Regeln:
 
@@ -120,7 +122,7 @@ Alles liegt auf einem 4-px-Raster.
 | `--space-7` | 48 px | Großer Freiraum, selten |
 
 - Inhalt ist höchstens 480 px breit und zentriert
-- Tippflächen sind mindestens 52 px hoch (`--tap`)
+- Buttons und Listenzeilen sind mindestens 52 px hoch (`--tap`). Kleine Buttons und Icon-Buttons sind 44 px groß, nie kleiner
 - Oben, unten und seitlich gelten zusätzlich die Safe-Area-Abstände des iPhones
 - Der Seiteninhalt endet über der Tab-Leiste, nichts liegt dauerhaft dahinter
 
@@ -138,14 +140,39 @@ Eckige Elemente gibt es nicht. Ein Element in einer Karte ist immer weniger star
 
 ### Seitenkopf
 
-Kleine Beschriftung, darunter der Seitentitel. Jede Seite beginnt so.
+Es gibt zwei Arten von Seiten, und jede hat ihren eigenen Kopf. Beide kommen aus `src/components/PageHeader.tsx`.
+
+**Tab-Seiten** (Training, Gewicht) – `<PageHeader>`: links kleine Beschriftung und Seitentitel, rechts oben das Zahnrad zu den Einstellungen. Unten schwebt die Tab-Leiste.
+
+**Unterseiten** (Plan, Übungsdetail, Einstellungen) – `<SubpageHeader>`: oben links der Zurück-Pfeil, darunter Beschriftung und Seitentitel. Keine Tab-Leiste, kein Zahnrad.
 
 ```html
+<!-- Tab-Seite -->
+<header class="page-header page-header--row">
+  <div>
+    <p class="label">Montag, 16. November</p>
+    <h1 class="title">Training</h1>
+  </div>
+  <a class="icon-btn" href="#/einstellungen" aria-label="Einstellungen">…</a>
+</header>
+
+<!-- Unterseite -->
 <header class="page-header">
-  <p class="label">Montag, 16. November</p>
-  <h1 class="title">Training</h1>
+  <button class="icon-btn" aria-label="Zurück">…</button>
+  <div class="page-header__text">
+    <p class="label">Zwei Listen, vier Tage</p>
+    <h1 class="title">Plan</h1>
+  </div>
 </header>
 ```
+
+### Icon-Button
+
+`.icon-btn`: runder Kreis mit 44 px Durchmesser in Kartenfarbe, Icon 22 px in gedämpfter Farbe. Die Tippfläche ist rundum 6 px größer als der sichtbare Kreis. Es gibt genau zwei: Zahnrad (oben rechts auf Tab-Seiten) und Zurück-Pfeil (oben links auf Unterseiten). Jeder Icon-Button hat ein `aria-label`.
+
+### Abschnitt
+
+`.section`: kleine Beschriftung (`.label`) als Überschrift, darunter eine Karte. Für nachgeordnete Inhalte am Seitenende, zum Beispiel „Vergangene Trainings“. 32 px Abstand nach oben.
 
 ### Karte
 
@@ -195,6 +222,8 @@ Immer pillenförmig, mindestens 52 px hoch, Text in normaler Schreibweise.
 | `.btn--ghost` | Nur gedämpfte Schrift | Abbrechen, Zurück |
 | `.btn--danger` | Nur rote Schrift | Löschen, immer mit Rückfrage |
 
+`.btn--small` (44 px hoch, 13 px Schrift) ist für Nebenwege, die nicht zur Aufgabe des Bildschirms gehören, zum Beispiel „Plan bearbeiten“ im Training-Tab. Nie in Gelb.
+
 `.btn--block` macht den Button so breit wie die Karte. Der Hauptbutton steht im unteren Bereich, mit dem Daumen erreichbar. Beschriftungen sind kurz, höchstens zwei Wörter, weil die Schrift breit läuft.
 
 ### Umschalter
@@ -207,11 +236,11 @@ Zwei oder drei Pillen in einer gemeinsamen Hülle (`.segmented`), zum Beispiel O
 
 ### Tab-Leiste
 
-Schwebt als Pille über dem Inhalt: 16 px Abstand zu den Seiten, 64 px hoch, blau (`--tabbar-bg`) mit Schatten nach unten. Der aktive Tab ist eine neongelbe Pille mit Icon und Beschriftung, die anderen drei zeigen nur ihr Icon.
+Schwebt als kompakte Pille mittig über dem Inhalt: höchstens 320 px breit, 64 px hoch, blau (`--tabbar-bg`) mit Schatten nach unten. Sie hat genau **zwei Tabs**, Training und Gewicht, jeweils mit Icon und Beschriftung. Der aktive Tab ist eine neongelbe Pille, der andere gedämpft. Weitere Tabs kommen nicht dazu: Neue Bereiche werden Unterseiten. Auf Unterseiten ist die Tab-Leiste ausgeblendet.
 
 ### Icons
 
-Selbst gezeichnete Linien-Icons als SVG: 24 px, Strichstärke 2,25, runde Enden, Farbe über `currentColor`. Keine Emojis, keine Icon-Schrift, keine gefüllten Icons.
+Linien-Icons als SVG direkt im Code: Strichstärke 2 bis 2,25, runde Enden, Farbe über `currentColor`. Das Zahnrad stammt aus Feather Icons (MIT-Lizenz), die übrigen sind selbst gezeichnet. Keine Emojis, keine Icon-Schrift, keine gefüllten Icons, keine Icons von fremden Servern.
 
 ## Diagramme
 
@@ -240,4 +269,5 @@ Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animation
 - Genau ein Blickfang pro Bildschirm
 - Höchstens ein gelber Button und eine gelbe Zahl
 - Alle Farben, Abstände und Rundungen kommen aus den Variablen, keine frei gewählten Werte
-- Tippflächen mindestens 52 px, Eingabefelder mindestens 16 px Schrift
+- Tippflächen mindestens 44 px, Buttons 52 px, Eingabefelder mindestens 16 px Schrift
+- Tab-Seite mit Zahnrad und Tab-Leiste, Unterseite mit Zurück-Pfeil und ohne Tab-Leiste

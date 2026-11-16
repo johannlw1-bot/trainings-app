@@ -1,10 +1,9 @@
+import { PageHeader } from '../components/PageHeader';
+
 export default function Gewicht() {
   return (
     <>
-      <header className="page-header">
-        <p className="label">Körpergewicht</p>
-        <h1 className="title">Gewicht</h1>
-      </header>
+      <PageHeader label="Körpergewicht" title="Gewicht" />
 
       <section className="card">
         <h2 className="heading">Noch kein Eintrag</h2>
