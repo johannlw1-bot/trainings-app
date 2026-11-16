@@ -234,6 +234,26 @@ Zwei oder drei Pillen in einer gemeinsamen Hülle (`.segmented`), zum Beispiel O
 
 `.field__input`: 64 px hoch, mittelblaue Fläche, die Zahl groß, fett und zentriert in Unbounded. Beim Antippen erscheint ein gelber Rahmen. Für Zahlen immer `inputmode="decimal"` oder `"numeric"`. Zwei Felder nebeneinander (Gewicht und Wiederholungen) müssen „142,5“ vollständig zeigen.
 
+### Textfeld
+
+`.field__input.field__input--text`: für Namen. 52 px hoch, mittelblaue Fläche, IBM Plex Sans 17 px, linksbündig. Gelber Rahmen beim Antippen wie beim Zahlenfeld. Fehlermeldungen stehen als `.error` (rote Schrift, 14 px) direkt unter dem Feld.
+
+### Zähler
+
+`.stepper` (Komponente `Stepper`): links die Beschriftung, rechts Minus-Button, Zahl in Größe M und Plus-Button. Für kleine ganze Zahlen wie Zielsätze und Zielwiederholungen, weil das mit dem Daumen schneller geht als die Tastatur. Am Rand des Wertebereichs ist der jeweilige Button ausgegraut.
+
+### Zeilenliste
+
+`.rows` mit `.row`: Liste in einer Karte, Zeilen mindestens 64 px hoch, getrennt durch eine feine Linie (`--line`). Links der Name (`.row__name`, IBM Plex Sans 17 px, Gewicht 600, bricht bei langen Namen um), darunter bei Bedarf eine gedämpfte Zusatzzeile. Rechts entweder eine Zahl in Größe M oder bis zu zwei Icon-Buttons.
+
+- Icon-Buttons auf einer Karte bekommen `.icon-btn--on-card` (mittelblaue Fläche), sonst verschwinden sie im Kartenhintergrund
+- Zum Sortieren dienen ein Hoch- und ein Runter-Pfeil pro Zeile, kein Ziehen
+- Lässt sich eine Zeile bearbeiten, klappt der Bereich `.row__editor` direkt unter ihr auf. Es ist immer höchstens eine Zeile aufgeklappt
+
+### Auswahl-Pillen
+
+`.chips`: kleine Buttons (`.btn--small`) in IBM Plex Sans, die umbrechen dürfen. Für eine Auswahl aus vorhandenen Einträgen, zum Beispiel „Vorhandene Übung übernehmen“.
+
 ### Tab-Leiste
 
 Schwebt als kompakte Pille mittig über dem Inhalt: höchstens 320 px breit, 64 px hoch, blau (`--tabbar-bg`) mit Schatten nach unten. Sie hat genau **zwei Tabs**, Training und Gewicht, jeweils mit Icon und Beschriftung. Der aktive Tab ist eine neongelbe Pille, der andere gedämpft. Weitere Tabs kommen nicht dazu: Neue Bereiche werden Unterseiten. Auf Unterseiten ist die Tab-Leiste ausgeblendet.

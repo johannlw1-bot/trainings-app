@@ -60,7 +60,7 @@ Lokale Daten sind weg, wenn der Browser-Speicher gelöscht wird oder das Handy v
 
 ```
 exercises      id, name, note?, archived
-planEntries    id, split (upper|lower), exerciseId, order, targetSets
+planEntries    id, split (upper|lower), exerciseId, order, targetSets, targetReps
 workouts       id, date (YYYY-MM-DD), split (upper|lower), startedAt, finishedAt?
 sets           id, workoutId, exerciseId, setNumber, weightKg, reps
 bodyWeights    date (YYYY-MM-DD, eindeutig), weightKg
@@ -120,8 +120,12 @@ Regeln für die Navigation:
 ### Plan (`#/plan`) – Unterseite
 
 - Umschalter mit zwei Listen: **Oberkörper** (Mo · Do) und **Unterkörper** (Di · Fr). Die Wochentage stehen als Untertitel dabei
-- Übungsliste: hinzufügen, umbenennen, Zielsätze festlegen, mit Hoch/Runter sortieren, entfernen
-- Entfernen nimmt die Übung aus der Liste und archiviert sie. Die geloggten Sätze bleiben
+- Übung hinzufügen: Name, Zielsätze und Zielwiederholungen. Eine vorhandene Übung (aus der anderen Liste oder archiviert) lässt sich per Antippen übernehmen. Gleiche Namen werden nicht doppelt angelegt
+- Tippen auf eine Zeile klappt die Bearbeitung auf: umbenennen, Zielsätze und Zielwiederholungen ändern
+- Sortieren mit Hoch- und Runter-Pfeil pro Zeile
+- Umbenennen gilt für die Übung überall, also in beiden Listen. Ziele und Reihenfolge gelten je Liste
+- „Archivieren“ nimmt die Übung aus der Liste und archiviert sie. Steht sie auch in der anderen Liste, heißt der Button „Aus Liste nehmen“ und die Übung bleibt dort aktiv. Gelöscht wird nie, die geloggten Sätze bleiben
+- Jede Änderung wird sofort gespeichert, es gibt keinen Speichern-Button
 
 ### Übungsdetail (`#/uebung/<id>`) – Unterseite
 
@@ -179,8 +183,8 @@ public/
 
 ## Reihenfolge beim Bauen
 
-1. **Grundgerüst** – Vite-Projekt, Tab-Leiste, leere Seiten, Datenbank-Schema
-2. **Plan** – zwei Listen, Übungen anlegen, bearbeiten, sortieren
+1. **Grundgerüst** – Vite-Projekt, Tab-Leiste, leere Seiten, Datenbank-Schema (erledigt)
+2. **Plan** – zwei Listen, Übungen anlegen, bearbeiten, sortieren, archivieren. Der Training-Tab zeigt die Liste des heutigen Tages oder den Ruhetag (erledigt)
 3. **Training loggen** – Einheit starten, Sätze eintragen, „letztes Mal“
 4. **Körpergewicht** – Eingabe, Liste, Diagramm mit Durchschnitt
 5. **Fortschritt pro Übung** – Detailseite, nutzt die Diagramm-Komponente aus Schritt 4

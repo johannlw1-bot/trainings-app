@@ -21,6 +21,7 @@ export interface PlanEntry {
   exerciseId: number;
   order: number;
   targetSets: number;
+  targetReps: number;
 }
 
 export interface Workout {

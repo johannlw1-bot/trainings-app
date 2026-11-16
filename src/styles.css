@@ -195,6 +195,119 @@ button {
   height: 22px;
 }
 
+/* Auf einer Karte braucht der Kreis eine hellere Fläche, sonst verschwindet er. */
+.icon-btn--on-card {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.icon-btn:disabled {
+  color: var(--text-faint);
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ---------- Zeilenliste in einer Karte ---------- */
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rows > li + li {
+  border-top: 1px solid var(--line);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 64px;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Zwei Icon-Buttons nebeneinander: Tippflächen dürfen sich nicht überlappen. */
+.row .icon-btn::after {
+  inset: -4px;
+}
+
+.row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--space-3) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.row__name {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.row__editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-1) 0 var(--space-4);
+}
+
+/* ---------- Zähler mit Minus und Plus ---------- */
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.stepper__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.stepper__value {
+  min-width: 2.6em;
+  justify-content: center;
+}
+
+/* ---------- Auswahl-Pillen ---------- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chips .btn {
+  max-width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.875rem;
+}
+
 /* ---------- Text ---------- */
 
 .title {
@@ -205,6 +318,8 @@ button {
   line-height: 1.1;
   letter-spacing: -0.02em;
   overflow-wrap: anywhere;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }
 
 .heading {
@@ -454,6 +569,17 @@ button {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
   text-align: center;
+}
+
+/* Textfeld für Namen: Fließtextschrift, linksbündig */
+.field__input--text {
+  min-height: var(--tap);
+  padding: 0 var(--space-4);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-align: left;
 }
 
 .field__input::placeholder {
