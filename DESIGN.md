@@ -224,7 +224,7 @@ Immer pillenförmig, mindestens 52 px hoch, Text in normaler Schreibweise.
 
 `.btn--small` (44 px hoch, 13 px Schrift) ist für Nebenwege, die nicht zur Aufgabe des Bildschirms gehören, zum Beispiel „Plan bearbeiten“ im Training-Tab. Nie in Gelb.
 
-`.btn--block` macht den Button so breit wie die Karte. Der Hauptbutton steht im unteren Bereich, mit dem Daumen erreichbar. Beschriftungen sind kurz, höchstens zwei Wörter, weil die Schrift breit läuft.
+`.btn--block` macht den Button so breit wie die Karte. Der Hauptbutton steht im unteren Bereich, mit dem Daumen erreichbar. Ausnahme: Steht darunter eine lange Liste, kommt er darüber, damit er ohne Scrollen erreichbar ist (z. B. „Training starten“). Beschriftungen sind kurz, höchstens zwei Wörter, weil die Schrift breit läuft.
 
 ### Umschalter
 
@@ -264,7 +264,16 @@ Zwei oder drei Pillen in einer gemeinsamen Hülle (`.segmented`), zum Beispiel O
 - Gewicht mit `inputmode="decimal"`, Wiederholungen mit `inputmode="numeric"`, Felder 64 px hoch
 - Der eingetragene Haken ist **hell** (`--text`), nicht gelb: Auf einem Bildschirm stehen viele davon, Gelb bleibt „Training beenden“ vorbehalten
 - Unter den Zeilen stehen „− Satz“ (entfernt die letzte Zeile) und „+ Satz“
+- **Aufwärmsätze** (`.set-row--warmup`) stehen vor den Arbeitssätzen und sind dreifach markiert: Zwischenüberschrift „Aufwärmen“, ein „A“ statt der Satznummer, und Felder, die nur umrandet statt gefüllt sind. Darunter folgt die Zwischenüberschrift „Arbeitssätze“
 - Die Felder müssen „142,5“ bei 375 px Breite vollständig zeigen. Darunter schrumpft die Schrift mit
+
+### Hinweis
+
+`.hint`: kleine Pille in `--surface-2` mit Pfeil-Icon und heller Schrift (13 px, Gewicht 600), linksbündig unter der Zeile „Letztes Mal“. Für dezente Empfehlungen wie „Gewicht erhöhen“. Bewusst nicht gelb: Der Hinweis ist ein Rat, keine Aktion, und er kann bei mehreren Übungen gleichzeitig stehen.
+
+### Löschen mit Nachfrage
+
+Löschen fragt immer nach, und zwar an Ort und Stelle: Der aufgeklappte Bereich der Zeile zeigt statt der Felder einen Satz, der genau sagt, was passiert, darunter „Abbrechen“ (`.btn--ghost`) und „Ja, löschen“ (`.btn--danger`). Kein Systemdialog, kein Overlay.
 
 ### Tab-Leiste
 

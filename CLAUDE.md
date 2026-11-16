@@ -12,8 +12,9 @@ Persönliche Trainings-App als PWA fürs Handy. Ein Nutzer, kein Login, kein Bac
 - **Zielgerät: iPhone, Safari.** Die App wird über „Zum Home-Bildschirm“ installiert. Testziel ist Safari auf dem iPhone, ein Desktop-Browser allein reicht nicht als Nachweis. Eingabefelder (`input`, `select`, `textarea`) haben mindestens 16 px Schriftgröße, sonst zoomt Safari beim Antippen ins Feld.
 - **Daten bleiben lokal.** Speicherung ausschließlich in IndexedDB (Dexie). Keine Netzwerkanfragen mit Nutzerdaten, kein Analytics, keine Schriften oder Skripte von fremden Servern, keine Cloud-Dienste.
 - **Öffentliches Repository.** Der Code liegt öffentlich auf GitHub (GitHub Pages). Keine persönlichen Daten, Backups oder Export-Dateien einchecken. Der Ordner `design-referenz/` enthält fremde Designs und bleibt in der `.gitignore`.
+- **Aufwärmsätze zählen nicht mit.** Sätze mit `warmup: true` bleiben bei „Letztes Mal“, beim Hinweis „Gewicht erhöhen“, bei Satzanzahlen und im Fortschrittsdiagramm außen vor. Jede neue Auswertung muss sie herausfiltern.
 - **Offline-fähig.** Die App muss nach der Installation ohne Internet vollständig funktionieren.
-- **Nichts geht verloren.** Eingaben sofort speichern, nicht erst beim Abschließen. Übungen archivieren statt löschen. Änderungen am Datenbank-Schema nur über eine Dexie-Versionsmigration, die bestehende Daten erhält. Export und Import müssen nach jeder Schemaänderung weiter funktionieren.
+- **Nichts geht verloren.** Eingaben sofort speichern, nicht erst beim Abschließen. Eingetragene Sätze werden nie mitgelöscht: Eine schon trainierte Übung verschwindet beim Löschen nur aus dem Plan (`archived`), nur nie trainierte Übungen werden ganz entfernt. Änderungen am Datenbank-Schema nur über eine Dexie-Versionsmigration, die bestehende Daten umwandelt und erhält. Das Leeren der Test-Daten in Version 2 war eine einmalige, abgesprochene Ausnahme und kein Vorbild. Der feste Plan in `src/lib/seed.ts` wird nur eingetragen, wenn es noch keine Übungen gibt. Export und Import müssen nach jeder Schemaänderung weiter funktionieren.
 
 ## Tech-Stack
 

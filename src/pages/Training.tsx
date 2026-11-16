@@ -3,6 +3,7 @@ import ActiveWorkout from '../components/ActiveWorkout';
 import { PageHeader } from '../components/PageHeader';
 import type { Split, Workout } from '../db';
 import { formatShortDate, toLocalDate } from '../lib/dates';
+import { formatReps } from '../lib/plan';
 import { loadPlan, type PlanItem } from '../lib/planDb';
 import { SPLITS, nextTraining, splitForDate, splitLabel } from '../lib/schedule';
 import {
@@ -35,14 +36,19 @@ function PlanList({ items }: { items: PlanItem[] }) {
           <a className="row" href={`#/uebung/${exercise.id}`}>
             <span className="row__main">
               <span className="row__name">{exercise.name}</span>
+              {entry.warmupSets > 0 && (
+                <span className="muted small">
+                  {entry.warmupSets === 1 ? '1 Aufwärmsatz' : `${entry.warmupSets} Aufwärmsätze`}
+                </span>
+              )}
             </span>
             <span
               className="num num--m"
-              aria-label={`${entry.targetSets} Sätze mal ${entry.targetReps} Wiederholungen`}
+              aria-label={`${entry.targetSets} Sätze mit ${entry.targetRepsMin} bis ${entry.targetRepsMax} Wiederholungen`}
             >
               {entry.targetSets}
               <span className="num__unit">×</span>
-              {entry.targetReps}
+              {formatReps(entry.targetRepsMin, entry.targetRepsMax)}
             </span>
           </a>
         </li>
@@ -136,10 +142,11 @@ export default function Training() {
                 </p>
               ) : (
                 <>
-                  <PlanList items={data.plans[split]} />
+                  {/* Über der Liste, damit der Button ohne Scrollen erreichbar ist. */}
                   <button type="button" className="btn btn--primary btn--block" onClick={() => start(split)}>
                     Training starten
                   </button>
+                  <PlanList items={data.plans[split]} />
                 </>
               )}
             </section>

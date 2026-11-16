@@ -60,9 +60,9 @@ Lokale Daten sind weg, wenn der Browser-Speicher gelöscht wird oder das Handy v
 
 ```
 exercises      id, name, note?, archived
-planEntries    id, split (upper|lower), exerciseId, order, targetSets, targetReps
+planEntries    id, split (upper|lower), exerciseId, order, warmupSets, targetSets, targetRepsMin, targetRepsMax
 workouts       id, date (YYYY-MM-DD), split (upper|lower), startedAt, finishedAt?
-sets           id, workoutId, exerciseId, setNumber, weightKg, reps
+sets           id, workoutId, exerciseId, warmup, setNumber, weightKg, reps
 bodyWeights    date (YYYY-MM-DD, eindeutig), weightKg
 ```
 
@@ -80,7 +80,10 @@ Entscheidungen dahinter:
 - **„Letztes Mal“ kommt vom vorigen Training derselben Liste.** Am Donnerstag stehen die Werte vom Montag da, am Montag die vom Donnerstag davor.
 - **Ein Training speichert Datum und Liste, nicht den Wochentag.** Wird ein Training an einem anderen Tag nachgeholt, bleibt alles stimmig.
 - **Übung und Plan sind getrennt.** Die Übung selbst (Name, Notiz) liegt in `exercises`, ihre Position in der Liste in `planEntries`. Wird sie aus dem Plan entfernt, bleiben ihre geloggten Sätze und ihr Fortschrittsdiagramm erhalten.
-- **Übungen werden archiviert statt gelöscht**, damit alte Trainings lesbar bleiben.
+- **Löschen lässt den Verlauf stehen.** Eine nie trainierte Übung wird beim Löschen vollständig entfernt. Eine schon trainierte verschwindet aus dem Plan (`archived`), die Übung selbst und ihre Sätze bleiben für den Verlauf erhalten.
+- **Wiederholungen als Bereich.** Jede Übung hat ein unteres und ein oberes Ziel (z. B. 8–12), Grundlage für die doppelte Progression.
+- **Aufwärmsätze sind eigene Sätze** mit `warmup: true`, getrennt nummeriert. Sie zählen nicht für „Letztes Mal“, nicht für den Hinweis „Gewicht erhöhen“, nicht für die Satzanzahl im Verlauf und nicht für das Fortschrittsdiagramm.
+- **Der feste Plan wird vorab eingetragen** (`src/lib/seed.ts`), aber nur, wenn es noch gar keine Übungen gibt. Spätere Änderungen werden so nie überschrieben.
 - **Sollte später doch ein A/B-Split gewünscht sein**, reicht ein weiterer Wert für `split` und eine angepasste Wochentag-Zuordnung. Bestehende Daten bleiben gültig.
 - **Gewichte in kg**, Eingabe mit Komma oder Punkt.
 - **Ein Körpergewicht pro Tag.** Ein zweiter Eintrag am selben Tag überschreibt den ersten.
@@ -113,7 +116,10 @@ Regeln für die Navigation:
   - Satzzeilen mit Gewicht und Wiederholungen. Die Werte vom letzten Mal stehen als grauer Vorschlag in den Feldern
   - Ein Tipp auf den Haken trägt den Vorschlag ein, Tippen in ein Feld überschreibt ihn. Nur eingetragene Sätze werden gespeichert, offene Vorschläge verfallen beim Beenden
   - Wird heute ein anderes Gewicht eingetragen als letztes Mal, gilt es als Vorschlag für die folgenden Sätze
-  - So viele Zeilen wie Zielsätze im Plan, oder mehr, wenn es letztes Mal mehr waren
+  - So viele Zeilen wie Arbeitssätze im Plan, oder mehr, wenn es letztes Mal mehr waren
+  - Aufwärmsätze stehen vor den Arbeitssätzen unter der Überschrift „Aufwärmen“, mit „A“ statt Satznummer und umrandeten statt gefüllten Feldern
+  - Über den Sätzen steht das Ziel, z. B. „Ziel: 3 × 8–12“
+  - **Hinweis „Gewicht erhöhen“** (doppelte Progression): Er erscheint, wenn letztes Mal alle geplanten Arbeitssätze das obere Ende des Bereichs erreicht haben, und verschwindet, sobald heute ein schwererer Satz eingetragen ist. Erreichen die heutigen Arbeitssätze alle das obere Ende, steht dort „Nächstes Mal Gewicht erhöhen“
   - „+ Satz“ fügt eine Zeile an, „− Satz“ entfernt die letzte
 - „Letztes Mal“ ist das jüngste beendete Training, in dem die Übung vorkam, egal in welcher Liste
 - Jede Eingabe wird sofort gespeichert. Ein geschlossener Browser kostet kein Training: Das laufende Training ist beim nächsten Öffnen wieder da, auch an einem anderen Tag
@@ -125,11 +131,15 @@ Regeln für die Navigation:
 ### Plan (`#/plan`) – Unterseite
 
 - Umschalter mit zwei Listen: **Oberkörper** (Mo · Do) und **Unterkörper** (Di · Fr). Die Wochentage stehen als Untertitel dabei
-- Übung hinzufügen: Name, Zielsätze und Zielwiederholungen. Eine vorhandene Übung (aus der anderen Liste oder archiviert) lässt sich per Antippen übernehmen. Gleiche Namen werden nicht doppelt angelegt
-- Tippen auf eine Zeile klappt die Bearbeitung auf: umbenennen, Zielsätze und Zielwiederholungen ändern
+- Übung hinzufügen: Name, Aufwärmsätze (0 bis 3), Arbeitssätze und Wiederholungen von/bis. Eine Übung der anderen Liste lässt sich per Antippen übernehmen. Gleiche Namen werden nicht doppelt angelegt
+- Tippen auf eine Zeile klappt die Bearbeitung auf: umbenennen, Aufwärmsätze, Arbeitssätze und Wiederholungsbereich ändern
 - Sortieren mit Hoch- und Runter-Pfeil pro Zeile
 - Umbenennen gilt für die Übung überall, also in beiden Listen. Ziele und Reihenfolge gelten je Liste
-- „Archivieren“ nimmt die Übung aus der Liste und archiviert sie. Steht sie auch in der anderen Liste, heißt der Button „Aus Liste nehmen“ und die Übung bleibt dort aktiv. Gelöscht wird nie, die geloggten Sätze bleiben
+- „Löschen“ fragt immer nach. Was dann passiert, sagt die Nachfrage:
+  - Nie trainiert: Die Übung wird vollständig gelöscht
+  - Schon trainiert: Sie verschwindet aus dem Plan, die eingetragenen Sätze bleiben im Verlauf
+  - Steht sie auch in der anderen Liste: Sie wird nur aus dieser Liste gelöscht und bleibt in der anderen
+- Wird eine gelöschte, schon trainierte Übung später unter demselben Namen neu angelegt, bekommt sie ihren alten Verlauf zurück
 - Jede Änderung wird sofort gespeichert, es gibt keinen Speichern-Button
 
 ### Übungsdetail (`#/uebung/<id>`) – Unterseite
@@ -157,7 +167,6 @@ Regeln für die Navigation:
 Erreichbar über das Zahnrad oben rechts auf beiden Tabs.
 
 - Backup: Export und Import als JSON-Datei, mit Datum des letzten Backups
-- Archivierte Übungen ansehen und wiederherstellen
 
 ## Ordnerstruktur (geplant)
 
@@ -171,7 +180,7 @@ src/
     Plan.tsx
     Gewicht.tsx
     ExerciseDetail.tsx Fortschrittsdiagramm einer Übung
-    Einstellungen.tsx  Backup, archivierte Übungen
+    Einstellungen.tsx  Backup
   nav.ts               Zurück-Navigation der Unterseiten
   components/          Seitenkopf, Satzzeile, Übungskarte, Liniendiagramm, Tab-Leiste
   lib/
@@ -189,7 +198,7 @@ public/
 ## Reihenfolge beim Bauen
 
 1. **Grundgerüst** – Vite-Projekt, Tab-Leiste, leere Seiten, Datenbank-Schema (erledigt)
-2. **Plan** – zwei Listen, Übungen anlegen, bearbeiten, sortieren, archivieren. Der Training-Tab zeigt die Liste des heutigen Tages oder den Ruhetag (erledigt)
+2. **Plan** – zwei Listen, Übungen anlegen, bearbeiten, sortieren, löschen. Wiederholungen als Bereich, Aufwärmsätze, fester Plan vorab eingetragen. Der Training-Tab zeigt die Liste des heutigen Tages oder den Ruhetag (erledigt)
 3. **Training loggen** – Einheit starten, Sätze eintragen, „letztes Mal“, beenden, Liste der vergangenen Trainings (erledigt, Ansehen und Korrigieren alter Trainings folgt in Schritt 6)
 4. **Körpergewicht** – Eingabe, Liste, Diagramm mit Durchschnitt
 5. **Fortschritt pro Übung** – Detailseite, nutzt die Diagramm-Komponente aus Schritt 4
@@ -213,6 +222,24 @@ Beantwortet am 16.11.2026:
 | Öffentliches Repository in Ordnung? | Ja | GitHub Pages im kostenlosen Tarif, Code öffentlich sichtbar, Daten nicht |
 | Wert im Fortschrittsdiagramm | Umschalter zwischen höchstem Gewicht und geschätztem 1RM | Übungsdetail-Seite bleibt wie beschrieben |
 | Wie viele Tabs? | Nur zwei: Training und Gewicht. Plan, Übungsdetail und Einstellungen sind Unterseiten mit Zurück-Pfeil | Abschnitt „Seitenstruktur“ neu gefasst, „Mehr“ und „Design-Muster“ entfernt |
+
+## Fester Trainingsplan
+
+Wird beim ersten Start eingetragen. Alle Übungen mit 3 Arbeitssätzen.
+
+| Oberkörper (Mo · Do) | Aufwärmen | Wdh | | Unterkörper (Di · Fr) | Aufwärmen | Wdh |
+|---|---|---|---|---|---|---|
+| Brustpresse | 1 | 8–12 | | Beinpresse | 1 | 8–12 |
+| Rudern (Maschine) | 1 | 8–12 | | Beinbeuger | 1 | 10–12 |
+| Schulterpresse | – | 8–12 | | Beinstrecker | – | 10–15 |
+| Latzug | – | 8–12 | | Abduktoren | – | 12–15 |
+| Butterfly | – | 10–15 | | Adduktoren | – | 12–15 |
+| Seitheben (Maschine/Kabel) | – | 12–15 | | Waden an der Beinpresse | – | 12–15 |
+| Reverse Butterfly | – | 12–15 | | Bauch (Crunch-Maschine) | – | 12–15 |
+| Trizeps am Kabelturm | – | 10–15 | | | | |
+| Bizeps am Kabelturm | – | 10–15 | | | | |
+
+Mit dem Update auf Datenbank-Version 2 wurden die Test-Übungen und Test-Trainings aus der Entwicklung einmalig gelöscht (mit Zustimmung), damit der feste Plan eingetragen werden kann. Das Körpergewicht blieb unberührt.
 
 ## Zurückgestellt
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { clamp, formatTarget, moveItem, normalizeName, sameName } from './plan';
+import { adjustRepRange, clamp, formatReps, formatTarget, moveItem, normalizeName, sameName } from './plan';
+import { DEFAULT_PLAN } from './seed';
 
 describe('normalizeName', () => {
   it('entfernt Leerzeichen am Rand und doppelte Leerzeichen', () => {
@@ -17,7 +18,7 @@ describe('sameName', () => {
   });
 
   it('unterscheidet verschiedene Übungen', () => {
-    expect(sameName('Bankdrücken', 'Schrägbankdrücken')).toBe(false);
+    expect(sameName('Butterfly', 'Reverse Butterfly')).toBe(false);
   });
 });
 
@@ -44,9 +45,61 @@ describe('clamp', () => {
   });
 });
 
-describe('formatTarget', () => {
-  it('verwendet Einzahl und Mehrzahl richtig', () => {
-    expect(formatTarget(1, 12)).toBe('1 Satz × 12 Wdh');
-    expect(formatTarget(3, 10)).toBe('3 Sätze × 10 Wdh');
+describe('adjustRepRange', () => {
+  it('lässt einen gültigen Bereich unverändert', () => {
+    expect(adjustRepRange(8, 12, 'min')).toEqual({ min: 8, max: 12 });
+  });
+
+  it('zieht das obere Ende mit, wenn das untere darüber hinausgeht', () => {
+    expect(adjustRepRange(13, 12, 'min')).toEqual({ min: 13, max: 13 });
+  });
+
+  it('zieht das untere Ende mit, wenn das obere darunter fällt', () => {
+    expect(adjustRepRange(8, 7, 'max')).toEqual({ min: 7, max: 7 });
+  });
+
+  it('bleibt innerhalb der erlaubten Grenzen', () => {
+    expect(adjustRepRange(0, 60, 'max')).toEqual({ min: 1, max: 50 });
+  });
+});
+
+describe('formatReps und formatTarget', () => {
+  it('schreibt den Bereich mit Halbgeviertstrich', () => {
+    expect(formatReps(8, 12)).toBe('8–12');
+    expect(formatReps(10, 10)).toBe('10');
+  });
+
+  it('nennt Aufwärmsätze nur, wenn es welche gibt', () => {
+    const base = { targetSets: 3, targetRepsMin: 8, targetRepsMax: 12 };
+    expect(formatTarget({ ...base, warmupSets: 0 })).toBe('3 × 8–12');
+    expect(formatTarget({ ...base, warmupSets: 1 })).toBe('1 Aufwärmsatz + 3 × 8–12');
+    expect(formatTarget({ ...base, warmupSets: 2 })).toBe('2 Aufwärmsätze + 3 × 8–12');
+  });
+});
+
+describe('DEFAULT_PLAN', () => {
+  it('enthält 9 Übungen für den Oberkörper und 7 für den Unterkörper', () => {
+    expect(DEFAULT_PLAN.upper).toHaveLength(9);
+    expect(DEFAULT_PLAN.lower).toHaveLength(7);
+  });
+
+  it('beginnt mit den Übungen mit Aufwärmsatz', () => {
+    expect(DEFAULT_PLAN.upper.filter((e) => e.warmupSets > 0).map((e) => e.name)).toEqual([
+      'Brustpresse',
+      'Rudern (Maschine)',
+    ]);
+    expect(DEFAULT_PLAN.lower.filter((e) => e.warmupSets > 0).map((e) => e.name)).toEqual([
+      'Beinpresse',
+      'Beinbeuger',
+    ]);
+  });
+
+  it('hat keine doppelten Namen und nur gültige Bereiche', () => {
+    const all = [...DEFAULT_PLAN.upper, ...DEFAULT_PLAN.lower];
+    expect(new Set(all.map((e) => e.name.toLowerCase())).size).toBe(all.length);
+    for (const exercise of all) {
+      expect(exercise.sets).toBe(3);
+      expect(exercise.reps[0]).toBeLessThan(exercise.reps[1]);
+    }
   });
 });

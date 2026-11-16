@@ -1,21 +1,21 @@
 // Lesen und Ändern des Plans in der Datenbank. Jede Änderung wird sofort gespeichert.
 import Dexie from 'dexie';
 import { db, type Exercise, type PlanEntry, type Split } from '../db';
-import { moveItem, normalizeName, sameName } from './plan';
+import { moveItem, normalizeName, sameName, type Targets } from './plan';
 
 export interface PlanItem {
   entry: PlanEntry;
   exercise: Exercise;
   /** Steht die Übung auch in der anderen Liste? */
   inOtherList: boolean;
+  /** Gibt es schon eingetragene Sätze zu dieser Übung? */
+  trained: boolean;
 }
 
-/** Eine vorhandene Übung, die noch nicht in der gewählten Liste steht. */
+/** Eine Übung aus der anderen Liste, die sich in diese übernehmen lässt. */
 export interface AddableExercise {
   exercise: Exercise;
-  /** Ziele aus der anderen Liste, falls sie dort steht. */
-  targetSets?: number;
-  targetReps?: number;
+  targets: Targets;
 }
 
 export type NameResult = 'ok' | 'empty' | 'duplicate';
@@ -27,6 +27,18 @@ function entriesOf(split: Split) {
     .toArray();
 }
 
+function setCount(exerciseId: number) {
+  return db.sets
+    .where('[exerciseId+workoutId]')
+    .between([exerciseId, Dexie.minKey], [exerciseId, Dexie.maxKey])
+    .count();
+}
+
+function targetsOf(entry: PlanEntry): Targets {
+  const { warmupSets, targetSets, targetRepsMin, targetRepsMax } = entry;
+  return { warmupSets, targetSets, targetRepsMin, targetRepsMax };
+}
+
 /** Die Übungen einer Liste in ihrer Reihenfolge. */
 export async function loadPlan(split: Split): Promise<PlanItem[]> {
   const entries = await entriesOf(split);
@@ -34,50 +46,46 @@ export async function loadPlan(split: Split): Promise<PlanItem[]> {
   const elsewhere = new Set(
     (await db.planEntries.toArray()).filter((e) => e.split !== split).map((e) => e.exerciseId),
   );
+  const counts = await Promise.all(entries.map((entry) => setCount(entry.exerciseId)));
   return entries.flatMap((entry, i) => {
     const exercise = exercises[i];
-    return exercise ? [{ entry, exercise, inOtherList: elsewhere.has(exercise.id) }] : [];
+    return exercise
+      ? [{ entry, exercise, inOtherList: elsewhere.has(exercise.id), trained: counts[i] > 0 }]
+      : [];
   });
 }
 
-/** Alle vorhandenen Übungen, die nicht in dieser Liste stehen. Aktive zuerst, dann archivierte. */
+/** Die Übungen der anderen Liste, die in dieser noch nicht stehen. */
 export async function loadAddable(split: Split): Promise<AddableExercise[]> {
-  const [exercises, entries] = await Promise.all([
-    db.exercises.toArray(),
-    db.planEntries.toArray(),
-  ]);
+  const entries = await db.planEntries.toArray();
   const inThisList = new Set(entries.filter((e) => e.split === split).map((e) => e.exerciseId));
-  const elsewhere = new Map(entries.filter((e) => e.split !== split).map((e) => [e.exerciseId, e]));
-  return exercises
-    .filter((exercise) => !inThisList.has(exercise.id))
-    .map((exercise) => ({
-      exercise,
-      targetSets: elsewhere.get(exercise.id)?.targetSets,
-      targetReps: elsewhere.get(exercise.id)?.targetReps,
-    }))
-    .sort(
-      (a, b) =>
-        Number(a.exercise.archived) - Number(b.exercise.archived) ||
-        a.exercise.name.localeCompare(b.exercise.name, 'de'),
-    );
+  const others = entries.filter((e) => e.split !== split && !inThisList.has(e.exerciseId));
+  const exercises = await db.exercises.bulkGet(others.map((entry) => entry.exerciseId));
+  return others
+    .flatMap((entry, i) => {
+      const exercise = exercises[i];
+      return exercise ? [{ exercise, targets: targetsOf(entry) }] : [];
+    })
+    .sort((a, b) => a.exercise.name.localeCompare(b.exercise.name, 'de'));
 }
 
 /**
  * Hängt eine Übung ans Ende der Liste. Gibt es schon eine Übung mit diesem Namen
- * (in der anderen Liste oder archiviert), wird sie wiederverwendet statt doppelt angelegt.
+ * (in der anderen Liste, oder gelöscht mit erhaltenem Verlauf), wird sie wiederverwendet.
+ * So bleibt ihr Verlauf zusammen, statt dass zwei gleichnamige Übungen entstehen.
  */
 export async function addExercise(
   split: Split,
   rawName: string,
-  targetSets: number,
-  targetReps: number,
+  targets: Targets,
 ): Promise<NameResult> {
   const name = normalizeName(rawName);
   if (!name) return 'empty';
 
   return db.transaction('rw', db.exercises, db.planEntries, async () => {
     const entries = await entriesOf(split);
-    const existing = (await db.exercises.toArray()).find((exercise) => sameName(exercise.name, name));
+    const matches = (await db.exercises.toArray()).filter((exercise) => sameName(exercise.name, name));
+    const existing = matches.find((exercise) => !exercise.archived) ?? matches[0];
 
     if (existing && entries.some((entry) => entry.exerciseId === existing.id)) return 'duplicate';
 
@@ -90,7 +98,7 @@ export async function addExercise(
     }
 
     const order = entries.length ? entries[entries.length - 1].order + 1 : 0;
-    await db.planEntries.add({ split, exerciseId, order, targetSets, targetReps });
+    await db.planEntries.add({ split, exerciseId, order, ...targets });
     return 'ok';
   });
 }
@@ -102,7 +110,7 @@ export async function renameExercise(exerciseId: number, rawName: string): Promi
 
   return db.transaction('rw', db.exercises, async () => {
     const taken = (await db.exercises.toArray()).some(
-      (exercise) => exercise.id !== exerciseId && sameName(exercise.name, name),
+      (exercise) => exercise.id !== exerciseId && !exercise.archived && sameName(exercise.name, name),
     );
     if (taken) return 'duplicate';
     await db.exercises.update(exerciseId, { name });
@@ -110,12 +118,8 @@ export async function renameExercise(exerciseId: number, rawName: string): Promi
   });
 }
 
-export async function setTargets(
-  entryId: number,
-  targetSets: number,
-  targetReps: number,
-): Promise<void> {
-  await db.planEntries.update(entryId, { targetSets, targetReps });
+export async function setTargets(entryId: number, targets: Targets): Promise<void> {
+  await db.planEntries.update(entryId, { ...targets });
 }
 
 /** Verschiebt einen Eintrag um eine Stelle nach oben (-1) oder unten (+1). */
@@ -133,15 +137,22 @@ export async function moveEntry(split: Split, entryId: number, direction: -1 | 1
 }
 
 /**
- * Nimmt die Übung aus der Liste. Steht sie danach in keiner Liste mehr, wird sie archiviert.
- * Gelöscht wird nichts: Die Übung und ihre geloggten Sätze bleiben erhalten.
+ * Löscht die Übung aus der Liste.
+ * - Steht sie auch in der anderen Liste, bleibt sie dort unverändert.
+ * - Wurde sie noch nie trainiert, wird sie vollständig gelöscht.
+ * - Wurde sie schon trainiert, verschwindet sie aus dem Plan, die Übung selbst und ihre
+ *   eingetragenen Sätze bleiben aber für den Verlauf erhalten.
  */
-export async function removeFromPlan(entryId: number): Promise<void> {
-  await db.transaction('rw', db.exercises, db.planEntries, async () => {
+export async function deleteFromPlan(entryId: number): Promise<void> {
+  await db.transaction('rw', db.exercises, db.planEntries, db.sets, async () => {
     const entry = await db.planEntries.get(entryId);
     if (!entry) return;
     await db.planEntries.delete(entryId);
-    const remaining = await db.planEntries.where('exerciseId').equals(entry.exerciseId).count();
-    if (remaining === 0) await db.exercises.update(entry.exerciseId, { archived: true });
+
+    const stillPlanned = await db.planEntries.where('exerciseId').equals(entry.exerciseId).count();
+    if (stillPlanned > 0) return;
+
+    if ((await setCount(entry.exerciseId)) === 0) await db.exercises.delete(entry.exerciseId);
+    else await db.exercises.update(entry.exerciseId, { archived: true });
   });
 }

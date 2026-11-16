@@ -2,20 +2,28 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { SubpageHeader } from '../components/PageHeader';
 import Stepper from '../components/Stepper';
 import type { Split } from '../db';
-import { REPS_RANGE, SETS_RANGE, formatTarget } from '../lib/plan';
+import {
+  INITIAL_TARGETS,
+  REPS_RANGE,
+  SETS_RANGE,
+  WARMUP_RANGE,
+  adjustRepRange,
+  formatTarget,
+  type Targets,
+} from '../lib/plan';
 import {
   addExercise,
+  deleteFromPlan,
   loadAddable,
   loadPlan,
   moveEntry,
-  removeFromPlan,
   renameExercise,
   setTargets,
   type AddableExercise,
   type NameResult,
   type PlanItem,
 } from '../lib/planDb';
-import { SPLITS, splitForDate } from '../lib/schedule';
+import { SPLITS, splitForDate, splitLabel } from '../lib/schedule';
 
 const NAME_ERRORS: Record<Exclude<NameResult, 'ok'>, string> = {
   empty: 'Bitte einen Namen eingeben.',
@@ -37,21 +45,63 @@ function Arrow({ up }: { up?: boolean }) {
   );
 }
 
-/** Aufgeklappter Bereich einer Zeile: umbenennen, Ziele ändern, aus der Liste nehmen. */
+/** Die vier Zähler für die Ziele: Aufwärmsätze, Arbeitssätze, Wiederholungen von und bis. */
+function TargetSteppers({ value, onChange }: { value: Targets; onChange: (next: Targets) => void }) {
+  const setReps = (min: number, max: number, changed: 'min' | 'max') => {
+    const range = adjustRepRange(min, max, changed);
+    onChange({ ...value, targetRepsMin: range.min, targetRepsMax: range.max });
+  };
+
+  return (
+    <>
+      <Stepper
+        label="Aufwärmsätze"
+        value={value.warmupSets}
+        min={WARMUP_RANGE.min}
+        max={WARMUP_RANGE.max}
+        onChange={(warmupSets) => onChange({ ...value, warmupSets })}
+      />
+      <Stepper
+        label="Arbeitssätze"
+        value={value.targetSets}
+        min={SETS_RANGE.min}
+        max={SETS_RANGE.max}
+        onChange={(targetSets) => onChange({ ...value, targetSets })}
+      />
+      <Stepper
+        label="Wdh von"
+        value={value.targetRepsMin}
+        min={REPS_RANGE.min}
+        max={REPS_RANGE.max}
+        onChange={(min) => setReps(min, value.targetRepsMax, 'min')}
+      />
+      <Stepper
+        label="Wdh bis"
+        value={value.targetRepsMax}
+        min={REPS_RANGE.min}
+        max={REPS_RANGE.max}
+        onChange={(max) => setReps(value.targetRepsMin, max, 'max')}
+      />
+    </>
+  );
+}
+
+/** Aufgeklappter Bereich einer Zeile: umbenennen, Ziele ändern, löschen. */
 function RowEditor({
   item,
-  usedElsewhere,
+  split,
   onChanged,
   onClose,
 }: {
   item: PlanItem;
-  usedElsewhere: boolean;
+  split: Split;
   onChanged: () => Promise<void>;
   onClose: () => void;
 }) {
   const { entry, exercise } = item;
   const [name, setName] = useState(exercise.name);
   const [error, setError] = useState('');
+  const [confirming, setConfirming] = useState(false);
 
   const saveName = async () => {
     const result = await renameExercise(exercise.id, name);
@@ -67,10 +117,36 @@ function RowEditor({
     }
   };
 
-  const changeTargets = async (sets: number, reps: number) => {
-    await setTargets(entry.id, sets, reps);
-    await onChanged();
-  };
+  if (confirming) {
+    const other = splitLabel(split === 'upper' ? 'lower' : 'upper');
+    return (
+      <div className="row__editor" role="alertdialog" aria-label="Übung löschen">
+        <p>
+          {item.inOtherList
+            ? `„${exercise.name}“ aus ${splitLabel(split)} löschen? In ${other} bleibt die Übung stehen.`
+            : item.trained
+              ? `„${exercise.name}“ löschen? Die Übung verschwindet aus dem Plan. Die bisher eingetragenen Sätze bleiben im Verlauf erhalten.`
+              : `„${exercise.name}“ endgültig löschen? Die Übung wurde noch nie trainiert.`}
+        </p>
+        <div className="card__row">
+          <button type="button" className="btn btn--ghost" onClick={() => setConfirming(false)}>
+            Abbrechen
+          </button>
+          <button
+            type="button"
+            className="btn btn--danger"
+            onClick={async () => {
+              await deleteFromPlan(entry.id);
+              onClose();
+              await onChanged();
+            }}
+          >
+            Ja, löschen
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="row__editor">
@@ -94,31 +170,21 @@ function RowEditor({
           {error}
         </p>
       )}
-      <Stepper
-        label="Sätze"
-        value={entry.targetSets}
-        min={SETS_RANGE.min}
-        max={SETS_RANGE.max}
-        onChange={(sets) => changeTargets(sets, entry.targetReps)}
-      />
-      <Stepper
-        label="Wiederholungen"
-        value={entry.targetReps}
-        min={REPS_RANGE.min}
-        max={REPS_RANGE.max}
-        onChange={(reps) => changeTargets(entry.targetSets, reps)}
+      <TargetSteppers
+        value={entry}
+        onChange={async (next) => {
+          await setTargets(entry.id, {
+            warmupSets: next.warmupSets,
+            targetSets: next.targetSets,
+            targetRepsMin: next.targetRepsMin,
+            targetRepsMax: next.targetRepsMax,
+          });
+          await onChanged();
+        }}
       />
       <div className="card__row">
-        <button
-          type="button"
-          className="btn btn--ghost"
-          onClick={async () => {
-            await removeFromPlan(entry.id);
-            onClose();
-            await onChanged();
-          }}
-        >
-          {usedElsewhere ? 'Aus Liste nehmen' : 'Archivieren'}
+        <button type="button" className="btn btn--danger" onClick={() => setConfirming(true)}>
+          Löschen
         </button>
         <button type="button" className="btn" onClick={onClose}>
           Fertig
@@ -128,7 +194,7 @@ function RowEditor({
   );
 }
 
-/** Formular zum Hinzufügen: neuer Name oder eine vorhandene Übung, dazu die Ziele. */
+/** Formular zum Hinzufügen: neuer Name oder eine Übung der anderen Liste, dazu die Ziele. */
 function AddForm({
   split,
   addable,
@@ -141,13 +207,12 @@ function AddForm({
   onClose: () => void;
 }) {
   const [name, setName] = useState('');
-  const [sets, setSets] = useState(SETS_RANGE.initial);
-  const [reps, setReps] = useState(REPS_RANGE.initial);
+  const [targets, setTargetsState] = useState<Targets>(INITIAL_TARGETS);
   const [error, setError] = useState('');
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    const result = await addExercise(split, name, sets, reps);
+    const result = await addExercise(split, name, targets);
     if (result === 'ok') {
       // Formular bleibt offen, damit mehrere Übungen nacheinander angelegt werden können.
       setName('');
@@ -158,13 +223,6 @@ function AddForm({
     }
   };
 
-  const pick = (item: AddableExercise) => {
-    setName(item.exercise.name);
-    if (item.targetSets) setSets(item.targetSets);
-    if (item.targetReps) setReps(item.targetReps);
-    setError('');
-  };
-
   return (
     <form className="card" onSubmit={submit}>
       <h2 className="heading">Neue Übung</h2>
@@ -173,7 +231,7 @@ function AddForm({
         <input
           className="field__input field__input--text"
           value={name}
-          placeholder="z. B. Bankdrücken"
+          placeholder="z. B. Brustpresse"
           enterKeyHint="done"
           autoCapitalize="sentences"
           autoComplete="off"
@@ -187,31 +245,29 @@ function AddForm({
 
       {addable.length > 0 && (
         <div className="field">
-          <span className="label">Vorhandene Übung übernehmen</span>
+          <span className="label">
+            Aus {splitLabel(split === 'upper' ? 'lower' : 'upper')} übernehmen
+          </span>
           <div className="chips">
             {addable.map((item) => (
               <button
                 key={item.exercise.id}
                 type="button"
                 className="btn btn--small"
-                onClick={() => pick(item)}
+                onClick={() => {
+                  setName(item.exercise.name);
+                  setTargetsState(item.targets);
+                  setError('');
+                }}
               >
                 {item.exercise.name}
-                {item.exercise.archived && <span className="muted"> · archiviert</span>}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      <Stepper label="Sätze" value={sets} min={SETS_RANGE.min} max={SETS_RANGE.max} onChange={setSets} />
-      <Stepper
-        label="Wiederholungen"
-        value={reps}
-        min={REPS_RANGE.min}
-        max={REPS_RANGE.max}
-        onChange={setReps}
-      />
+      <TargetSteppers value={targets} onChange={setTargetsState} />
 
       {error && (
         <p className="error" role="alert">
@@ -248,6 +304,7 @@ export default function Plan() {
   }, [reload]);
 
   const switchTo = (next: Split) => {
+    if (next === split) return;
     setSplit(next);
     setItems(null);
     setOpenEntryId(null);
@@ -297,9 +354,7 @@ export default function Plan() {
                           onClick={() => setOpenEntryId(open ? null : entry.id)}
                         >
                           <span className="row__name">{exercise.name}</span>
-                          <span className="muted small">
-                            {formatTarget(entry.targetSets, entry.targetReps)}
-                          </span>
+                          <span className="muted small">{formatTarget(entry)}</span>
                         </button>
                         <button
                           type="button"
@@ -330,7 +385,7 @@ export default function Plan() {
                         <RowEditor
                           key={exercise.id}
                           item={item}
-                          usedElsewhere={item.inOtherList}
+                          split={split}
                           onChanged={reload}
                           onClose={() => setOpenEntryId(null)}
                         />

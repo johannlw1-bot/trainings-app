@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Workout, WorkoutSet } from '../db';
 import { formatShortDate } from '../lib/dates';
-import { formatSets, suggestSet, type LastTime, type Suggestion } from '../lib/lastTime';
+import {
+  formatSets,
+  increaseHint,
+  suggestSet,
+  type LastTime,
+  type Suggestion,
+} from '../lib/lastTime';
 import { formatKg, parseReps, parseWeight } from '../lib/numbers';
+import { formatReps, type Targets } from '../lib/plan';
 import type { PlanItem } from '../lib/planDb';
 import { splitLabel } from '../lib/schedule';
 import {
@@ -14,11 +21,9 @@ import {
   saveSet,
 } from '../lib/workoutDb';
 
-interface WorkoutExercise {
+interface WorkoutExercise extends Targets {
   id: number;
   name: string;
-  targetSets: number;
-  targetReps: number;
 }
 
 /**
@@ -26,13 +31,19 @@ interface WorkoutExercise {
  * Der Haken übernimmt den Vorschlag mit einem Tipp, Tippen in ein Feld überschreibt ihn.
  */
 function SetRow({
-  number,
+  marker,
+  name,
+  warmup,
   saved,
   suggestion,
   onSave,
   onClear,
 }: {
-  number: number;
+  /** Was vorne in der Zeile steht: die Satznummer oder „A“ für Aufwärmen */
+  marker: string;
+  /** Für Screenreader, z. B. „Satz 2“ oder „Aufwärmsatz 1“ */
+  name: string;
+  warmup: boolean;
   saved: WorkoutSet | undefined;
   suggestion: Suggestion;
   onSave: (weightKg: number, reps: number) => void;
@@ -85,16 +96,16 @@ function SetRow({
   };
 
   return (
-    <div className="set-row">
+    <div className={warmup ? 'set-row set-row--warmup' : 'set-row'}>
       <span className="set-row__no" aria-hidden="true">
-        {number}
+        {marker}
       </span>
       <input
         ref={weightRef}
         className="field__input"
         inputMode="decimal"
         autoComplete="off"
-        aria-label={`Satz ${number}: Gewicht in kg`}
+        aria-label={`${name}: Gewicht in kg`}
         placeholder={suggestion.weightKg === null ? '' : formatKg(suggestion.weightKg)}
         value={weight}
         onFocus={(event) => event.currentTarget.select()}
@@ -110,7 +121,7 @@ function SetRow({
         inputMode="numeric"
         pattern="[0-9]*"
         autoComplete="off"
-        aria-label={`Satz ${number}: Wiederholungen`}
+        aria-label={`${name}: Wiederholungen`}
         placeholder={String(suggestion.reps)}
         value={reps}
         onFocus={(event) => event.currentTarget.select()}
@@ -124,7 +135,7 @@ function SetRow({
         type="button"
         className="check-btn"
         aria-pressed={!!saved}
-        aria-label={saved ? `Satz ${number} wieder austragen` : `Satz ${number} eintragen`}
+        aria-label={saved ? `${name} wieder austragen` : `${name} eintragen`}
         onClick={toggle}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -142,6 +153,11 @@ function SetRow({
   );
 }
 
+/** Der letzte schon eingetragene Satz vor der Zeile mit dieser Nummer. */
+function previousSaved(sets: readonly WorkoutSet[], number: number): WorkoutSet | undefined {
+  return sets.filter((set) => set.setNumber < number).sort((a, b) => b.setNumber - a.setNumber)[0];
+}
+
 function ExerciseCard({
   exercise,
   sets,
@@ -154,12 +170,19 @@ function ExerciseCard({
   exercise: WorkoutExercise;
   sets: WorkoutSet[];
   last: LastTime | undefined;
+  /** Anzahl der Zeilen für Arbeitssätze */
   rowCount: number;
   onRowCount: (count: number) => void;
-  onSave: (setNumber: number, weightKg: number, reps: number) => void;
-  onClear: (setNumber: number) => void;
+  onSave: (warmup: boolean, setNumber: number, weightKg: number, reps: number) => void;
+  onClear: (warmup: boolean, setNumber: number) => void;
 }) {
-  const bySetNumber = new Map(sets.map((set) => [set.setNumber, set]));
+  const warmups = sets.filter((set) => set.warmup);
+  const working = sets.filter((set) => !set.warmup);
+  const warmupByNumber = new Map(warmups.map((set) => [set.setNumber, set]));
+  const workingByNumber = new Map(working.map((set) => [set.setNumber, set]));
+  const warmupRows = Math.max(exercise.warmupSets, ...warmups.map((set) => set.setNumber));
+  const hint = increaseHint(last?.sets, working, exercise.targetSets, exercise.targetRepsMax);
+  const hasRows = warmupRows > 0 || rowCount > 0;
 
   return (
     <section className="card">
@@ -170,13 +193,31 @@ function ExerciseCard({
           </a>
         </h3>
         <p className="muted small">
+          Ziel: {exercise.targetSets} × {formatReps(exercise.targetRepsMin, exercise.targetRepsMax)}
+          {' · '}
           {last
             ? `Letztes Mal: ${formatSets(last.sets)} (${formatShortDate(last.date)})`
             : 'Letztes Mal: noch nie'}
         </p>
       </div>
 
-      {rowCount > 0 && (
+      {hint && (
+        <p className="hint">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 19V5M5 12l7-7 7 7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          {hint === 'now' ? 'Gewicht erhöhen' : 'Nächstes Mal Gewicht erhöhen'}
+        </p>
+      )}
+
+      {hasRows && (
         <div className="sets">
           <div className="set-row set-row--head" aria-hidden="true">
             <span />
@@ -184,20 +225,47 @@ function ExerciseCard({
             <span className="label">Wdh</span>
             <span />
           </div>
-          {Array.from({ length: rowCount }, (_, index) => {
+
+          {warmupRows > 0 && <p className="sets__caption label">Aufwärmen</p>}
+          {Array.from({ length: warmupRows }, (_, index) => {
             const number = index + 1;
-            // Der letzte heute schon eingetragene Satz vor dieser Zeile
-            const previous = sets
-              .filter((set) => set.setNumber < number)
-              .sort((a, b) => b.setNumber - a.setNumber)[0];
             return (
               <SetRow
-                key={number}
-                number={number}
-                saved={bySetNumber.get(number)}
-                suggestion={suggestSet(index, last?.sets, previous, exercise.targetReps)}
-                onSave={(weightKg, reps) => onSave(number, weightKg, reps)}
-                onClear={() => onClear(number)}
+                key={`w${number}`}
+                marker="A"
+                name={warmupRows > 1 ? `Aufwärmsatz ${number}` : 'Aufwärmsatz'}
+                warmup
+                saved={warmupByNumber.get(number)}
+                suggestion={suggestSet(
+                  index,
+                  last?.warmups,
+                  previousSaved(warmups, number),
+                  exercise.targetRepsMax,
+                )}
+                onSave={(weightKg, reps) => onSave(true, number, weightKg, reps)}
+                onClear={() => onClear(true, number)}
+              />
+            );
+          })}
+
+          {warmupRows > 0 && rowCount > 0 && <p className="sets__caption label">Arbeitssätze</p>}
+          {Array.from({ length: rowCount }, (_, index) => {
+            const number = index + 1;
+            return (
+              <SetRow
+                key={`s${number}`}
+                marker={String(number)}
+                name={`Satz ${number}`}
+                warmup={false}
+                saved={workingByNumber.get(number)}
+                suggestion={suggestSet(
+                  index,
+                  last?.sets,
+                  previousSaved(working, number),
+                  exercise.targetRepsMin,
+                )}
+                onSave={(weightKg, reps) => onSave(false, number, weightKg, reps)}
+                onClear={() => onClear(false, number)}
               />
             );
           })}
@@ -211,7 +279,7 @@ function ExerciseCard({
           disabled={rowCount === 0}
           aria-label={`${exercise.name}: letzten Satz löschen`}
           onClick={() => {
-            if (bySetNumber.has(rowCount)) onClear(rowCount);
+            if (workingByNumber.has(rowCount)) onClear(false, rowCount);
             onRowCount(rowCount - 1);
           }}
         >
@@ -256,19 +324,23 @@ export default function ActiveWorkout({
       const planned: WorkoutExercise[] = items.map(({ entry, exercise }) => ({
         id: exercise.id,
         name: exercise.name,
+        warmupSets: entry.warmupSets,
         targetSets: entry.targetSets,
-        targetReps: entry.targetReps,
+        targetRepsMin: entry.targetRepsMin,
+        targetRepsMax: entry.targetRepsMax,
       }));
       // Übungen mit eingetragenen Sätzen, die inzwischen nicht mehr im Plan stehen, bleiben sichtbar.
       const plannedIds = new Set(planned.map((exercise) => exercise.id));
       const orphanIds = [...new Set(loaded.map((set) => set.exerciseId))].filter(
         (id) => !plannedIds.has(id),
       );
-      const orphans = (await loadExercises(orphanIds)).map((exercise) => ({
+      const orphans: WorkoutExercise[] = (await loadExercises(orphanIds)).map((exercise) => ({
         id: exercise.id,
         name: exercise.name,
+        warmupSets: 0,
         targetSets: 0,
-        targetReps: 10,
+        targetRepsMin: 8,
+        targetRepsMax: 12,
       }));
       const all = [...planned, ...orphans];
       const last = await loadLastTimes(
@@ -291,6 +363,7 @@ export default function ActiveWorkout({
     hour: '2-digit',
     minute: '2-digit',
   });
+  const hasSets = sets.length > 0;
 
   return (
     <>
@@ -302,7 +375,7 @@ export default function ActiveWorkout({
       {exercises.map((exercise) => {
         const own = sets.filter((set) => set.exerciseId === exercise.id);
         const last = lastTimes.get(exercise.id);
-        const highestSaved = Math.max(0, ...own.map((set) => set.setNumber));
+        const highestSaved = Math.max(0, ...own.filter((set) => !set.warmup).map((set) => set.setNumber));
         // So viele Zeilen wie im Plan, oder mehr, wenn es letztes Mal mehr Sätze waren.
         const suggested = Math.max(exercise.targetSets, last?.sets.length ?? 0);
         const rowCount = Math.max(highestSaved, rowCounts[exercise.id] ?? suggested);
@@ -314,12 +387,12 @@ export default function ActiveWorkout({
             last={last}
             rowCount={rowCount}
             onRowCount={(count) => setRowCounts((prev) => ({ ...prev, [exercise.id]: Math.max(0, count) }))}
-            onSave={async (setNumber, weightKg, reps) => {
-              await saveSet(workout.id, exercise.id, setNumber, weightKg, reps);
+            onSave={async (warmup, setNumber, weightKg, reps) => {
+              await saveSet(workout.id, exercise.id, warmup, setNumber, weightKg, reps);
               await reloadSets();
             }}
-            onClear={async (setNumber) => {
-              await deleteSet(workout.id, exercise.id, setNumber);
+            onClear={async (warmup, setNumber) => {
+              await deleteSet(workout.id, exercise.id, warmup, setNumber);
               await reloadSets();
             }}
           />
@@ -328,13 +401,13 @@ export default function ActiveWorkout({
 
       <button
         type="button"
-        className={sets.length > 0 ? 'btn btn--primary btn--block' : 'btn btn--block'}
+        className={hasSets ? 'btn btn--primary btn--block' : 'btn btn--block'}
         onClick={async () => {
           await finishWorkout(workout.id);
           onDone();
         }}
       >
-        {sets.length > 0 ? 'Training beenden' : 'Training abbrechen'}
+        {hasSets ? 'Training beenden' : 'Training abbrechen'}
       </button>
     </>
   );

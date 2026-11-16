@@ -25,25 +25,31 @@ export async function loadSets(workoutId: number): Promise<WorkoutSet[]> {
 export async function saveSet(
   workoutId: number,
   exerciseId: number,
+  warmup: boolean,
   setNumber: number,
   weightKg: number,
   reps: number,
 ): Promise<void> {
   await db.transaction('rw', db.sets, async () => {
-    const existing = (await setsOf(workoutId, exerciseId)).find((set) => set.setNumber === setNumber);
+    const existing = (await setsOf(workoutId, exerciseId)).find(
+      (set) => set.warmup === warmup && set.setNumber === setNumber,
+    );
     if (existing) await db.sets.update(existing.id, { weightKg, reps });
-    else await db.sets.add({ workoutId, exerciseId, setNumber, weightKg, reps });
+    else await db.sets.add({ workoutId, exerciseId, warmup, setNumber, weightKg, reps });
   });
 }
 
 export async function deleteSet(
   workoutId: number,
   exerciseId: number,
+  warmup: boolean,
   setNumber: number,
 ): Promise<void> {
   await db.transaction('rw', db.sets, async () => {
     const sets = await setsOf(workoutId, exerciseId);
-    await db.sets.bulkDelete(sets.filter((set) => set.setNumber === setNumber).map((set) => set.id));
+    await db.sets.bulkDelete(
+      sets.filter((set) => set.warmup === warmup && set.setNumber === setNumber).map((set) => set.id),
+    );
   });
 }
 
@@ -59,11 +65,13 @@ export async function finishWorkout(workoutId: number): Promise<void> {
       return;
     }
 
-    const byExercise = new Map<number, WorkoutSet[]>();
+    // Aufwärm- und Arbeitssätze werden je Übung getrennt nummeriert.
+    const groups = new Map<string, WorkoutSet[]>();
     for (const set of sets) {
-      byExercise.set(set.exerciseId, [...(byExercise.get(set.exerciseId) ?? []), set]);
+      const key = `${set.exerciseId}:${set.warmup}`;
+      groups.set(key, [...(groups.get(key) ?? []), set]);
     }
-    for (const group of byExercise.values()) {
+    for (const group of groups.values()) {
       group.sort((a, b) => a.setNumber - b.setNumber);
       for (const [index, set] of group.entries()) {
         if (set.setNumber !== index + 1) await db.sets.update(set.id, { setNumber: index + 1 });
@@ -109,6 +117,7 @@ export async function loadExercises(ids: readonly number[]): Promise<Exercise[]>
 
 export interface HistoryEntry {
   workout: Workout;
+  /** Anzahl der Arbeitssätze, Aufwärmsätze zählen nicht mit */
   setCount: number;
 }
 
@@ -121,7 +130,7 @@ export async function loadHistory(limit: number): Promise<HistoryEntry[]> {
   return Promise.all(
     finished.map(async (workout) => ({
       workout,
-      setCount: await db.sets.where('workoutId').equals(workout.id).count(),
+      setCount: (await loadSets(workout.id)).filter((set) => !set.warmup).length,
     })),
   );
 }
