@@ -8,6 +8,7 @@ import Einstellungen from './pages/Einstellungen';
 import Verlauf from './pages/Verlauf';
 import WorkoutSession from './pages/WorkoutSession';
 import Auswertung from './pages/Auswertung';
+import Volumen from './pages/Volumen';
 
 export interface PageProps {
   /** Zweiter Teil der Adresse, z. B. die Übungs-ID in #/uebung/12 */
@@ -32,6 +33,7 @@ const ROUTES: Record<string, { page: ComponentType<PageProps>; fullscreen?: bool
   verlauf: { page: Verlauf },
   einheit: { page: WorkoutSession, fullscreen: true },
   auswertung: { page: Auswertung },
+  volumen: { page: Volumen },
 };
 
 function parseHash(hash: string): { route: string; param?: string; extra?: string } {

@@ -32,6 +32,17 @@ export function daysBetween(a: LocalDate, b: LocalDate): number {
   return Math.round((fromLocalDate(b).getTime() - fromLocalDate(a).getTime()) / 86_400_000);
 }
 
+/** Kalenderwoche nach ISO 8601 (Woche mit dem ersten Donnerstag des Jahres ist KW 1). */
+export function isoWeek(value: LocalDate): number {
+  const date = fromLocalDate(value);
+  const weekday = (date.getDay() + 6) % 7;
+  const thursday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - weekday + 3);
+  const firstThursday = new Date(thursday.getFullYear(), 0, 4);
+  const firstWeekday = (firstThursday.getDay() + 6) % 7;
+  firstThursday.setDate(firstThursday.getDate() - firstWeekday + 3);
+  return 1 + Math.round((thursday.getTime() - firstThursday.getTime()) / (7 * 86_400_000));
+}
+
 const longFormat = new Intl.DateTimeFormat('de', {
   weekday: 'short',
   day: '2-digit',

@@ -41,7 +41,9 @@
   --vivid-shadow: 0 24px 48px rgb(0 0 0 / 0.65), 0 6px 14px rgb(0 0 0 / 0.45);
   --vivid-btn-glow: 0 6px 19px rgb(220 255 26 / 0.25), 0 2px 5px rgb(220 255 26 / 0.2);
   --vivid-field-bg: rgb(255 255 255 / 0.06);
-  --vivid-suggestion: #46464c;
+  /* Vorschläge sehr blass, damit sie nie wie gespeicherte Werte aussehen */
+  --vivid-suggestion: #36363b;
+  --vivid-check-outline: rgb(255 255 255 / 0.16);
 
   /* Diagramme */
   --chart-mark: #4a4a50;
@@ -1434,6 +1436,35 @@ button.tile {
   cursor: pointer;
 }
 
+/* ---------- Balkendiagramm (Wochenvolumen) ---------- */
+
+.bar {
+  fill: var(--chart-mark);
+}
+
+.bar--highlight {
+  fill: var(--accent);
+}
+
+.bar__value {
+  fill: var(--text-muted);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar__value--highlight {
+  fill: var(--text);
+  font-weight: 700;
+}
+
+.volume-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
 /* ---------- Kräftige Effekte: Übersicht, Training, Gewicht, Trainingsansicht (.vivid) ---------- */
 
 /* Großer Schein hinter den wichtigen Karten, strahlt weit über die Ränder ins Schwarz. */
@@ -1529,15 +1560,50 @@ button.tile {
 }
 
 .vivid .set-field__unit {
-  color: var(--vivid-suggestion);
+  color: var(--text-faint);
 }
 
+/* Haken: Vorschlag nur als Umriss, gespeichert gelb gefüllt */
 .vivid .check-btn {
-  background: var(--vivid-field-bg);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--vivid-check-outline);
+  color: var(--text-faint);
 }
 
 .vivid .check-btn[aria-pressed='true'] {
-  background: var(--text);
+  background: var(--accent);
+  box-shadow: none;
+  color: var(--on-accent);
+}
+
+/* Nachfrage vor dem Beenden, an Stelle der Steuerleiste */
+.session-confirm {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--vivid-shadow);
+}
+
+.session-confirm__text {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.session-confirm__buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.session-confirm__buttons .btn {
+  padding: 0 var(--space-3);
+  font-size: min(1.0625rem, 4.3vw);
+  white-space: nowrap;
 }
 
 .vivid .set-row--warmup .field__input {

@@ -10,7 +10,9 @@ import {
   activeExerciseId,
   exerciseStatus,
   exerciseTimes,
+  finishCheck,
   nextOpenExercise,
+  type FinishCheck,
   previousExercise,
   setProgress,
 } from '../lib/exerciseTiming';
@@ -20,6 +22,7 @@ import { loadPlan } from '../lib/planDb';
 import { keepScreenOn } from '../lib/wakeLock';
 import {
   deleteSet,
+  discardWorkout,
   finishWorkout,
   getActiveWorkout,
   loadExercises,
@@ -92,6 +95,8 @@ export default function WorkoutSession() {
   const [rowCounts, setRowCounts] = useState<Record<number, number>>({});
   const [overview, setOverview] = useState(false);
   const [typing, setTyping] = useState(false);
+  // Nachfrage vor dem Beenden: offene Übungen oder gar nichts eingetragen
+  const [confirm, setConfirm] = useState<FinishCheck | null>(null);
   const now = useNow();
 
   const refresh = useCallback(async (workoutId: number) => {
@@ -156,7 +161,7 @@ export default function WorkoutSession() {
           type="button"
           className="btn btn--block"
           onClick={async () => {
-            await finishWorkout(workout.id);
+            await discardWorkout(workout.id);
             replaceHash('#/');
           }}
         >
@@ -199,8 +204,25 @@ export default function WorkoutSession() {
   };
 
   const finish = async () => {
-    const saved = await finishWorkout(workout.id);
-    replaceHash(saved ? `#/auswertung/${workout.id}/neu` : '#/');
+    if (await finishWorkout(workout.id)) {
+      replaceHash(`#/auswertung/${workout.id}/neu`);
+    } else {
+      // Ohne Sätze wird nichts still verworfen, sondern nachgefragt.
+      setConfirm({ kind: 'empty' });
+    }
+  };
+
+  /** „Training beenden“: erst prüfen, ob nachgefragt werden muss. */
+  const requestFinish = () => {
+    setOverview(false);
+    const check = finishCheck(order, workingCount, sets.length);
+    if (check.kind === 'ok') finish();
+    else setConfirm(check);
+  };
+
+  const discard = async () => {
+    await discardWorkout(workout.id);
+    replaceHash('#/');
   };
 
   const overviewItems: OverviewItem[] = exercises.map((exercise, i) => ({
@@ -307,30 +329,54 @@ export default function WorkoutSession() {
         />
       )}
 
-      <nav className="session__controls" aria-label="Übungen">
-        <button
-          type="button"
-          className="control-btn"
-          aria-label="Vorige Übung"
-          disabled={previous === null}
-          onClick={() => previous !== null && goTo(previous)}
-        >
-          <Icon d="M15 6l-6 6 6 6" />
-        </button>
-        <button
-          type="button"
-          className="btn btn--primary session__next"
-          onClick={() => (next === null ? finish() : goTo(next))}
-        >
-          {next === null ? 'Training beenden' : 'Nächste Übung'}
-        </button>
-        <button type="button" className="control-btn" aria-label="Übersicht" onClick={() => setOverview(true)}>
-          <Icon d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" />
-        </button>
-      </nav>
+      {confirm && confirm.kind !== 'ok' ? (
+        <section className="session-confirm" role="alertdialog" aria-labelledby="session-confirm-text">
+          <p id="session-confirm-text" className="session-confirm__text">
+            {confirm.kind === 'empty'
+              ? 'Es wurde nichts eingetragen. Training verwerfen?'
+              : `${confirm.count === 1 ? '1 Übung' : `${confirm.count} Übungen`} ohne Einträge. Trotzdem beenden?`}
+          </p>
+          <div className="session-confirm__buttons">
+            <button type="button" className="btn" onClick={() => setConfirm(null)}>
+              Weiter trainieren
+            </button>
+            {confirm.kind === 'empty' ? (
+              <button type="button" className="btn btn--danger" onClick={discard}>
+                Verwerfen
+              </button>
+            ) : (
+              <button type="button" className="btn btn--primary" onClick={finish}>
+                Beenden
+              </button>
+            )}
+          </div>
+        </section>
+      ) : (
+        <nav className="session__controls" aria-label="Übungen">
+          <button
+            type="button"
+            className="control-btn"
+            aria-label="Vorige Übung"
+            disabled={previous === null}
+            onClick={() => previous !== null && goTo(previous)}
+          >
+            <Icon d="M15 6l-6 6 6 6" />
+          </button>
+          <button
+            type="button"
+            className="btn btn--primary session__next"
+            onClick={() => (next === null ? requestFinish() : goTo(next))}
+          >
+            {next === null ? 'Training beenden' : 'Nächste Übung'}
+          </button>
+          <button type="button" className="control-btn" aria-label="Übersicht" onClick={() => setOverview(true)}>
+            <Icon d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" />
+          </button>
+        </nav>
+      )}
 
       {overview && (
-        <WorkoutOverview items={overviewItems} onPick={goTo} onClose={() => setOverview(false)} onFinish={finish} />
+        <WorkoutOverview items={overviewItems} onPick={goTo} onClose={() => setOverview(false)} onFinish={requestFinish} />
       )}
     </div>
   );

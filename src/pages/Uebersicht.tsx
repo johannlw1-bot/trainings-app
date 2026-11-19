@@ -266,7 +266,7 @@ export default function Uebersicht() {
         </span>
       </a>
 
-      <a className="card volume-card" href="#/verlauf">
+      <a className="card volume-card" href="#/volumen">
         <span className="item__main">
           <span className="item__title">Bewegtes Gewicht</span>
           <span className="item__sub">Letzte 7 Tage</span>

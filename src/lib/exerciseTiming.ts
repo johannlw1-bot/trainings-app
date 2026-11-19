@@ -49,8 +49,8 @@ export function exerciseStatus(
 
 /**
  * Ziel von „Nächste Übung“: die nächste noch nicht erledigte Übung in Planreihenfolge nach der
- * aktuellen. Ist danach keine mehr offen, geht die Suche vorne weiter. Die aktuelle Übung selbst
- * zählt nicht. Gibt null zurück, wenn alle anderen erledigt sind.
+ * aktuellen. Nur vorwärts, kein Rücksprung an den Anfang: Ist danach keine mehr offen, gibt es null
+ * zurück und der Button heißt „Training beenden“, auch wenn weiter vorne noch Übungen offen sind.
  */
 export function nextOpenExercise(
   order: readonly number[],
@@ -58,11 +58,26 @@ export function nextOpenExercise(
   isDone: (exerciseId: number) => boolean,
 ): number | null {
   const start = currentId === undefined ? -1 : order.indexOf(currentId);
-  for (let step = 1; step <= order.length; step++) {
-    const candidate = order[(start + step + order.length) % order.length];
-    if (candidate !== currentId && !isDone(candidate)) return candidate;
+  for (let index = start + 1; index < order.length; index++) {
+    if (!isDone(order[index])) return order[index];
   }
   return null;
+}
+
+export type FinishCheck = { kind: 'ok' } | { kind: 'open'; count: number } | { kind: 'empty' };
+
+/**
+ * Was vor dem Beenden gefragt wird: Ohne einen einzigen gespeicherten Satz „verwerfen?“,
+ * mit Übungen ohne Arbeitssätze „trotzdem beenden?“, sonst nichts.
+ */
+export function finishCheck(
+  order: readonly number[],
+  workingSetCount: (exerciseId: number) => number,
+  totalSavedSets: number,
+): FinishCheck {
+  if (totalSavedSets === 0) return { kind: 'empty' };
+  const count = order.filter((id) => workingSetCount(id) === 0).length;
+  return count > 0 ? { kind: 'open', count } : { kind: 'ok' };
 }
 
 /** Ziel von „Zurück“: die vorige Übung in Planreihenfolge, ohne Umlauf. */

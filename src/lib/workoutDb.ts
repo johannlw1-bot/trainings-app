@@ -30,7 +30,13 @@ export async function loadVolumeSets(since: LocalDate): Promise<VolumeSet[]> {
   const workouts = await db.workouts.where('date').aboveOrEqual(since).toArray();
   const dateOf = new Map(workouts.map((workout) => [workout.id, workout.date]));
   const sets = await db.sets.where('workoutId').anyOf([...dateOf.keys()]).toArray();
-  return sets.map((set) => ({ date: dateOf.get(set.workoutId)!, weightKg: set.weightKg, reps: set.reps, warmup: set.warmup }));
+  return sets.map((set) => ({
+    date: dateOf.get(set.workoutId)!,
+    weightKg: set.weightKg,
+    reps: set.reps,
+    warmup: set.warmup,
+    exerciseId: set.exerciseId,
+  }));
 }
 
 export async function getActiveWorkout(): Promise<Workout | undefined> {
@@ -108,18 +114,15 @@ export async function deleteSet(
 /**
  * Schließt das Training ab. Der laufende Abschnitt endet mit dem Training. Die Sätze jeder Übung
  * werden lückenlos durchnummeriert, falls zwischendrin ein Satz ausgelassen wurde.
- * Ein Training ohne Sätze wird samt seinen Abschnitten verworfen.
+ * Ein Training ohne Sätze wird nie still verworfen: Dann passiert nichts, und die Oberfläche fragt,
+ * ob es mit `discardWorkout` verworfen werden soll.
  *
- * @returns true, wenn das Training gespeichert wurde, false, wenn es leer war und verworfen wurde
+ * @returns true, wenn das Training abgeschlossen wurde, false, wenn es keine Sätze hat
  */
 export async function finishWorkout(workoutId: number): Promise<boolean> {
   return db.transaction('rw', db.workouts, db.sets, db.segments, async () => {
     const sets = await loadSets(workoutId);
-    if (sets.length === 0) {
-      await db.segments.where('workoutId').equals(workoutId).delete();
-      await db.workouts.delete(workoutId);
-      return false;
-    }
+    if (sets.length === 0) return false;
 
     // Aufwärm- und Arbeitssätze werden je Übung getrennt nummeriert.
     const groups = new Map<string, WorkoutSet[]>();
@@ -140,6 +143,15 @@ export async function finishWorkout(workoutId: number): Promise<boolean> {
     }
     await db.workouts.update(workoutId, { finishedAt });
     return true;
+  });
+}
+
+/** Verwirft ein Training samt Sätzen und Abschnitten. Nur nach ausdrücklicher Nachfrage aufrufen. */
+export async function discardWorkout(workoutId: number): Promise<void> {
+  await db.transaction('rw', db.workouts, db.sets, db.segments, async () => {
+    await db.sets.where('workoutId').equals(workoutId).delete();
+    await db.segments.where('workoutId').equals(workoutId).delete();
+    await db.workouts.delete(workoutId);
   });
 }
 

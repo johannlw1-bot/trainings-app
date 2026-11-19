@@ -73,7 +73,9 @@ Neongelb steht für „das ist jetzt das Wichtigste“. Erlaubt ist sie an genau
 6. **Leuchten** hinter Milchglas, siehe unten
 7. **Fokusrahmen** von Eingabefeldern, der Pfeil im Hinweis „Gewicht erhöhen“, der Name der aktuellen Übung in der Übersicht
 
-Nicht erlaubt: Titel, Fließtext, Rahmen und Hintergründe normaler Karten, die Haken der Satzzeilen (davon gibt es zu viele).
+Ebenfalls gelb: der Haken eines **gespeicherten** Satzes (gelb gefüllt), damit gespeichert und Vorschlag nie verwechselt werden, und in Balkendiagrammen der Balken der aktuellen Woche.
+
+Nicht erlaubt: Titel, Fließtext, Rahmen und Hintergründe normaler Karten.
 
 ## Glas, Leuchten und Verläufe
 
@@ -268,7 +270,10 @@ Löschen fragt immer an Ort und Stelle nach: Der aufgeklappte Bereich zeigt eine
 `.set-row`: Satznummer, Gewicht, Wiederholungen, Haken. „kg“ und „Wdh“ stehen klein unten rechts in den Feldern.
 
 - **Grau ist Vorschlag, weiß ist eingetragen.** Die Felder zeigen die Werte vom letzten Mal als grauen Platzhalter
-- **Ein Tipp auf den Haken** (`.check-btn`, `--radius-inner`) trägt den Vorschlag ein, ein zweiter trägt ihn wieder aus. Eingetragen ist der Haken eine **weiße** Kachel mit dunklem Haken, nicht gelb
+- **Ein Tipp auf den Haken** (`.check-btn`, `--radius-inner`) trägt den Vorschlag ein, ein zweiter trägt ihn wieder aus
+- **Gespeichert:** Zahlen strahlend weiß und fett, Haken als **gelb gefüllte** Kachel mit dunklem Haken
+- **Vorschlag:** Zahlen sehr blass (`--vivid-suggestion`), Haken nur als Umriss (Weiß 16 %) ohne Fläche
+- **Nachfrage beim Beenden** (`.session-confirm`): Anthrazit-Karte an Stelle der Steuerleiste, kurzer Satz in 17 px / 600, darunter zwei gleich breite Buttons: „Weiter trainieren“ (Anthrazit) und „Beenden“ (gelb) bzw. „Verwerfen“ (rot, nur Schrift)
 - **Tippen in ein Feld** überschreibt den Vorschlag
 - **Aufwärmsätze** (`.set-row--warmup`): „A“ statt Nummer, Felder nur umrandet statt gefüllt
 - In der Trainingsansicht sind Felder und Haken 52 px hoch, sonst 56 bis 64 px
@@ -315,7 +320,7 @@ Aufbau nach Referenz 6: oben die Begrüßung als Titel (bricht bei Bedarf in zwe
 - **Wochenring** (`.week-ring`): 52 px, Ring Weiß 12 %, Bogen gelb, in der Mitte die Zahl der Trainingstage dieser Woche (Mo bis So), daneben „2 von 4 diese Woche“
 - **Trainingskalender** (`.calendar-card`): breite Anthrazit-Karte, drei Monate nebeneinander mit Monatsnamen, darunter ein Raster aus 6-px-Punkten in sieben Wochentagsspalten (Mo zuerst). Vergangene Tage Weiß 22 %, künftige Weiß 7 %, Trainingstage gelb mit leichtem gelbem Schein, heute weiß umrandet. Darunter „Trainingskalender“ mit Anzahl und grauem Pfeil
 - **Training-Kachel als Startknopf:** An Trainingstagen ist sie ein `button.tile` und startet sofort („Tippen zum Starten“), sonst ein Link (läuft, erledigt) oder an Ruhetagen eine Anzeige ohne Tippfläche
-- **Wochenvolumen** (`.volume-card`): breite Anthrazit-Karte wie „Volume lifted“. Links „Bewegtes Gewicht“ und „Letzte 7 Tage“, rechts der Wert als Zahl L (höchstens 36 px, Tausenderpunkt) und darunter grau der Vergleich zur Vorwoche
+- **Wochenvolumen** (`.volume-card`): breite Anthrazit-Karte wie „Volume lifted“, öffnet die Seite „Bewegtes Gewicht“. Links „Bewegtes Gewicht“ und „Letzte 7 Tage“, rechts der Wert als Zahl L (höchstens 36 px, Tausenderpunkt) und darunter grau der Vergleich zur Vorwoche
 
 ## Diagramme
 
@@ -335,6 +340,10 @@ Festgelegt für die Körpergewicht-Seite und das Fortschrittsdiagramm, gebaut wi
 - Darüber groß der aktuelle Wert als Zahl (weiß oder gelb), darunter der Umschalter für den Zeitraum
 - Im Körpergewicht ist die Linie der 7-Tage-Durchschnitt, die Tageswerte sind kleine graue Punkte
 - Keine Legende, keine senkrechten Hilfslinien, keine zweite Farbe
+
+### Balkendiagramm
+
+`BarChart` (Seite „Bewegtes Gewicht“): ohne Karte, bis an den Bildschirmrand, ohne Achsen und Hilfslinien. Balken höchstens 30 px breit, oben gerundet (bis 8 px), grau (`.bar`, wie `--chart-mark`), nur der hervorgehobene (aktuelle Woche) gelb (`.bar--highlight`). Über jedem Balken der Wert in 11 px (grau, beim gelben Balken weiß und fett), ab 1000 kg in Tonnen („32,4 t“). Darunter die Beschriftung im Achsenstil („KW 47“). Ein Wert von 0 bleibt als flacher Strich sichtbar.
 
 ## Bewegung
 

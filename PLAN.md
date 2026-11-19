@@ -104,12 +104,13 @@ So minimalistisch wie möglich: Die **Übersicht** ist die Startseite, es gibt *
 | Verlauf | `#/verlauf` | Unterseite | Kalender- und Volumenkarte der Übersicht |
 | Trainingsansicht | `#/einheit` | ganzer Bildschirm | Tipp auf die Training-Karte der Übersicht |
 | Auswertung | `#/auswertung/<id>` | Unterseite | nach „Training beenden“, Tippen im Verlauf oder im Übungsdetail |
+| Bewegtes Gewicht | `#/volumen` | Unterseite | Karte „Bewegtes Gewicht“ der Übersicht |
 
 Regeln für die Navigation:
 
 - **Die Übersicht** zeigt oben rechts das Zahnrad
 - **Unterseiten** zeigen oben links einen Zurück-Pfeil. Der Pfeil führt dorthin zurück, von wo die Seite geöffnet wurde, von Training, Gewicht und Kalender also zur Übersicht. Wurde sie direkt aufgerufen, führt er zur Übersicht
-- Das X der Trainingsansicht, „Training beenden“ ohne Sätze und „Fertig“ in der Auswertung führen zur Übersicht
+- Das X der Trainingsansicht, „Verwerfen“ eines leeren Trainings und „Fertig“ in der Auswertung führen zur Übersicht
 - Die Seiten „Mehr“ und „Design-Muster“ gibt es nicht mehr
 
 ### Übersicht (`#/`) – Startseite
@@ -121,7 +122,7 @@ Aufbau nach Referenz 6, Stil nach DESIGN.md.
   - **Training** (Glas mit Leuchten): groß „Oberkörper“ / „Unterkörper“, an Ruhetagen „Ruhetag“ und der nächste Termin. Kleiner Ring mit den Trainingstagen dieser Woche (Mo bis So) von 4. Ein Tipp startet das heutige Training sofort und öffnet die Trainingsansicht. Läuft ein Training, zeigt sie die Gesamtzeit und ein Tipp führt zurück hinein. Wurde heute trainiert, zeigt sie „Erledigt“ mit Dauer und öffnet die Auswertung. An Ruhetagen ist sie nicht antippbar
   - **Gewicht** (anthrazit): groß der 7-Tage-Durchschnitt, darunter die Veränderung zur Vorwoche. Ohne Einträge „Gewicht eintragen“. Öffnet die Gewicht-Seite
 - **Trainingskalender** (breite Anthrazit-Karte): Punkte-Raster der letzten drei Monate, ein Punkt pro Tag in Wochentagsspalten (Mo zuerst). Trainingstage gelb, heute umrandet. Öffnet den Verlauf
-- **Bewegtes Gewicht** (breite Anthrazit-Karte, wie „Volume lifted“): Gewicht × Wiederholungen aller Arbeitssätze der letzten 7 Tage, darunter der Vergleich zu den 7 Tagen davor in kg, ohne Farbe. Öffnet den Verlauf. Rechenlogik in `lib/volume.ts` mit Tests
+- **Bewegtes Gewicht** (breite Anthrazit-Karte, wie „Volume lifted“): Gewicht × Wiederholungen aller Arbeitssätze der letzten 7 Tage, darunter der Vergleich zu den 7 Tagen davor in kg, ohne Farbe. Öffnet die Seite „Bewegtes Gewicht“ (`#/volumen`): oben groß die letzten 7 Tage mit Vergleich, darunter Balken der letzten 8 Kalenderwochen (grau, aktuelle Woche gelb, Wert darüber) und die Übungen dieser Kalenderwoche mit ihrem Volumen, absteigend. Rechenlogik in `lib/volume.ts` mit Tests
 - Kein Startbutton und keine eigene Training-Seite mehr (entfernt am 19.11.2026). Nachholen an Ruhetagen und „Wieder öffnen“ gibt es damit vorerst nicht
 - Rechenlogik in `lib/overview.ts` mit Tests. Gezählt werden Tage mit Training (auch das laufende), nicht einzelne Trainings
 
@@ -139,8 +140,8 @@ Eine Übung nach der anderen statt einer langen Liste. Keine Tab-Leiste. Muss au
   - **Hinweis „Gewicht erhöhen“** (doppelte Progression): erscheint, wenn letztes Mal alle geplanten Arbeitssätze das obere Ende des Bereichs erreicht haben, und verschwindet, sobald heute ein schwererer Satz eingetragen ist. Erreichen die heutigen Arbeitssätze alle das obere Ende, steht dort „Nächstes Mal Gewicht erhöhen“
 - **Ring-Uhr:** groß die Zeit der aktuellen Übung, klein die Gesamtzeit. Rund um den Ring ein Punkt pro Übung (erledigt gelb gefüllt, aktuell gelb umrandet, offen gedämpft). Der gelbe Bogen zeigt den Anteil der eingetragenen an den geplanten Arbeitssätzen
 - **Steuerleiste:** links „Vorige Übung“ (in Planreihenfolge, kein Umlauf), Mitte gelb „Nächste Übung“, rechts „Übersicht“
-  - „Nächste Übung“ springt zur nächsten noch nicht erledigten Übung in Planreihenfolge. Ist danach keine mehr offen, geht die Suche vorne weiter
-  - Sind alle anderen Übungen erledigt, heißt der Button „Training beenden“
+  - „Nächste Übung“ geht nur vorwärts zur nächsten noch nicht erledigten Übung in Planreihenfolge, kein Rücksprung an den Anfang
+  - Ist nach der aktuellen keine Übung mehr offen, heißt der Button „Training beenden“, auch wenn weiter vorne noch Übungen offen sind. Diese bleiben über die Übersicht erreichbar
 - **Übersicht:** Blatt über der Ansicht mit allen Übungen, Status (offen, aktuell, erledigt), Arbeitssätzen und bisher gebrauchter Zeit. Ein Tipp springt zur Übung. Unten „Training beenden“, um vorzeitig zu beenden
 - **Tastatur:** Solange ein Eingabefeld aktiv ist, verschwindet die Ring-Uhr. Die Übungszeit steht dann klein neben „Übung 3 von 9“
 - **Platz auf kleinen iPhones:** Die Uhr nimmt den freien Platz zwischen Sätzen und Steuerleiste ein (Ring höchstens 260 px). Unter 150 px wird sie zur schmalen Zeile mit beiden Zeiten und kleinen Punkten. Reicht auch das nicht, scrollt nur der Bereich mit den Sätzen. Gemessen: 390 × 844 passt auch mit Aufwärmsatz, Hinweis und fünf Arbeitssätzen; 375 × 667 zeigt dann die schmale Zeile und scrollt die Sätze
@@ -148,7 +149,10 @@ Eine Übung nach der anderen statt einer langen Liste. Keine Tab-Leiste. Muss au
 - Tippen auf den Namen einer Übung öffnet ihre Detailseite
 - „Letztes Mal“ ist das jüngste beendete Training, in dem die Übung vorkam, egal in welcher Liste
 - Jede Eingabe wird sofort gespeichert. Ein geschlossener Browser kostet kein Training: Das laufende Training ist beim nächsten Öffnen wieder da, mit der zuletzt aktiven Übung
-- Ein Training ohne eingetragene Sätze wird beim Beenden verworfen
+- **Nachfrage beim Beenden** (an Stelle der Steuerleiste, auch beim Beenden über die Übersicht):
+  - Übungen ohne Arbeitssätze: „2 Übungen ohne Einträge. Trotzdem beenden?“ mit „Weiter trainieren“ und „Beenden“
+  - Gar kein Satz gespeichert: „Es wurde nichts eingetragen. Training verwerfen?“ mit „Weiter trainieren“ und „Verwerfen“. Ein Training wird nie kommentarlos verworfen
+- Hintergrund (19.11.2026): Graue Vorschläge sahen wie Einträge aus, „Nächste Übung“ sprang nach der letzten Übung an den Anfang, und ein Training ohne gespeicherte Sätze wurde beim Beenden still gelöscht
 - Nach dem Beenden öffnet sich die Auswertung. Ein heute beendetes Training zeigt die Training-Karte als „Erledigt“
 
 ### Zeit pro Übung
@@ -274,6 +278,7 @@ Beantwortet am 16.11.2026:
 | Wert im Fortschrittsdiagramm | Umschalter zwischen höchstem Gewicht und geschätztem 1RM | Übungsdetail-Seite bleibt wie beschrieben |
 | Wie viele Tabs? | Nur zwei: Training und Gewicht. Plan, Übungsdetail und Einstellungen sind Unterseiten mit Zurück-Pfeil | Abschnitt „Seitenstruktur“ neu gefasst, „Mehr“ und „Design-Muster“ entfernt |
 | Startseite (19.11.2026) | Die Übersicht nach Referenz 6 ersetzt die Tab-Leiste. Training und Gewicht werden Unterseiten | Abschnitte „Seitenstruktur“ und „Übersicht“ neu, Tab-Leiste entfernt |
+| Ablauf im Training (19.11.2026) | „Nächste Übung“ nur vorwärts, Nachfrage bei offenen Übungen und leerem Training, gespeicherte Sätze mit gelbem Haken, Vorschläge sehr blass. Neue Seite „Bewegtes Gewicht“ | Abschnitte „Trainingsansicht“ und „Übersicht“ angepasst |
 | Startseite, zweite Fassung (19.11.2026) | Begrüßung, Training-Karte startet direkt, Training-Seite und Startbutton entfallen, Plan in den Einstellungen, neue Karte „Bewegtes Gewicht“ | Abschnitte „Seitenstruktur“ und „Übersicht“ angepasst |
 
 ## Fester Trainingsplan

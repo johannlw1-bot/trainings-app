@@ -3,6 +3,7 @@ import {
   activeExerciseId,
   exerciseStatus,
   exerciseTimes,
+  finishCheck,
   nextOpenExercise,
   planSwitch,
   previousExercise,
@@ -91,9 +92,10 @@ describe('nextOpenExercise', () => {
     expect(nextOpenExercise(order, 10, doneSet(20, 30))).toBe(40);
   });
 
-  it('fängt vorne wieder an, wenn danach nichts mehr offen ist', () => {
-    // 20 war besetzt und wurde ausgelassen
-    expect(nextOpenExercise(order, 40, doneSet(10, 30))).toBe(20);
+  it('springt nie an den Anfang zurück, auch wenn vorne noch etwas offen ist', () => {
+    expect(nextOpenExercise(order, 40, doneSet(10, 30))).toBeNull();
+    expect(nextOpenExercise(order, 30, doneSet(40))).toBeNull();
+    expect(nextOpenExercise(order, 30, doneSet())).toBe(40);
   });
 
   it('meldet null, wenn alle anderen erledigt sind', () => {
@@ -142,5 +144,22 @@ describe('planSwitch', () => {
 
   it('räumt mehrere offene Abschnitte auf', () => {
     expect(planSwitch([seg(1, 1, 0), seg(2, 2, 5)], 2)).toEqual({ close: [1, 2], open: 2 });
+  });
+});
+
+describe('finishCheck', () => {
+  const order = [10, 20, 30];
+  const counts = (map: Record<number, number>) => (id: number) => map[id] ?? 0;
+
+  it('fragt nach dem Verwerfen, wenn kein einziger Satz gespeichert ist', () => {
+    expect(finishCheck(order, counts({}), 0)).toEqual({ kind: 'empty' });
+  });
+
+  it('zählt Übungen ohne Arbeitssätze, auch wenn nur Aufwärmsätze da sind', () => {
+    expect(finishCheck(order, counts({ 10: 3 }), 4)).toEqual({ kind: 'open', count: 2 });
+  });
+
+  it('fragt nicht, wenn jede Übung Arbeitssätze hat', () => {
+    expect(finishCheck(order, counts({ 10: 3, 20: 1, 30: 2 }), 6)).toEqual({ kind: 'ok' });
   });
 });
