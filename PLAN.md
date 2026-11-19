@@ -196,10 +196,12 @@ Geplant (Schritt 5):
 
 ### 2. Gewicht (`#/gewicht`) – Tab
 
-- Eingabefeld für heute, ein Tipp zum Speichern
-- Diagramm: Tageswerte als Punkte, 7-Tage-Durchschnitt als Linie
+- Glas-Karte oben: Feld für heute, vorbefüllt mit dem letzten Wert, Knöpfe − 0,1 und + 0,1, „Speichern“. Über das Datum lässt sich ein früherer Tag nachtragen. Ein Eintrag pro Tag, ein zweiter überschreibt den ersten
+- Groß der aktuelle 7-Tage-Durchschnitt (zum neuesten Eintrag), daneben die Veränderung zur Vorwoche („+0,3 kg“), ohne Farbe oder Bewertung
+- Diagramm: 7-Tage-Durchschnitt als geschwungene Linie, Tageswerte als Punkte, aktueller Wert hervorgehoben
 - Zeitraum umschaltbar (4 Wochen, 3 Monate, alles)
-- Liste der Einträge zum Korrigieren und Löschen
+- Liste der Einträge, neueste zuerst: antippen zum Korrigieren, Löschen mit Nachfrage
+- Rechenlogik in `lib/bodyWeight.ts`, Diagramm-Geometrie in `lib/chart.ts`, beide mit Tests. Die Komponente `LineChart` wird in Schritt 5 wiederverwendet
 
 **7-Tage-Durchschnitt:** Mittelwert aller Einträge der letzten 7 Kalendertage einschließlich des jeweiligen Tages. Fehlende Tage werden ausgelassen, nicht mit 0 oder Schätzwerten gefüllt.
 
@@ -243,7 +245,7 @@ public/
 1. **Grundgerüst** – Vite-Projekt, Tab-Leiste, leere Seiten, Datenbank-Schema (erledigt)
 2. **Plan** – zwei Listen, Übungen anlegen, bearbeiten, sortieren, löschen. Wiederholungen als Bereich, Aufwärmsätze, fester Plan vorab eingetragen. Der Training-Tab zeigt die Liste des heutigen Tages oder den Ruhetag (erledigt)
 3. **Training loggen** – Einheit starten, Sätze eintragen, „letztes Mal“, beenden, Liste der vergangenen Trainings (erledigt, Ansehen und Korrigieren alter Trainings folgt in Schritt 6)
-4. **Körpergewicht** – Eingabe, Liste, Diagramm mit Durchschnitt
+4. **Körpergewicht** – Eingabe, Liste, Diagramm mit Durchschnitt (erledigt)
 5. **Fortschritt pro Übung** – Detailseite, nutzt die Diagramm-Komponente aus Schritt 4
 6. **Verlauf und Backup** – vergangene Trainings antippen, ansehen und korrigieren, Export und Import in den Einstellungen
 7. **PWA und Hosting** – Manifest, Icons, Service Worker, GitHub Action, Test in Safari auf dem iPhone

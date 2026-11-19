@@ -93,7 +93,7 @@ export default function RingClock({
                   width={SIZE + 40}
                   height={SIZE + 40}
                 >
-                  <feGaussianBlur stdDeviation="5" result="blur" />
+                  <feGaussianBlur stdDeviation="3.3" result="blur" />
                   <feMerge>
                     <feMergeNode in="blur" />
                     <feMergeNode in="SourceGraphic" />

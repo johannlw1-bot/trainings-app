@@ -104,9 +104,9 @@ Aufbau:
 
 ### Kräftige Effekte (`.vivid`)
 
-Training-Tab, Trainingsansicht und Übersicht tragen die Klasse `.vivid`. Dort sind die Effekte bewusst kräftig, näher an Referenz 8. Alle Werte stehen als `--vivid-*` in `src/styles.css`, die übrigen Seiten bleiben ruhig.
+Training-Tab, Trainingsansicht, Übersicht und Gewicht tragen die Klasse `.vivid`. Auf der Gewicht-Seite ist die Eingabekarte oben aus Glas mit Leuchten. Dort sind die Effekte bewusst kräftig, näher an Referenz 8. Alle Werte stehen als `--vivid-*` in `src/styles.css`, die übrigen Seiten bleiben ruhig.
 
-- **Leuchten:** Der Fleck ist viel größer (130 × 170 % bzw. 125 % der Karte) und kräftiger (Gelb 62 % im Kern) und strahlt weit über die Kartenränder ins Schwarz
+- **Leuchten:** Der Fleck ist größer (87 × 113 % bzw. 83 % der Karte) und kräftiger (Gelb 41 % im Kern) und strahlt über die Kartenränder ins Schwarz. Am 19.11.2026 überall um ein Drittel zurückgenommen, auch Button-Schein, Ring-Filter und Haken
 - **Glas:** Weiß 6 %, `blur(40px) saturate(190%)`, hauchdünne helle Kante nur oben und links (Weiß 24 %), rechts und unten fast unsichtbar
 - **Tiefe:** Glas-Karten, Listen-Karten und Steuerknöpfe schweben mit weichem, dunklem Schatten
 - **Hauptbutton:** weicher gelber Schein (`--vivid-btn-glow`)
@@ -298,6 +298,10 @@ SVG in einer Glas-Karte mit Leuchten in der Mitte (`.ring__card.glow.glow--cente
 ### Blatt
 
 `.sheet`: legt sich über den ganzen Bildschirm (Übersicht während des Trainings). Oben rechts das X, darunter Titel und Beschriftung wie im Seitenkopf, dann Listen-Karten mit Status-Kachel, Name, Status und Zeit. Die aktuelle Übung hat einen gelben Namen.
+
+### Gewichtsfeld
+
+`.weight-field`: links − 0,1, in der Mitte ein großes Zahlenfeld (40 px, „kg“ unten rechts), rechts + 0,1, beide als Steuerknöpfe. Für die Eingabe mit einer Hand. Daneben das Datum als kleine Fläche (`.date-chip__input`, natives Datumsfeld). Darunter `.weight-summary`: Durchschnitt als Zahl XL, rechts die Veränderung als Zahl M in Weiß, nie rot oder grün. Einträge in der Liste klappen eine Korrektur (`.entry__editor`) darunter auf.
 
 ### Timer
 
