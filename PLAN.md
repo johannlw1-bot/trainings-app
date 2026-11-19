@@ -134,7 +134,9 @@ Eine Übung nach der anderen statt einer langen Liste. Keine Tab-Leiste. Muss au
 - **Übung:** Name, Zeile mit Ziel („Ziel 3 × 8–12“) und den kleinen Knöpfen „− Satz“ und „+ Satz“, darunter „Letztes Mal: …“ mit Datum und ggf. der Hinweis „Gewicht erhöhen“
 - **Sätze:** Aufwärmsätze (mit „A“, umrandete Felder) vor den Arbeitssätzen. „kg“ und „Wdh“ stehen klein in den Feldern. Eingabelogik:
   - Die Werte vom letzten Mal stehen als grauer Vorschlag in den Feldern
-  - Ein Tipp auf den Haken trägt den Vorschlag ein, Tippen in ein Feld überschreibt ihn. Nur eingetragene Sätze werden gespeichert
+  - Tippen in ein Feld überschreibt den Vorschlag, speichert aber noch nichts. Der Haken speichert den Satz mit den eingetippten Werten, leere Felder nehmen den Vorschlag
+  - Ein Tipp auf einen gespeicherten Haken trägt den Satz wieder aus, die Werte bleiben im Feld stehen. Ein geänderter Wert in einem gespeicherten Satz wird sofort übernommen
+  - Eingetippte, nicht abgehakte Werte werden beim Wechsel der Übung, beim Beenden, beim Schließen der Ansicht und beim Verlassen der App automatisch als Satz gespeichert. Ausdrücklich ausgetragene Sätze bleiben ausgetragen, bis wieder etwas eingetippt wird
   - Wird heute ein anderes Gewicht eingetragen als letztes Mal, gilt es als Vorschlag für die folgenden Sätze
   - So viele Zeilen wie Arbeitssätze im Plan, oder mehr, wenn es letztes Mal mehr waren. „+ Satz“ fügt eine Zeile an, „− Satz“ entfernt die letzte
   - **Hinweis „Gewicht erhöhen“** (doppelte Progression): erscheint, wenn letztes Mal alle geplanten Arbeitssätze das obere Ende des Bereichs erreicht haben, und verschwindet, sobald heute ein schwererer Satz eingetragen ist. Erreichen die heutigen Arbeitssätze alle das obere Ende, steht dort „Nächstes Mal Gewicht erhöhen“
@@ -279,6 +281,7 @@ Beantwortet am 16.11.2026:
 | Wie viele Tabs? | Nur zwei: Training und Gewicht. Plan, Übungsdetail und Einstellungen sind Unterseiten mit Zurück-Pfeil | Abschnitt „Seitenstruktur“ neu gefasst, „Mehr“ und „Design-Muster“ entfernt |
 | Startseite (19.11.2026) | Die Übersicht nach Referenz 6 ersetzt die Tab-Leiste. Training und Gewicht werden Unterseiten | Abschnitte „Seitenstruktur“ und „Übersicht“ neu, Tab-Leiste entfernt |
 | Ablauf im Training (19.11.2026) | „Nächste Übung“ nur vorwärts, Nachfrage bei offenen Übungen und leerem Training, gespeicherte Sätze mit gelbem Haken, Vorschläge sehr blass. Neue Seite „Bewegtes Gewicht“ | Abschnitte „Trainingsansicht“ und „Übersicht“ angepasst |
+| Satzeingabe (19.11.2026) | Tippen speichert nicht mehr, erst der Haken. Austragen behält die Werte im Feld, nicht abgehakte Eingaben werden beim Wechsel gespeichert | Abschnitt „Trainingsansicht“ angepasst |
 | Startseite, zweite Fassung (19.11.2026) | Begrüßung, Training-Karte startet direkt, Training-Seite und Startbutton entfallen, Plan in den Einstellungen, neue Karte „Bewegtes Gewicht“ | Abschnitte „Seitenstruktur“ und „Übersicht“ angepasst |
 
 ## Fester Trainingsplan

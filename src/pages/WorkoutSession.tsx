@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ExerciseSets from '../components/ExerciseSets';
 import RingClock from '../components/RingClock';
 import { useNow } from '../components/useNow';
@@ -19,6 +19,7 @@ import {
 import { formatSets, increaseHint, type LastTime } from '../lib/lastTime';
 import { formatReps, type Targets } from '../lib/plan';
 import { loadPlan } from '../lib/planDb';
+import { draftKey, pendingSaves, type Draft } from '../lib/setEntry';
 import { keepScreenOn } from '../lib/wakeLock';
 import {
   deleteSet,
@@ -93,6 +94,8 @@ export default function WorkoutSession() {
   const [segments, setSegments] = useState<Segment[]>([]);
   // Vom Nutzer geänderte Zeilenzahl je Übung. Ohne Eintrag gilt der Vorschlag.
   const [rowCounts, setRowCounts] = useState<Record<number, number>>({});
+  // Eingetippte Werte je Zeile. Sie bleiben beim Austragen stehen und werden beim Wechsel gespeichert.
+  const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [overview, setOverview] = useState(false);
   const [typing, setTyping] = useState(false);
   // Nachfrage vor dem Beenden: offene Übungen oder gar nichts eingetragen
@@ -103,6 +106,22 @@ export default function WorkoutSession() {
     const [loadedSets, loadedSegments] = await Promise.all([loadSets(workoutId), loadSegments(workoutId)]);
     setSets(loadedSets);
     setSegments(loadedSegments);
+    return loadedSets;
+  }, []);
+  // Neueste Fassung von saveDrafts für das Verlassen der Seite (Safari schließen, iPhone sperren).
+  const saveDraftsRef = useRef<() => Promise<WorkoutSet[]>>(async () => []);
+
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') void saveDraftsRef.current();
+    };
+    const onPageHide = () => void saveDraftsRef.current();
+    document.addEventListener('visibilitychange', onHide);
+    window.addEventListener('pagehide', onPageHide);
+    return () => {
+      document.removeEventListener('visibilitychange', onHide);
+      window.removeEventListener('pagehide', onPageHide);
+    };
   }, []);
 
   useEffect(() => {
@@ -197,13 +216,39 @@ export default function WorkoutSession() {
   const exerciseMs = times.get(current.id) ?? 0;
   const totalMs = elapsedMs(workout.startedAt, now);
 
+  /**
+   * Speichert eingetippte, nicht abgehakte Sätze der aktuellen Übung, damit beim Wechsel,
+   * Beenden oder Schließen nichts verloren geht. Gibt die Sätze danach zurück.
+   */
+  const saveDrafts = async (): Promise<WorkoutSet[]> => {
+    const pending = pendingSaves(current, own, last, rowCount, (warmup, setNumber) =>
+      drafts[draftKey(current.id, warmup, setNumber)],
+    );
+    if (pending.length === 0) return sets;
+    for (const set of pending) {
+      await saveSet(workout.id, current.id, set.warmup, set.setNumber, set.weightKg, set.reps);
+    }
+    setDrafts((prev) => {
+      const nextDrafts = { ...prev };
+      for (const set of pending) {
+        const key = draftKey(current.id, set.warmup, set.setNumber);
+        if (nextDrafts[key]) nextDrafts[key] = { ...nextDrafts[key], typed: false };
+      }
+      return nextDrafts;
+    });
+    return refresh(workout.id);
+  };
+  saveDraftsRef.current = saveDrafts;
+
   const goTo = async (exerciseId: number) => {
+    await saveDrafts();
     await switchExercise(workout.id, exerciseId);
     await refresh(workout.id);
     setOverview(false);
   };
 
   const finish = async () => {
+    await saveDrafts();
     if (await finishWorkout(workout.id)) {
       replaceHash(`#/auswertung/${workout.id}/neu`);
     } else {
@@ -213,9 +258,11 @@ export default function WorkoutSession() {
   };
 
   /** „Training beenden“: erst prüfen, ob nachgefragt werden muss. */
-  const requestFinish = () => {
+  const requestFinish = async () => {
     setOverview(false);
-    const check = finishCheck(order, workingCount, sets.length);
+    const latest = await saveDrafts();
+    const latestCount = (id: number) => latest.filter((set) => set.exerciseId === id && !set.warmup).length;
+    const check = finishCheck(order, latestCount, latest.length);
     if (check.kind === 'ok') finish();
     else setConfirm(check);
   };
@@ -244,7 +291,10 @@ export default function WorkoutSession() {
           type="button"
           className="icon-btn"
           aria-label="Trainingsansicht verlassen, das Training läuft weiter"
-          onClick={() => replaceHash('#/')}
+          onClick={async () => {
+            await saveDrafts();
+            replaceHash('#/');
+          }}
         >
           <Icon d="M6 6l12 12M18 6L6 18" />
         </button>
@@ -263,6 +313,11 @@ export default function WorkoutSession() {
               disabled={rowCount === 0}
               aria-label="Letzten Satz löschen"
               onClick={async () => {
+                // Die Zeile verschwindet ganz, mit ihrem Entwurf.
+                setDrafts((prev) => {
+                  const { [draftKey(current.id, false, rowCount)]: _removed, ...rest } = prev;
+                  return rest;
+                });
                 if (ownWorking.some((set) => set.setNumber === rowCount)) {
                   await deleteSet(workout.id, current.id, false, rowCount);
                   await refresh(workout.id);
@@ -309,6 +364,10 @@ export default function WorkoutSession() {
           sets={own}
           last={last}
           rowCount={rowCount}
+          draftOf={(warmup, setNumber) => drafts[draftKey(current.id, warmup, setNumber)]}
+          onDraft={(warmup, setNumber, draft) =>
+            setDrafts((prev) => ({ ...prev, [draftKey(current.id, warmup, setNumber)]: draft }))
+          }
           onSave={async (warmup, setNumber, weightKg, reps) => {
             await saveSet(workout.id, current.id, warmup, setNumber, weightKg, reps);
             await refresh(workout.id);
