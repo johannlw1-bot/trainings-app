@@ -102,14 +102,27 @@ Aufbau:
 - **Leistung:** Der Fleck ist ein einfacher Verlauf, unscharf gerechnet wird nur an drei Stellen. Mehr Glas kommt nicht dazu. Ohne `backdrop-filter` gibt es eine fast deckende Fläche als Ersatz
 - **Seitenränder:** `.app` schneidet alles ab, was seitlich übersteht (`overflow-x: clip`). Sonst würde das Leuchten die Seite verbreitern und Safari herauszoomen
 
+### Kräftige Effekte (`.vivid`)
+
+Training-Tab, Trainingsansicht und Übersicht tragen die Klasse `.vivid`. Dort sind die Effekte bewusst kräftig, näher an Referenz 8. Alle Werte stehen als `--vivid-*` in `src/styles.css`, die übrigen Seiten bleiben ruhig.
+
+- **Leuchten:** Der Fleck ist viel größer (130 × 170 % bzw. 125 % der Karte) und kräftiger (Gelb 62 % im Kern) und strahlt weit über die Kartenränder ins Schwarz
+- **Glas:** Weiß 6 %, `blur(40px) saturate(190%)`, hauchdünne helle Kante nur oben und links (Weiß 24 %), rechts und unten fast unsichtbar
+- **Tiefe:** Glas-Karten, Listen-Karten und Steuerknöpfe schweben mit weichem, dunklem Schatten
+- **Hauptbutton:** weicher gelber Schein (`--vivid-btn-glow`)
+- **Typografie:** Titel 38 px / 800, Übungsname 32 px / 800, große Zahlen 800. Nebeninfos bleiben bei 400, die Kopfzeile der Trainingsansicht wird kleiner
+- **Satzfelder:** Weiß 6 % statt `--surface-2`, eingetragene Werte weiß 800, Vorschläge und Einheiten sehr gedämpft (`--vivid-suggestion`, 500)
+- **Ring-Uhr:** Bogen 14 breit mit SVG-Leuchtfilter, schon beim Start als kurzer Anfangsbogen (mindestens 4 %). Erledigte Punkte leuchten gelb, der aktuelle ist gelb gefüllt und pulsiert dezent (1,8 s)
+- **Übersicht:** Die aktuelle Übung ist eine Glas-Karte mit Leuchten (`li.glow` > `.item.card--glass`). Erledigte zeigen statt der Kachel einen leuchtenden gelben Haken (`.icon-tile--check`)
+
 ### Verboten
 
 - Lila oder Blau-Lila, überhaupt jede zweite Farbe
-- Glas oder Leuchten außerhalb der drei genannten Elemente
+- Glas oder Leuchten außerhalb der genannten Elemente (die aktuelle Übung in der Übersicht ist dazugekommen)
 - Verläufe als Hintergrund von Seiten, Karten oder Buttons
 - Fotos und Illustrationen
 - Emojis als Icons
-- Schatten als Leuchten (`box-shadow` in Gelb)
+- Schatten als Leuchten (`box-shadow` in Gelb), außer am Hauptbutton in `.vivid`
 
 ## Schrift
 
@@ -315,7 +328,7 @@ Festgelegt für die Körpergewicht-Seite und das Fortschrittsdiagramm, gebaut wi
 
 ## Bewegung
 
-Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animationen, keine hüpfenden Zahlen, kein pulsierendes Leuchten. Bei „Bewegung reduzieren“ entfällt alles.
+Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animationen, keine hüpfenden Zahlen, kein pulsierendes Leuchten. Einzige Ausnahme: Der Punkt der aktuellen Übung in der Ring-Uhr pulsiert dezent. Bei „Bewegung reduzieren“ entfällt alles.
 
 ## Vor dem Fertigmelden prüfen
 

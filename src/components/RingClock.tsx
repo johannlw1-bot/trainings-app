@@ -84,22 +84,38 @@ export default function RingClock({
               viewBox={`0 0 ${SIZE} ${SIZE}`}
               aria-hidden="true"
             >
+              <defs>
+                <filter
+                  id="ring-glow"
+                  filterUnits="userSpaceOnUse"
+                  x={-20}
+                  y={-20}
+                  width={SIZE + 40}
+                  height={SIZE + 40}
+                >
+                  <feGaussianBlur stdDeviation="5" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
               <circle
                 className="ring__track"
                 cx={CENTER}
                 cy={CENTER}
                 r={TRACK_R}
               />
-              {progress > 0 && (
-                <circle
-                  className="ring__progress"
-                  cx={CENTER}
-                  cy={CENTER}
-                  r={TRACK_R}
-                  strokeDasharray={`${progress * CIRCUMFERENCE} ${CIRCUMFERENCE}`}
-                  transform={`rotate(-90 ${CENTER} ${CENTER})`}
-                />
-              )}
+              {/* Schon beim Start ein kurzer Anfangsbogen, damit der Ring nie leer wirkt. */}
+              <circle
+                className="ring__progress"
+                cx={CENTER}
+                cy={CENTER}
+                r={TRACK_R}
+                filter="url(#ring-glow)"
+                strokeDasharray={`${Math.max(progress, 0.04) * CIRCUMFERENCE} ${CIRCUMFERENCE}`}
+                transform={`rotate(-90 ${CENTER} ${CENTER})`}
+              />
               {statuses.map((status, index) => {
                 const { x, y } = dotPosition(index, statuses.length);
                 return (
@@ -109,13 +125,14 @@ export default function RingClock({
                     cx={x}
                     cy={y}
                     r={5.5}
+                    filter={status === "open" ? undefined : "url(#ring-glow)"}
                   />
                 );
               })}
               <text
                 className="ring__caption"
                 x={CENTER}
-                y={CENTER - 36}
+                y={CENTER - 40}
                 textAnchor="middle"
               >
                 Diese Übung
@@ -126,14 +143,14 @@ export default function RingClock({
                 y={CENTER + 4}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fontSize={exerciseTime.length > 5 ? 38 : 48}
+                fontSize={exerciseTime.length > 5 ? 40 : 56}
               >
                 {exerciseTime}
               </text>
               <text
                 className="ring__total"
                 x={CENTER}
-                y={CENTER + 42}
+                y={CENTER + 50}
                 textAnchor="middle"
               >
                 Gesamt {totalTime}

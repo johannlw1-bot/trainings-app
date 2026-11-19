@@ -106,7 +106,7 @@ export default function Training() {
   const next = nextTraining(today);
 
   return (
-    <>
+    <div className="vivid">
       <PageHeader label={dateFormat.format(today)} title="Training" />
 
       {data && (
@@ -188,6 +188,6 @@ export default function Training() {
           <Links historyCount={data.history.length} />
         </div>
       )}
-    </>
+    </div>
   );
 }

@@ -212,7 +212,7 @@ export default function WorkoutSession() {
   }));
 
   return (
-    <div className={typing ? 'session session--typing' : 'session'}>
+    <div className={typing ? 'session vivid session--typing' : 'session vivid'}>
       <header className="session__top">
         <p className="label">
           Übung {index + 1} von {exercises.length}

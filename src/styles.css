@@ -32,6 +32,17 @@
   --glow-corner: rgb(220 255 26 / 0.42);
   --glow-center: rgb(220 255 26 / 0.3);
 
+  /* Kräftige Effekte (nur in .vivid: Training-Tab, Trainingsansicht, Übersicht) */
+  --vivid-glow: rgb(220 255 26 / 0.62);
+  --vivid-glow-soft: rgb(220 255 26 / 0.22);
+  --vivid-glass-bg: rgb(255 255 255 / 0.06);
+  --vivid-edge-light: rgb(255 255 255 / 0.24);
+  --vivid-edge-dark: rgb(255 255 255 / 0.04);
+  --vivid-shadow: 0 24px 48px rgb(0 0 0 / 0.65), 0 6px 14px rgb(0 0 0 / 0.45);
+  --vivid-btn-glow: 0 8px 28px rgb(220 255 26 / 0.38), 0 2px 8px rgb(220 255 26 / 0.3);
+  --vivid-field-bg: rgb(255 255 255 / 0.06);
+  --vivid-suggestion: #46464c;
+
   /* Diagramme */
   --chart-mark: #4a4a50;
   --chart-grid: #232326;
@@ -1262,8 +1273,179 @@ button {
   flex: none;
 }
 
+/* ---------- Kräftige Effekte: Training-Tab, Trainingsansicht, Übersicht (.vivid) ---------- */
+
+/* Großer Schein hinter den wichtigen Karten, strahlt weit über die Ränder ins Schwarz. */
+.vivid .glow::before {
+  left: 78%;
+  top: 22%;
+  width: 130%;
+  height: 170%;
+  background: radial-gradient(closest-side, var(--vivid-glow), var(--vivid-glow-soft) 50%, transparent);
+}
+
+.vivid .glow--center::before {
+  left: 50%;
+  top: 50%;
+  width: 125%;
+  height: 125%;
+  background: radial-gradient(closest-side, var(--vivid-glow), var(--vivid-glow-soft) 48%, transparent);
+}
+
+/* Glas: halbtransparent, stark unscharf, helle Kante oben und links, schwebend. */
+.vivid .card--glass {
+  background: var(--vivid-glass-bg);
+  border: 1px solid var(--vivid-edge-dark);
+  border-top-color: var(--vivid-edge-light);
+  border-left-color: var(--vivid-edge-light);
+  box-shadow: var(--vivid-shadow);
+  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  backdrop-filter: blur(40px) saturate(190%);
+}
+
+/* Normale Karten schweben ebenfalls, ohne Glas. */
+.vivid .item,
+.vivid .control-btn {
+  box-shadow: var(--vivid-shadow);
+}
+
+/* Gelbe Hauptbuttons mit weichem gelbem Schein */
+.vivid .btn--primary {
+  box-shadow: var(--vivid-btn-glow);
+}
+
+/* Typografie: Titel und große Zahlen größer und fetter */
+.vivid .title {
+  font-size: 2.375rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.vivid .num--xl {
+  font-weight: 800;
+}
+
+.vivid .num--l,
+.vivid .num--m {
+  font-weight: 800;
+}
+
+.vivid .item__title {
+  font-weight: 700;
+}
+
+.vivid .session__name {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.vivid .ring__time {
+  font-weight: 800;
+}
+
+/* Nebeninfos treten zurück: kleiner und leicht */
+.vivid .label,
+.vivid .item__sub,
+.vivid .muted {
+  font-weight: 400;
+}
+
+.vivid .session__top .label {
+  font-size: 0.8125rem;
+}
+
+/* Satzfelder: weicher, eingetragen strahlend weiß, Vorschläge sehr gedämpft */
+.vivid .field__input {
+  background: var(--vivid-field-bg);
+  border-color: transparent;
+  font-weight: 800;
+}
+
+.vivid .field__input::placeholder {
+  color: var(--vivid-suggestion);
+  font-weight: 500;
+}
+
+.vivid .set-field__unit {
+  color: var(--vivid-suggestion);
+}
+
+.vivid .check-btn {
+  background: var(--vivid-field-bg);
+}
+
+.vivid .check-btn[aria-pressed='true'] {
+  background: var(--text);
+}
+
+.vivid .set-row--warmup .field__input {
+  background: transparent;
+  border-color: var(--vivid-field-bg);
+}
+
+.vivid .set-row--warmup .field__input:focus,
+.vivid .field__input:focus {
+  border-color: var(--accent);
+}
+
+/* Ring-Uhr: kräftiger, leuchtender Bogen, erledigte Punkte leuchten, der aktuelle pulsiert */
+.vivid .ring__track {
+  stroke: rgb(255 255 255 / 0.08);
+  stroke-width: 14;
+}
+
+.vivid .ring__progress {
+  stroke-width: 14;
+}
+
+.vivid .ring__dot-svg--current {
+  fill: var(--accent);
+  stroke: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ring-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes ring-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.6;
+  }
+}
+
+.vivid .ring__dot--done {
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* Übersicht: aktuelle Übung als leuchtende Glas-Karte, erledigte mit gelbem Haken */
+.vivid .item.card--glass {
+  border-radius: var(--radius-item);
+}
+
+.vivid .item.card--glass .item__sub {
+  color: var(--glass-muted);
+}
+
+.icon-tile--check {
+  background: transparent;
+  color: var(--accent);
+  filter: drop-shadow(0 0 6px rgb(220 255 26 / 0.7));
+}
+
+.icon-tile--check svg {
+  width: 28px;
+  height: 28px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+    animation: none !important;
   }
 }

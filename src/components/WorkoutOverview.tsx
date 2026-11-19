@@ -20,8 +20,8 @@ const STATUS_TEXT: Record<ExerciseStatus, string> = {
 function StatusTile({ status, number }: { status: ExerciseStatus; number: number }) {
   if (status === 'done') {
     return (
-      <span className="icon-tile">
-        <Icon name="check" strokeWidth={2.5} />
+      <span className="icon-tile icon-tile--check">
+        <Icon name="check" strokeWidth={3} />
       </span>
     );
   }
@@ -43,7 +43,7 @@ export default function WorkoutOverview({
   const done = items.filter((item) => item.status === 'done').length;
 
   return (
-    <div className="sheet" role="dialog" aria-modal="true" aria-label="Übersicht">
+    <div className="sheet vivid" role="dialog" aria-modal="true" aria-label="Übersicht">
       <div className="sheet__inner">
         <header className="session__top">
           <span />
@@ -60,10 +60,10 @@ export default function WorkoutOverview({
 
         <ul className="item-list">
           {items.map((item, index) => (
-            <li key={item.id}>
+            <li key={item.id} className={item.status === 'current' ? 'glow' : undefined}>
               <button
                 type="button"
-                className="item"
+                className={item.status === 'current' ? 'item card--glass' : 'item'}
                 aria-current={item.status === 'current' ? 'step' : undefined}
                 onClick={() => onPick(item.id)}
               >
