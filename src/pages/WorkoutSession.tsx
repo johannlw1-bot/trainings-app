@@ -19,7 +19,7 @@ import {
 import { formatSets, increaseHint, type LastTime } from '../lib/lastTime';
 import { formatReps, type Targets } from '../lib/plan';
 import { loadPlan } from '../lib/planDb';
-import { draftKey, pendingSaves, type Draft } from '../lib/setEntry';
+import { draftKey, pendingSaves, withoutSet, withSavedSet, type Draft } from '../lib/setEntry';
 import { keepScreenOn } from '../lib/wakeLock';
 import {
   deleteSet,
@@ -102,10 +102,16 @@ export default function WorkoutSession() {
   const [confirm, setConfirm] = useState<FinishCheck | null>(null);
   const now = useNow();
 
+  // Nur das zuletzt angestoßene Laden zählt. Sonst überschreibt eine ältere, langsamere Antwort
+  // einen gerade gespeicherten oder ausgetragenen Satz, und der Haken springt zurück.
+  const refreshSeq = useRef(0);
   const refresh = useCallback(async (workoutId: number) => {
+    const seq = ++refreshSeq.current;
     const [loadedSets, loadedSegments] = await Promise.all([loadSets(workoutId), loadSegments(workoutId)]);
-    setSets(loadedSets);
-    setSegments(loadedSegments);
+    if (seq === refreshSeq.current) {
+      setSets(loadedSets);
+      setSegments(loadedSegments);
+    }
     return loadedSets;
   }, []);
   // Neueste Fassung von saveDrafts für das Verlassen der Seite (Safari schließen, iPhone sperren).
@@ -369,10 +375,14 @@ export default function WorkoutSession() {
             setDrafts((prev) => ({ ...prev, [draftKey(current.id, warmup, setNumber)]: draft }))
           }
           onSave={async (warmup, setNumber, weightKg, reps) => {
+            // Haken sofort gelb, nicht erst, wenn die Datenbank geantwortet hat.
+            const set = { workoutId: workout.id, exerciseId: current.id, warmup, setNumber, weightKg, reps };
+            setSets((prev) => withSavedSet(prev, set));
             await saveSet(workout.id, current.id, warmup, setNumber, weightKg, reps);
             await refresh(workout.id);
           }}
           onClear={async (warmup, setNumber) => {
+            setSets((prev) => withoutSet(prev, { workoutId: workout.id, exerciseId: current.id, warmup, setNumber }));
             await deleteSet(workout.id, current.id, warmup, setNumber);
             await refresh(workout.id);
           }}

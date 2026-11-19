@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, type MouseEvent, type PointerEvent } from 'react';
 import type { WorkoutSet } from '../db';
 import type { LastTime } from '../lib/lastTime';
 import { formatKg } from '../lib/numbers';
@@ -41,6 +41,17 @@ function SetRow({
     const result = pressCheck(fields, row);
     if (result.kind === 'focus') (result.field === 'weight' ? weightRef : repsRef).current?.focus();
     onResult(result);
+    // Erst nach dem Speichern die Tastatur schließen. Das Layout springt dann (Ring-Uhr kommt zurück),
+    // der Tipp ist aber schon angekommen.
+    if (result.kind !== 'focus' && document.activeElement instanceof HTMLInputElement) {
+      document.activeElement.blur();
+    }
+  };
+
+  // Das aktive Feld behält beim Drücken des Hakens den Fokus. Sonst endet der Tastatur-Modus schon beim
+  // Aufsetzen des Fingers, das Layout verschiebt sich und der Klick verfehlt den Haken.
+  const keepFocus = (event: PointerEvent | MouseEvent) => {
+    if (document.activeElement instanceof HTMLInputElement) event.preventDefault();
   };
 
   // Ein geleertes Feld eines gespeicherten Satzes zeigt nach dem Verlassen wieder den gespeicherten Wert.
@@ -101,6 +112,8 @@ function SetRow({
         className="check-btn"
         aria-pressed={!!saved}
         aria-label={saved ? `${name} wieder austragen` : `${name} eintragen`}
+        onPointerDown={keepFocus}
+        onMouseDown={keepFocus}
         onClick={toggle}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">

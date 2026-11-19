@@ -120,6 +120,41 @@ export function buildRows(
   return [...rows(true, warmupRows, warmups), ...rows(false, rowCount, working)];
 }
 
+/**
+ * Die Sätze mit einem gespeicherten oder geänderten Satz, sofort für die Anzeige,
+ * bevor die Datenbank antwortet. Ein neuer Satz bekommt eine vorläufige negative id.
+ */
+export function withSavedSet(
+  sets: readonly WorkoutSet[],
+  set: Omit<WorkoutSet, 'id'>,
+): WorkoutSet[] {
+  const same = (s: WorkoutSet) =>
+    s.workoutId === set.workoutId &&
+    s.exerciseId === set.exerciseId &&
+    s.warmup === set.warmup &&
+    s.setNumber === set.setNumber;
+  const existing = sets.find(same);
+  if (existing) return sets.map((s) => (same(s) ? { ...s, weightKg: set.weightKg, reps: set.reps } : s));
+  const id = Math.min(0, ...sets.map((s) => s.id)) - 1;
+  return [...sets, { ...set, id }];
+}
+
+/** Die Sätze ohne den ausgetragenen Satz, sofort für die Anzeige. */
+export function withoutSet(
+  sets: readonly WorkoutSet[],
+  key: Pick<WorkoutSet, 'workoutId' | 'exerciseId' | 'warmup' | 'setNumber'>,
+): WorkoutSet[] {
+  return sets.filter(
+    (s) =>
+      !(
+        s.workoutId === key.workoutId &&
+        s.exerciseId === key.exerciseId &&
+        s.warmup === key.warmup &&
+        s.setNumber === key.setNumber
+      ),
+  );
+}
+
 export interface PendingSave extends SetValue {
   warmup: boolean;
   setNumber: number;

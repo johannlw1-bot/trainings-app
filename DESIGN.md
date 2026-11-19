@@ -270,7 +270,7 @@ Löschen fragt immer an Ort und Stelle nach: Der aufgeklappte Bereich zeigt eine
 `.set-row`: Satznummer, Gewicht, Wiederholungen, Haken. „kg“ und „Wdh“ stehen klein unten rechts in den Feldern.
 
 - **Grau ist Vorschlag, weiß ist eingetragen.** Die Felder zeigen die Werte vom letzten Mal als grauen Platzhalter
-- **Ein Tipp auf den Haken** (`.check-btn`, `--radius-inner`) speichert den Satz: eingetippte Werte, in leeren Feldern den Vorschlag. Ein zweiter trägt ihn wieder aus, die Zahlen bleiben dabei weiß im Feld stehen
+- **Ein Tipp auf den Haken** (`.check-btn`, `--radius-inner`) speichert den Satz: eingetippte Werte, in leeren Feldern den Vorschlag. Ein zweiter trägt ihn wieder aus, die Zahlen bleiben dabei weiß im Feld stehen. Ist gerade ein Feld aktiv, behält es beim Drücken des Hakens den Fokus. Der eine Tipp speichert, erst danach schließt die Tastatur und die Ring-Uhr kommt zurück. Der Haken wird sofort gelb, ohne auf die Datenbank zu warten
 - **Gespeichert:** Zahlen strahlend weiß und fett, Haken als **gelb gefüllte** Kachel mit dunklem Haken
 - **Vorschlag:** Zahlen sehr blass (`--vivid-suggestion`), Haken nur als Umriss (Weiß 16 %) ohne Fläche
 - **Nachfrage beim Beenden** (`.session-confirm`): Anthrazit-Karte an Stelle der Steuerleiste, kurzer Satz in 17 px / 600, darunter zwei gleich breite Buttons: „Weiter trainieren“ (Anthrazit) und „Beenden“ (gelb) bzw. „Verwerfen“ (rot, nur Schrift)
