@@ -5,17 +5,22 @@ import { formatKg } from '../lib/numbers';
 import type { Targets } from '../lib/plan';
 import {
   buildRows,
+  checkState,
   pressCheck,
   shownDraft,
+  startEditing,
   typeInto,
   type Draft,
   type EntryResult,
   type SetRowModel,
 } from '../lib/setEntry';
 
+/** So lange nach dem Speichern bleibt die Tastatur offen, damit das Layout nicht unter dem Finger springt. */
+const BLUR_DELAY_MS = 300;
+
 /**
  * Eine Satzzeile. Graue Zahlen sind Vorschläge, weiße eingetippt oder gespeichert.
- * Tippen speichert nichts, erst der Haken. Ein gespeicherter Satz wird beim Ändern direkt aktualisiert.
+ * Haken: Umriss (leer), gelb (wird bearbeitet, ein Tipp speichert), grau (gespeichert, ein Tipp tut nichts).
  */
 function SetRow({
   marker,
@@ -34,24 +39,59 @@ function SetRow({
 }) {
   const weightRef = useRef<HTMLInputElement>(null);
   const repsRef = useRef<HTMLInputElement>(null);
+  // Finger liegt auf dem Haken / Tipp wurde schon beim Loslassen ausgeführt (dann zählt der Klick danach nicht)
+  const pressing = useRef(false);
+  const handled = useRef(false);
   const { saved, suggestion } = row;
   const fields = shownDraft(draft, saved);
+  const state = checkState(fields, saved);
 
-  const toggle = () => {
+  const press = () => {
     const result = pressCheck(fields, row);
-    if (result.kind === 'focus') (result.field === 'weight' ? weightRef : repsRef).current?.focus();
+    if (result.kind === 'focus') {
+      (result.field === 'weight' ? weightRef : repsRef).current?.focus();
+      return;
+    }
     onResult(result);
     // Erst nach dem Speichern die Tastatur schließen. Das Layout springt dann (Ring-Uhr kommt zurück),
     // der Tipp ist aber schon angekommen.
-    if (result.kind !== 'focus' && document.activeElement instanceof HTMLInputElement) {
-      document.activeElement.blur();
+    const active = document.activeElement;
+    if (result.kind === 'save' && active instanceof HTMLInputElement) {
+      window.setTimeout(() => {
+        if (document.activeElement === active) active.blur();
+      }, BLUR_DELAY_MS);
     }
   };
 
-  // Das aktive Feld behält beim Drücken des Hakens den Fokus. Sonst endet der Tastatur-Modus schon beim
-  // Aufsetzen des Fingers, das Layout verschiebt sich und der Klick verfehlt den Haken.
-  const keepFocus = (event: PointerEvent | MouseEvent) => {
+  // Der Tipp wird schon beim Loslassen ausgeführt, nicht erst beim Klick. Safari schickt den Klick bei offener
+  // Tastatur erst nach dem Ende der Eingabe, dann ist das Layout womöglich schon verschoben.
+  // Das aktive Feld behält beim Drücken den Fokus, die Tastatur bleibt bis nach dem Speichern offen.
+  const onPointerDown = (event: PointerEvent) => {
+    if (event.button !== 0) return;
+    pressing.current = true;
     if (document.activeElement instanceof HTMLInputElement) event.preventDefault();
+  };
+  const onPointerUp = () => {
+    if (!pressing.current) return;
+    pressing.current = false;
+    handled.current = true;
+    // Kommt kein Klick hinterher (z. B. weil Safari ihn verschluckt), verfällt die Markierung.
+    window.setTimeout(() => (handled.current = false), 800);
+    press();
+  };
+  const onClick = () => {
+    // Tastatur (Enter, Leertaste) oder ein Browser ohne Pointer-Events
+    if (handled.current) handled.current = false;
+    else press();
+  };
+  const keepFocus = (event: MouseEvent) => {
+    if (document.activeElement instanceof HTMLInputElement) event.preventDefault();
+  };
+
+  // Antippen eines Feldes: Der Satz wird bearbeitet, der Haken gelb.
+  const onFocus = (event: { currentTarget: HTMLInputElement }) => {
+    event.currentTarget.select();
+    if (!fields.editing) onResult({ kind: 'none', draft: startEditing(fields) });
   };
 
   // Ein geleertes Feld eines gespeicherten Satzes zeigt nach dem Verlassen wieder den gespeicherten Wert.
@@ -62,7 +102,7 @@ function SetRow({
       draft: {
         weight: fields.weight.trim() === '' ? formatKg(saved.weightKg) : fields.weight,
         reps: fields.reps.trim() === '' ? String(saved.reps) : fields.reps,
-        typed: false,
+        editing: fields.editing,
       },
     });
   };
@@ -81,8 +121,8 @@ function SetRow({
           aria-label={`${name}: Gewicht in kg`}
           placeholder={suggestion.weightKg === null ? '' : formatKg(suggestion.weightKg)}
           value={fields.weight}
-          onFocus={(event) => event.currentTarget.select()}
-          onChange={(event) => onResult(typeInto({ ...fields, weight: event.target.value }, row))}
+          onFocus={onFocus}
+          onChange={(event) => onResult({ kind: 'none', draft: typeInto({ ...fields, weight: event.target.value }) })}
           onBlur={restoreSaved}
         />
         <span className="set-field__unit" aria-hidden="true">
@@ -99,8 +139,8 @@ function SetRow({
           aria-label={`${name}: Wiederholungen`}
           placeholder={String(suggestion.reps)}
           value={fields.reps}
-          onFocus={(event) => event.currentTarget.select()}
-          onChange={(event) => onResult(typeInto({ ...fields, reps: event.target.value }, row))}
+          onFocus={onFocus}
+          onChange={(event) => onResult({ kind: 'none', draft: typeInto({ ...fields, reps: event.target.value }) })}
           onBlur={restoreSaved}
         />
         <span className="set-field__unit" aria-hidden="true">
@@ -110,11 +150,15 @@ function SetRow({
       <button
         type="button"
         className="check-btn"
-        aria-pressed={!!saved}
-        aria-label={saved ? `${name} wieder austragen` : `${name} eintragen`}
-        onPointerDown={keepFocus}
+        data-state={state}
+        aria-label={
+          state === 'saved' ? `${name} gespeichert` : state === 'editing' ? `${name} speichern` : `${name} eintragen`
+        }
+        onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
+        onPointerCancel={() => (pressing.current = false)}
         onMouseDown={keepFocus}
-        onClick={toggle}
+        onClick={onClick}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -140,7 +184,6 @@ export default function ExerciseSets({
   draftOf,
   onDraft,
   onSave,
-  onClear,
 }: {
   exercise: Targets;
   /** Die heute eingetragenen Sätze dieser Übung */
@@ -152,7 +195,6 @@ export default function ExerciseSets({
   draftOf: (warmup: boolean, setNumber: number) => Draft | undefined;
   onDraft: (warmup: boolean, setNumber: number, draft: Draft) => void;
   onSave: (warmup: boolean, setNumber: number, weightKg: number, reps: number) => void;
-  onClear: (warmup: boolean, setNumber: number) => void;
 }) {
   const rows = buildRows(exercise, sets, last, rowCount);
   const warmupRows = rows.filter((row) => row.warmup).length;
@@ -175,7 +217,6 @@ export default function ExerciseSets({
           onResult={(result) => {
             onDraft(row.warmup, row.setNumber, result.draft);
             if (result.kind === 'save') onSave(row.warmup, row.setNumber, result.value.weightKg, result.value.reps);
-            if (result.kind === 'clear') onClear(row.warmup, row.setNumber);
           }}
         />
       ))}

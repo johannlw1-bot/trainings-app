@@ -17,9 +17,10 @@ import {
   setProgress,
 } from '../lib/exerciseTiming';
 import { formatSets, increaseHint, type LastTime } from '../lib/lastTime';
+import { formatKg } from '../lib/numbers';
 import { formatReps, type Targets } from '../lib/plan';
 import { loadPlan } from '../lib/planDb';
-import { draftKey, pendingSaves, withoutSet, withSavedSet, type Draft } from '../lib/setEntry';
+import { draftKey, pendingSaves, withSavedSet, type Draft } from '../lib/setEntry';
 import { keepScreenOn } from '../lib/wakeLock';
 import {
   deleteSet,
@@ -94,7 +95,7 @@ export default function WorkoutSession() {
   const [segments, setSegments] = useState<Segment[]>([]);
   // Vom Nutzer geänderte Zeilenzahl je Übung. Ohne Eintrag gilt der Vorschlag.
   const [rowCounts, setRowCounts] = useState<Record<number, number>>({});
-  // Eingetippte Werte je Zeile. Sie bleiben beim Austragen stehen und werden beim Wechsel gespeichert.
+  // Was in den Zeilen steht. Zeilen, die gerade bearbeitet werden (Haken gelb), werden beim Wechsel gespeichert.
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [overview, setOverview] = useState(false);
   const [typing, setTyping] = useState(false);
@@ -223,8 +224,8 @@ export default function WorkoutSession() {
   const totalMs = elapsedMs(workout.startedAt, now);
 
   /**
-   * Speichert eingetippte, nicht abgehakte Sätze der aktuellen Übung, damit beim Wechsel,
-   * Beenden oder Schließen nichts verloren geht. Gibt die Sätze danach zurück.
+   * Speichert Sätze der aktuellen Übung, die gerade bearbeitet werden (Haken gelb), damit beim Wechsel,
+   * Beenden oder Schließen nichts verloren geht. Danach sind ihre Haken grau. Gibt die Sätze danach zurück.
    */
   const saveDrafts = async (): Promise<WorkoutSet[]> => {
     const pending = pendingSaves(current, own, last, rowCount, (warmup, setNumber) =>
@@ -238,7 +239,7 @@ export default function WorkoutSession() {
       const nextDrafts = { ...prev };
       for (const set of pending) {
         const key = draftKey(current.id, set.warmup, set.setNumber);
-        if (nextDrafts[key]) nextDrafts[key] = { ...nextDrafts[key], typed: false };
+        if (nextDrafts[key]) nextDrafts[key] = { weight: formatKg(set.weightKg), reps: String(set.reps), editing: false };
       }
       return nextDrafts;
     });
@@ -375,15 +376,10 @@ export default function WorkoutSession() {
             setDrafts((prev) => ({ ...prev, [draftKey(current.id, warmup, setNumber)]: draft }))
           }
           onSave={async (warmup, setNumber, weightKg, reps) => {
-            // Haken sofort gelb, nicht erst, wenn die Datenbank geantwortet hat.
+            // Haken sofort grau, nicht erst, wenn die Datenbank geantwortet hat.
             const set = { workoutId: workout.id, exerciseId: current.id, warmup, setNumber, weightKg, reps };
             setSets((prev) => withSavedSet(prev, set));
             await saveSet(workout.id, current.id, warmup, setNumber, weightKg, reps);
-            await refresh(workout.id);
-          }}
-          onClear={async (warmup, setNumber) => {
-            setSets((prev) => withoutSet(prev, { workoutId: workout.id, exerciseId: current.id, warmup, setNumber }));
-            await deleteSet(workout.id, current.id, warmup, setNumber);
             await refresh(workout.id);
           }}
         />

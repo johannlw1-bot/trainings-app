@@ -73,7 +73,7 @@ Neongelb steht für „das ist jetzt das Wichtigste“. Erlaubt ist sie an genau
 6. **Leuchten** hinter Milchglas, siehe unten
 7. **Fokusrahmen** von Eingabefeldern, der Pfeil im Hinweis „Gewicht erhöhen“, der Name der aktuellen Übung in der Übersicht
 
-Ebenfalls gelb: der Haken eines **gespeicherten** Satzes (gelb gefüllt), damit gespeichert und Vorschlag nie verwechselt werden, und in Balkendiagrammen der Balken der aktuellen Woche.
+Ebenfalls gelb: der Haken eines Satzes, der gerade **bearbeitet** wird (gelb gefüllt, „hier gibt es etwas zu speichern“), und in Balkendiagrammen der Balken der aktuellen Woche. Ein gespeicherter Satz hat einen grauen Haken.
 
 Nicht erlaubt: Titel, Fließtext, Rahmen und Hintergründe normaler Karten.
 
@@ -270,11 +270,15 @@ Löschen fragt immer an Ort und Stelle nach: Der aufgeklappte Bereich zeigt eine
 `.set-row`: Satznummer, Gewicht, Wiederholungen, Haken. „kg“ und „Wdh“ stehen klein unten rechts in den Feldern.
 
 - **Grau ist Vorschlag, weiß ist eingetragen.** Die Felder zeigen die Werte vom letzten Mal als grauen Platzhalter
-- **Ein Tipp auf den Haken** (`.check-btn`, `--radius-inner`) speichert den Satz: eingetippte Werte, in leeren Feldern den Vorschlag. Ein zweiter trägt ihn wieder aus, die Zahlen bleiben dabei weiß im Feld stehen. Ist gerade ein Feld aktiv, behält es beim Drücken des Hakens den Fokus. Der eine Tipp speichert, erst danach schließt die Tastatur und die Ring-Uhr kommt zurück. Der Haken wird sofort gelb, ohne auf die Datenbank zu warten
-- **Gespeichert:** Zahlen strahlend weiß und fett, Haken als **gelb gefüllte** Kachel mit dunklem Haken
-- **Vorschlag:** Zahlen sehr blass (`--vivid-suggestion`), Haken nur als Umriss (Weiß 16 %) ohne Fläche
+- **Haken** (`.check-btn`, `--radius-inner`) hat drei Zustände, gesteuert über `data-state`:
+  - **Leer** (`empty`): nur ein Umriss (Weiß 16 %) ohne Fläche, Zahlen als blasse Vorschläge (`--vivid-suggestion`)
+  - **Wird bearbeitet** (`editing`): **gelb gefüllt** mit dunklem Haken. Sobald ein Feld des Satzes angetippt oder ein Wert geändert wird, auch bei einem schon gespeicherten Satz. Gelb heißt: Hier gibt es etwas zu speichern
+  - **Gespeichert** (`saved`): **grau gefüllt** (`--vivid-check-saved`) mit weißem Haken, Zahlen strahlend weiß und fett. Bleibt nach Übungswechsel und Neuladen so
+- **Ein Tipp auf den gelben Haken** speichert: eingetippte Werte, in leeren Feldern den gespeicherten Wert bzw. den Vorschlag. Danach ist er grau. Ein Tipp auf den Umriss speichert direkt den Vorschlag. Ein Tipp auf den grauen Haken tut nichts, er löscht nie
+- **Ein einziger Tipp reicht, auch bei offener Tastatur:** Das aktive Feld behält beim Drücken den Fokus (`preventDefault` auf `pointerdown`), gespeichert wird schon beim Loslassen (`pointerup`), der Klick danach zählt nicht doppelt. Erst 300 ms nach dem Speichern schließt die Tastatur und die Ring-Uhr kommt zurück, damit nichts unter dem Finger springt
+- **Wechsel der Übung** (auch Beenden, Schließen, App verlassen) speichert alle Sätze mit gelbem Haken automatisch
 - **Nachfrage beim Beenden** (`.session-confirm`): Anthrazit-Karte an Stelle der Steuerleiste, kurzer Satz in 17 px / 600, darunter zwei gleich breite Buttons: „Weiter trainieren“ (Anthrazit) und „Beenden“ (gelb) bzw. „Verwerfen“ (rot, nur Schrift)
-- **Tippen in ein Feld** überschreibt den Vorschlag (Zahl weiß), speichert aber noch nichts. Erst der Haken wird gelb
+- **Tippen in ein Feld** überschreibt den Vorschlag (Zahl weiß), speichert aber noch nichts
 - **Aufwärmsätze** (`.set-row--warmup`): „A“ statt Nummer, Felder nur umrandet statt gefüllt
 - In der Trainingsansicht sind Felder und Haken 52 px hoch, sonst 56 bis 64 px
 - „142,5“ muss bei 375 px Breite vollständig sichtbar sein

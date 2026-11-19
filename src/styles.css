@@ -44,6 +44,8 @@
   /* Vorschläge sehr blass, damit sie nie wie gespeicherte Werte aussehen */
   --vivid-suggestion: #36363b;
   --vivid-check-outline: rgb(255 255 255 / 0.16);
+  /* Haken eines gespeicherten Satzes: grau gefüllt, weißes Häkchen */
+  --vivid-check-saved: #4a4a50;
 
   /* Diagramme */
   --chart-mark: #4a4a50;
@@ -827,7 +829,7 @@ button {
   pointer-events: none;
 }
 
-/* Haken: grau = Vorschlag, weiß = eingetragen. Bewusst nicht gelb, es gibt viele davon. */
+/* Haken: Umriss = leer, gelb = wird bearbeitet (ein Tipp speichert), grau gefüllt = gespeichert */
 .check-btn {
   display: flex;
   align-items: center;
@@ -841,6 +843,10 @@ button {
   color: var(--text-muted);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  /* Kein Warten auf einen Doppeltipp, kein Markieren beim Drücken */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .check-btn svg {
@@ -848,9 +854,14 @@ button {
   height: 26px;
 }
 
-.check-btn[aria-pressed='true'] {
-  background: var(--text);
+.check-btn[data-state='editing'] {
+  background: var(--accent);
   color: var(--on-accent);
+}
+
+.check-btn[data-state='saved'] {
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 /* Aufwärmsatz: Felder nur umrandet statt gefüllt */
@@ -1570,10 +1581,16 @@ button.tile {
   color: var(--text-faint);
 }
 
-.vivid .check-btn[aria-pressed='true'] {
+.vivid .check-btn[data-state='editing'] {
   background: var(--accent);
   box-shadow: none;
   color: var(--on-accent);
+}
+
+.vivid .check-btn[data-state='saved'] {
+  background: var(--vivid-check-saved);
+  box-shadow: none;
+  color: var(--text);
 }
 
 /* Nachfrage vor dem Beenden, an Stelle der Steuerleiste */
