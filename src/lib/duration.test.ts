@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { elapsedMs, formatDurationShort, formatTimer, resumedStart, workoutDuration } from './duration';
+import { elapsedMs, formatDurationShort, formatTimer, workoutDuration } from './duration';
 
 const MIN = 60_000;
 
@@ -49,13 +49,5 @@ describe('elapsedMs und workoutDuration', () => {
   it('liefert die Dauer nur für beendete Trainings', () => {
     expect(workoutDuration({ startedAt: start, finishedAt: '2026-11-19T16:52:00.000Z' })).toBe(52 * MIN);
     expect(workoutDuration({ startedAt: start })).toBeUndefined();
-  });
-});
-
-describe('resumedStart', () => {
-  it('lässt den Timer beim Wiederöffnen ab der gespeicherten Dauer weiterlaufen', () => {
-    const now = Date.parse('2026-11-19T20:00:00.000Z');
-    const start = resumedStart('2026-11-19T16:00:00.000Z', '2026-11-19T16:50:00.000Z', now);
-    expect(elapsedMs(start, now)).toBe(50 * MIN);
   });
 });

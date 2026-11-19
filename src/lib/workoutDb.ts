@@ -9,8 +9,9 @@ import {
   type Workout,
   type WorkoutSet,
 } from '../db';
-import { elapsedMs, resumedStart } from './duration';
-import { activeExerciseId, exerciseTimes, planSwitch } from './exerciseTiming';
+import { elapsedMs } from './duration';
+import type { VolumeSet } from './volume';
+import { exerciseTimes, planSwitch } from './exerciseTiming';
 import { pickLastTime, type LastTime, type LoggedSet } from './lastTime';
 import { loadPlan } from './planDb';
 
@@ -19,9 +20,17 @@ function setsOf(workoutId: number, exerciseId: number) {
 }
 
 /** Das laufende (nicht beendete) Training, falls es eines gibt. */
-/** Tage aller Trainings, auch des laufenden (für Wochenzählung und Kalender). */
-export async function loadWorkoutDates(): Promise<LocalDate[]> {
-  return (await db.workouts.toArray()).map((workout) => workout.date);
+/** Alle Trainings, auch das laufende (für Wochenzählung, Kalender und die Karte „Erledigt“). */
+export function loadWorkouts(): Promise<Workout[]> {
+  return db.workouts.toArray();
+}
+
+/** Alle Sätze aus Trainings ab einem Tag, mit dem Tag des Trainings (für das Wochenvolumen). */
+export async function loadVolumeSets(since: LocalDate): Promise<VolumeSet[]> {
+  const workouts = await db.workouts.where('date').aboveOrEqual(since).toArray();
+  const dateOf = new Map(workouts.map((workout) => [workout.id, workout.date]));
+  const sets = await db.sets.where('workoutId').anyOf([...dateOf.keys()]).toArray();
+  return sets.map((set) => ({ date: dateOf.get(set.workoutId)!, weightKg: set.weightKg, reps: set.reps, warmup: set.warmup }));
 }
 
 export async function getActiveWorkout(): Promise<Workout | undefined> {
@@ -131,28 +140,6 @@ export async function finishWorkout(workoutId: number): Promise<boolean> {
     }
     await db.workouts.update(workoutId, { finishedAt });
     return true;
-  });
-}
-
-/**
- * Macht ein beendetes Training wieder zum laufenden, zum Beispiel nach versehentlichem Beenden.
- * Der Startzeitpunkt wird so verschoben, dass der Gesamttimer ab der gespeicherten Dauer weiterläuft,
- * und die zuletzt aktive Übung bekommt einen neuen Abschnitt. Die Pause zählt nirgends mit.
- */
-export async function reopenWorkout(workoutId: number): Promise<void> {
-  const now = Date.now();
-  await db.transaction('rw', db.workouts, db.segments, async () => {
-    await db.workouts
-      .where('id')
-      .equals(workoutId)
-      .modify((workout) => {
-        if (workout.finishedAt) workout.startedAt = resumedStart(workout.startedAt, workout.finishedAt, now);
-        delete workout.finishedAt;
-      });
-    const last = activeExerciseId(await loadSegments(workoutId));
-    if (last !== undefined) {
-      await db.segments.add({ workoutId, exerciseId: last, startedAt: new Date(now).toISOString() });
-    }
   });
 }
 

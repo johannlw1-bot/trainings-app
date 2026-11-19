@@ -65,7 +65,6 @@
 
   /* Maße */
   --tap: 52px;
-  --home-action-height: calc(60px + var(--space-6) + var(--space-3) + env(safe-area-inset-bottom));
 
   /* Schrift: Outfit für alles */
   --font: 'Outfit', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
@@ -1225,11 +1224,6 @@ button {
 
 /* ---------- Übersicht (Startseite) ---------- */
 
-/* Platz unten für den festen Startbutton */
-.home--with-action {
-  padding-bottom: calc(var(--home-action-height) + var(--space-5));
-}
-
 /* Zwei quadratische Karten nebeneinander */
 .tiles {
   display: grid;
@@ -1408,27 +1402,36 @@ button {
   gap: var(--space-3);
 }
 
-/* Großer gelber Button fest über dem unteren Rand */
-.home-action {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 10;
-  max-width: 480px;
-  margin: 0 auto;
-  padding: var(--space-6) calc(env(safe-area-inset-right) + var(--space-4))
-    calc(env(safe-area-inset-bottom) + var(--space-3)) calc(env(safe-area-inset-left) + var(--space-4));
-  /* Inhalt darunter blendet ins Schwarz aus, statt hart abgeschnitten zu werden */
-  background: linear-gradient(to bottom, transparent, var(--bg) 45%);
-  pointer-events: none;
+/* Breite Karte „Bewegtes Gewicht“ (wie „Volume lifted“) */
+.volume-card {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  color: var(--text);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.home-action__btn {
-  min-height: 60px;
-  font-size: 1.125rem;
-  font-weight: 700;
-  pointer-events: auto;
+.volume-card__value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.volume-card .num--l {
+  font-size: min(2.25rem, 9vw);
+}
+
+/* Die Training-Karte ist an Trainingstagen ein Button: Browser-Stil zurücksetzen */
+button.tile {
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 /* ---------- Kräftige Effekte: Übersicht, Training, Gewicht, Trainingsansicht (.vivid) ---------- */

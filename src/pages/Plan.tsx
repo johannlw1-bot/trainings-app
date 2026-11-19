@@ -315,7 +315,7 @@ export default function Plan() {
 
   return (
     <>
-      <SubpageHeader label="Zwei Listen, vier Tage" title="Plan" />
+      <SubpageHeader label="Zwei Listen, vier Tage" title="Trainingsplan" fallback="#/einstellungen" />
 
       <div className="stack">
         <div className="segmented" role="group" aria-label="Liste wählen">

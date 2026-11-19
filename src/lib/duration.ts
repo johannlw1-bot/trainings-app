@@ -32,11 +32,3 @@ export function formatDurationShort(ms: number): string {
 export function workoutDuration(workout: Pick<Workout, 'startedAt' | 'finishedAt'>): number | undefined {
   return workout.finishedAt ? elapsedMs(workout.startedAt, Date.parse(workout.finishedAt)) : undefined;
 }
-
-/**
- * Neuer Startzeitpunkt beim Wiederöffnen: so weit vor `now`, wie das Training schon gedauert hat.
- * Der Timer läuft dann ab der gespeicherten Dauer weiter, die Pause dazwischen zählt nicht mit.
- */
-export function resumedStart(startedAt: string, finishedAt: string, now: number): string {
-  return new Date(now - elapsedMs(startedAt, Date.parse(finishedAt))).toISOString();
-}

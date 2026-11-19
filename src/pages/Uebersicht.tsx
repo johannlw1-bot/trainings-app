@@ -1,34 +1,37 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import Icon from '../components/Icon';
 import { PageHeader } from '../components/PageHeader';
 import { useNow } from '../components/useNow';
 import type { BodyWeight, Split, Workout } from '../db';
 import { formatChange, formatKg1, weightSummary } from '../lib/bodyWeight';
 import { loadBodyWeights } from '../lib/bodyWeightDb';
-import { toLocalDate } from '../lib/dates';
-import { elapsedMs, formatTimer } from '../lib/duration';
+import { addDays, toLocalDate } from '../lib/dates';
+import { elapsedMs, formatDurationShort, formatTimer, workoutDuration } from '../lib/duration';
+import { greeting } from '../lib/greeting';
 import { calendarMonths, trainedDaysIn, trainingsThisWeek, type CalendarMonth } from '../lib/overview';
 import { loadPlan } from '../lib/planDb';
 import { TRAININGS_PER_WEEK, nextTraining, splitForDate, splitLabel } from '../lib/schedule';
-import { getActiveWorkout, loadWorkoutDates, startWorkout } from '../lib/workoutDb';
+import { formatVolume, formatVolumeChange, weeklyVolume, type VolumeSet } from '../lib/volume';
+import { getActiveWorkout, loadVolumeSets, loadWorkouts, startWorkout } from '../lib/workoutDb';
 
 const dateFormat = new Intl.DateTimeFormat('de', { weekday: 'long', day: 'numeric', month: 'long' });
 const weekdayFormat = new Intl.DateTimeFormat('de', { weekday: 'long' });
 
 interface Loaded {
   active: Workout | undefined;
-  dates: string[];
+  workouts: Workout[];
   weights: BodyWeight[];
+  volumeSets: VolumeSet[];
   planCount: number;
 }
 
-/** Laufende Gesamtzeit, jede Sekunde neu aus dem gespeicherten Start berechnet. */
+/** Laufende Gesamtzeit, jede halbe Sekunde neu aus dem gespeicherten Start berechnet. */
 function RunningTime({ startedAt }: { startedAt: string }) {
   const now = useNow();
   return <span className="timer">{formatTimer(elapsedMs(startedAt, now))}</span>;
 }
 
-/** Kleiner Ring: Trainings dieser Woche von den geplanten. */
+/** Kleiner Ring: Trainingstage dieser Woche von den geplanten. */
 function WeekRing({ done }: { done: number }) {
   const r = 19;
   const c = 2 * Math.PI * r;
@@ -74,17 +77,74 @@ function CalendarGrid({ months }: { months: CalendarMonth[] }) {
   );
 }
 
+/**
+ * Training-Karte: Inhalt je nach Zustand. Je nach Zustand ein Link, ein Button (startet sofort)
+ * oder an Ruhetagen nur eine Anzeige.
+ */
+function TrainingTile({
+  week,
+  title,
+  sub,
+  href,
+  onStart,
+  label,
+}: {
+  week: number;
+  title: string;
+  sub: ReactNode;
+  href?: string;
+  onStart?: () => void;
+  label?: string;
+}) {
+  const content = (
+    <>
+      <span className="tile__top">
+        <WeekRing done={week} />
+        <span className="tile__hint">
+          {week} von {TRAININGS_PER_WEEK}
+          <br />
+          diese Woche
+        </span>
+      </span>
+      <span className="tile__bottom">
+        <span className="tile__title">{title}</span>
+        <span className="tile__sub">{sub}</span>
+      </span>
+    </>
+  );
+  return (
+    <div className="glow tile-glow">
+      {href ? (
+        <a className="tile card--glass" href={href} aria-label={label}>
+          {content}
+        </a>
+      ) : onStart ? (
+        <button type="button" className="tile card--glass" onClick={onStart} aria-label={label}>
+          {content}
+        </button>
+      ) : (
+        <div className="tile card--glass">{content}</div>
+      )}
+    </div>
+  );
+}
+
 export default function Uebersicht() {
-  const [today] = useState(() => new Date());
-  const todayDate = toLocalDate(today);
-  const split = splitForDate(today);
+  const [now] = useState(() => new Date());
+  const today = toLocalDate(now);
+  const split = splitForDate(now);
   const [data, setData] = useState<Loaded | null>(null);
 
   const reload = useCallback(async () => {
-    const [active, dates, weights] = await Promise.all([getActiveWorkout(), loadWorkoutDates(), loadBodyWeights()]);
-    const planCount = split ? (await loadPlan(split)).length : 0;
-    setData({ active, dates, weights, planCount });
-  }, [split]);
+    const [active, workouts, weights, volumeSets, plan] = await Promise.all([
+      getActiveWorkout(),
+      loadWorkouts(),
+      loadBodyWeights(),
+      loadVolumeSets(addDays(today, -13)),
+      split ? loadPlan(split) : Promise.resolve([]),
+    ]);
+    setData({ active, workouts, weights, volumeSets, planCount: plan.length });
+  }, [today, split]);
 
   useEffect(() => {
     reload();
@@ -92,56 +152,80 @@ export default function Uebersicht() {
 
   if (!data) return null;
 
-  const { active, dates, weights } = data;
-  const week = trainingsThisWeek(dates, todayDate);
-  const doneToday = !active && dates.includes(todayDate);
+  const { active, workouts, weights } = data;
+  const dates = workouts.map((workout) => workout.date);
+  const week = trainingsThisWeek(dates, today);
+  // Neuestes beendetes Training von heute
+  const doneToday = active
+    ? undefined
+    : workouts
+        .filter((workout) => workout.date === today && workout.finishedAt)
+        .sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0];
   const summary = weightSummary(weights);
-  const months = calendarMonths(dates, todayDate);
+  const months = calendarMonths(dates, today);
   const calendarCount = trainedDaysIn(months);
-  const next = nextTraining(today);
+  const volume = weeklyVolume(data.volumeSets, today);
+  const next = nextTraining(now);
 
   const start = async (which: Split) => {
-    await startWorkout(which, todayDate);
+    await startWorkout(which, today);
     window.location.hash = '#/einheit';
   };
 
-  const showStart = !active && !doneToday && split !== null && data.planCount > 0;
+  let tile: ReactNode;
+  if (active) {
+    tile = (
+      <TrainingTile
+        week={week}
+        title={splitLabel(active.split)}
+        sub={
+          <>
+            Läuft · <RunningTime startedAt={active.startedAt} />
+          </>
+        }
+        href="#/einheit"
+        label={`${splitLabel(active.split)} läuft, weiter zum Training`}
+      />
+    );
+  } else if (doneToday) {
+    const duration = workoutDuration(doneToday);
+    tile = (
+      <TrainingTile
+        week={week}
+        title="Erledigt"
+        sub={`${splitLabel(doneToday.split)}${duration !== undefined ? ` · ${formatDurationShort(duration)}` : ''}`}
+        href={`#/auswertung/${doneToday.id}`}
+        label={`Heute erledigt, Auswertung öffnen`}
+      />
+    );
+  } else if (split && data.planCount > 0) {
+    tile = (
+      <TrainingTile
+        week={week}
+        title={splitLabel(split)}
+        sub="Tippen zum Starten"
+        onStart={() => start(split)}
+        label={`${splitLabel(split)} starten`}
+      />
+    );
+  } else if (split) {
+    tile = <TrainingTile week={week} title={splitLabel(split)} sub="Plan ist noch leer" href="#/plan" />;
+  } else {
+    tile = (
+      <TrainingTile
+        week={week}
+        title="Ruhetag"
+        sub={`${weekdayFormat.format(next.date)}: ${splitLabel(next.split)}`}
+      />
+    );
+  }
 
   return (
-    <div className={active || showStart ? 'vivid home home--with-action' : 'vivid home'}>
-      <PageHeader label={dateFormat.format(today)} title="Übersicht" />
+    <div className="vivid home">
+      <PageHeader label={dateFormat.format(now)} title={greeting(now)} />
 
       <div className="tiles">
-        <div className="glow tile-glow">
-          <a className="tile card--glass" href="#/training">
-            <span className="tile__top">
-              <WeekRing done={week} />
-              <span className="tile__hint">
-                {week} von {TRAININGS_PER_WEEK}
-                <br />
-                diese Woche
-              </span>
-            </span>
-            <span className="tile__bottom">
-              <span className="tile__title">
-                {active ? splitLabel(active.split) : split ? splitLabel(split) : 'Ruhetag'}
-              </span>
-              <span className="tile__sub">
-                {active ? (
-                  <>
-                    Läuft · <RunningTime startedAt={active.startedAt} />
-                  </>
-                ) : doneToday ? (
-                  'Heute erledigt'
-                ) : split ? (
-                  'Heute'
-                ) : (
-                  `${weekdayFormat.format(next.date)}: ${splitLabel(next.split)}`
-                )}
-              </span>
-            </span>
-          </a>
-        </div>
+        {tile}
 
         <a className="tile" href="#/gewicht">
           <span className="tile__top">
@@ -182,21 +266,19 @@ export default function Uebersicht() {
         </span>
       </a>
 
-      {(active || showStart) && (
-        <div className="home-action">
-          {active ? (
-            <a className="btn btn--primary btn--block home-action__btn" href="#/einheit">
-              Training fortsetzen · <RunningTime startedAt={active.startedAt} />
-            </a>
-          ) : (
-            split && (
-              <button type="button" className="btn btn--primary btn--block home-action__btn" onClick={() => start(split)}>
-                {splitLabel(split)} starten
-              </button>
-            )
-          )}
-        </div>
-      )}
+      <a className="card volume-card" href="#/verlauf">
+        <span className="item__main">
+          <span className="item__title">Bewegtes Gewicht</span>
+          <span className="item__sub">Letzte 7 Tage</span>
+        </span>
+        <span className="volume-card__value">
+          <span className="num num--l">
+            {formatVolume(volume.currentKg)}
+            <span className="num__unit">kg</span>
+          </span>
+          <span className="item__sub">{formatVolumeChange(volume.changeKg)} zur Vorwoche</span>
+        </span>
+      </a>
     </div>
   );
 }

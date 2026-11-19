@@ -81,8 +81,7 @@ Verläufe und Leuchten sind **gezielt und sparsam** einzusetzen, nur für die wi
 
 **Mit Milchglas und Leuchten**, und nur diese:
 
-- die Training-Karte der Übersicht (nur sie, Gewicht und Kalender bleiben anthrazit)
-- die Karte „Heute“ auf der Training-Seite (in allen Zuständen: Training starten, läuft, erledigt, Ruhetag)
+- die Training-Karte der Startseite (in allen Zuständen: Start, läuft, erledigt, Ruhetag; Gewicht, Kalender und Volumen bleiben anthrazit)
 - die Ring-Uhr in der Trainingsansicht
 - die Zusammenfassung oben in der Auswertung
 
@@ -105,7 +104,7 @@ Aufbau:
 
 ### Kräftige Effekte (`.vivid`)
 
-Übersicht (Startseite), Training-Seite, Trainingsansicht, Übersicht des Trainings und Gewicht tragen die Klasse `.vivid`. Auf der Gewicht-Seite ist die Eingabekarte oben aus Glas mit Leuchten. Dort sind die Effekte bewusst kräftig, näher an Referenz 8. Alle Werte stehen als `--vivid-*` in `src/styles.css`, die übrigen Seiten bleiben ruhig.
+Übersicht (Startseite), Trainingsansicht, Übersicht des Trainings und Gewicht tragen die Klasse `.vivid`. Auf der Gewicht-Seite ist die Eingabekarte oben aus Glas mit Leuchten. Dort sind die Effekte bewusst kräftig, näher an Referenz 8. Alle Werte stehen als `--vivid-*` in `src/styles.css`, die übrigen Seiten bleiben ruhig.
 
 - **Leuchten:** Der Fleck ist größer (87 × 113 % bzw. 83 % der Karte) und kräftiger (Gelb 41 % im Kern) und strahlt über die Kartenränder ins Schwarz. Am 19.11.2026 überall um ein Drittel zurückgenommen, auch Button-Schein, Ring-Filter und Haken
 - **Glas:** Weiß 6 %, `blur(40px) saturate(190%)`, hauchdünne helle Kante nur oben und links (Weiß 24 %), rechts und unten fast unsichtbar
@@ -208,7 +207,7 @@ Icons kommen aus `src/components/Icon.tsx`: Linien-Icons, Strichstärke 2, runde
 
 `.item-list` mit `.item`: Jeder Eintrag ist eine eigene Anthrazit-Karte (`--radius-item`, mindestens 68 px hoch, 10 px Abstand). Links die Icon-Kachel, daneben Titel (weiß, 600) und Nebeninfo (grau), rechts ein Wert als Zahl M oder ein grauer Pfeil. Ohne Kachel: `.item--plain`.
 
-Verwendet für: „Vergangene Trainings“ und „Plan bearbeiten“ auf der Training-Seite, Verlauf, Übersicht während des Trainings, Zeit pro Übung in der Auswertung, Zeiten im Übungsdetail.
+Verwendet für: „Trainingsplan“ in den Einstellungen, Verlauf, Übersicht während des Trainings, Zeit pro Übung in der Auswertung, Zeiten im Übungsdetail.
 
 ### Karte
 
@@ -216,7 +215,7 @@ Verwendet für: „Vergangene Trainings“ und „Plan bearbeiten“ auf der Tra
 
 ### Hauptkarte
 
-`.card.card--hero`: die eine Karte, um die es geht, mit mehr Luft. Darin Beschriftung, der Inhalt in Titelgröße oder als Zahl XL (weiß), eine kurze graue Zeile und höchstens ein Hauptbutton. Die Hauptkarten auf der Training-Seite und in der Auswertung sind aus Glas mit Leuchten.
+`.card.card--hero`: die eine Karte, um die es geht, mit mehr Luft. Darin Beschriftung, der Inhalt in Titelgröße oder als Zahl XL (weiß), eine kurze graue Zeile und höchstens ein Hauptbutton. Die Hauptkarten der Gewicht-Seite und der Auswertung sind aus Glas mit Leuchten.
 
 ### Zeilenliste
 
@@ -310,12 +309,13 @@ Laufende Zeiten (`.timer`) im Format „0:00“, ab einer Stunde „1:05:00“, 
 
 ### Übersicht (Startseite)
 
-Aufbau nach Referenz 6: oben der Seitenkopf mit Zahnrad, darunter zwei quadratische Kacheln, dann der Trainingskalender, unten fest der Startbutton.
+Aufbau nach Referenz 6: oben die Begrüßung als Titel (bricht bei Bedarf in zwei Zeilen um) mit Datum und Zahnrad, darunter zwei quadratische Kacheln, dann Trainingskalender und Wochenvolumen. Kein fester Button.
 
 - **Kachel** (`.tile`): quadratisch (`aspect-ratio: 1`), `--radius-card`, 16 px Innenabstand. Oben ein Ring oder eine Zahl, unten Titel (22 px, 800, schrumpft unter 390 px mit) und graue Nebenzeile. Ganze Kachel ist ein Link. Nur die Training-Kachel ist Glas mit Leuchten (`.glow.tile-glow` > `.tile.card--glass`), die Gewicht-Kachel bleibt anthrazit, die Zahl darin als Zahl L (höchstens 40 px)
 - **Wochenring** (`.week-ring`): 52 px, Ring Weiß 12 %, Bogen gelb, in der Mitte die Zahl der Trainingstage dieser Woche (Mo bis So), daneben „2 von 4 diese Woche“
 - **Trainingskalender** (`.calendar-card`): breite Anthrazit-Karte, drei Monate nebeneinander mit Monatsnamen, darunter ein Raster aus 6-px-Punkten in sieben Wochentagsspalten (Mo zuerst). Vergangene Tage Weiß 22 %, künftige Weiß 7 %, Trainingstage gelb mit leichtem gelbem Schein, heute weiß umrandet. Darunter „Trainingskalender“ mit Anzahl und grauem Pfeil
-- **Startbutton** (`.home-action`): fest über dem unteren Rand, gelber Hauptbutton 60 px hoch, 18 px, 700, mit gelbem Schein. Hinter ihm blendet der Inhalt in einem kurzen Verlauf ins Schwarz aus (einzige erlaubte Ausnahme von „keine Verläufe als Hintergrund“). An Ruhetagen und nach dem heutigen Training entfällt er
+- **Training-Kachel als Startknopf:** An Trainingstagen ist sie ein `button.tile` und startet sofort („Tippen zum Starten“), sonst ein Link (läuft, erledigt) oder an Ruhetagen eine Anzeige ohne Tippfläche
+- **Wochenvolumen** (`.volume-card`): breite Anthrazit-Karte wie „Volume lifted“. Links „Bewegtes Gewicht“ und „Letzte 7 Tage“, rechts der Wert als Zahl L (höchstens 36 px, Tausenderpunkt) und darunter grau der Vergleich zur Vorwoche
 
 ## Diagramme
 
@@ -342,7 +342,7 @@ Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animation
 
 ## Vor dem Fertigmelden prüfen
 
-- In 390 und 375 px Breite angesehen, nichts ragt über den Rand, der Startbutton der Übersicht sitzt unten und verdeckt nichts
+- In 390 und 375 px Breite angesehen, nichts ragt über den Rand, die Begrüßung auf der Startseite bricht sauber um
 - Glas und Leuchten nur an den drei erlaubten Stellen, Text nie über dem kräftigen Kern des Leuchtens
 - Höchstens ein gelber Hauptbutton und eine gelbe Zahl pro Bildschirm
 - Beschriftungen gedämpft, aber lesbar (mindestens 4,5 : 1, auf Glas `--glass-muted`)

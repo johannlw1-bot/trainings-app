@@ -1,7 +1,6 @@
 import { useEffect, useState, type ComponentType } from 'react';
 import { noteNavigation } from './nav';
 import Uebersicht from './pages/Uebersicht';
-import Training from './pages/Training';
 import Gewicht from './pages/Gewicht';
 import Plan from './pages/Plan';
 import ExerciseDetail from './pages/ExerciseDetail';
@@ -26,7 +25,6 @@ const HOME = '';
 
 const ROUTES: Record<string, { page: ComponentType<PageProps>; fullscreen?: boolean }> = {
   [HOME]: { page: Uebersicht },
-  training: { page: Training },
   gewicht: { page: Gewicht },
   plan: { page: Plan },
   uebung: { page: ExerciseDetail },
