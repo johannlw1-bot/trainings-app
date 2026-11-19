@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import Icon from '../components/Icon';
-import { PageHeader } from '../components/PageHeader';
+import { SubpageHeader } from '../components/PageHeader';
 import WorkoutTimer from '../components/WorkoutTimer';
 import type { Split, Workout } from '../db';
 import { toLocalDate } from '../lib/dates';
@@ -107,7 +107,7 @@ export default function Training() {
 
   return (
     <div className="vivid">
-      <PageHeader label={dateFormat.format(today)} title="Training" />
+      <SubpageHeader label={dateFormat.format(today)} title="Training" />
 
       {data && (
         <div className="stack">

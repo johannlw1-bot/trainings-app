@@ -1,5 +1,5 @@
 // Zurück-Navigation für Unterseiten. Wurde die Unterseite innerhalb der App geöffnet,
-// geht es im Browser-Verlauf zurück (so landet man wieder auf dem Tab, von dem man kam).
+// geht es im Browser-Verlauf zurück (so landet man wieder auf der Seite, von der man kam).
 // Wurde sie direkt aufgerufen, gibt es nichts zum Zurückgehen, dann gilt die Ausweichseite.
 
 let depth = 0;

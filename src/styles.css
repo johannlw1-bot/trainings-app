@@ -65,8 +65,7 @@
 
   /* Maße */
   --tap: 52px;
-  --tabbar-height: 64px;
-  --tabbar-bottom: max(12px, calc(env(safe-area-inset-bottom) - 6px));
+  --home-action-height: calc(60px + var(--space-6) + var(--space-3) + env(safe-area-inset-bottom));
 
   /* Schrift: Outfit für alles */
   --font: 'Outfit', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
@@ -131,12 +130,7 @@ button {
   max-width: 480px;
   margin: 0 auto;
   padding: calc(env(safe-area-inset-top) + var(--space-4)) calc(env(safe-area-inset-right) + var(--space-4))
-    calc(var(--tabbar-bottom) + var(--tabbar-height) + var(--space-6)) calc(env(safe-area-inset-left) + var(--space-4));
-}
-
-/* Unterseiten haben keine Tab-Leiste, unten reicht der normale Abstand. */
-.page--sub {
-  padding-bottom: calc(env(safe-area-inset-bottom) + var(--space-6));
+    calc(env(safe-area-inset-bottom) + var(--space-6)) calc(env(safe-area-inset-left) + var(--space-4));
 }
 
 .stack {
@@ -1229,51 +1223,215 @@ button {
   font-weight: 400;
 }
 
-/* ---------- Schwebende Tab-Leiste ---------- */
+/* ---------- Übersicht (Startseite) ---------- */
 
-.tabbar {
-  position: fixed;
-  left: 50%;
-  bottom: var(--tabbar-bottom);
-  transform: translateX(-50%);
-  z-index: 10;
-  display: flex;
-  gap: var(--space-1);
-  width: min(calc(100% - 2 * var(--space-4)), 320px);
-  height: var(--tabbar-height);
-  padding: 7px;
-  background: var(--surface);
-  border: 1px solid rgb(255 255 255 / 0.06);
-  border-radius: var(--radius-card);
-  box-shadow: 0 12px 32px rgb(0 0 0 / 0.7);
+/* Platz unten für den festen Startbutton */
+.home--with-action {
+  padding-bottom: calc(var(--home-action-height) + var(--space-5));
 }
 
-.tabbar__tab {
-  flex: 1;
+/* Zwei quadratische Karten nebeneinander */
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.tile-glow {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  border-radius: var(--radius-btn);
-  color: var(--text-muted);
-  font-size: 0.9375rem;
-  font-weight: 600;
+}
+
+.tile {
+  flex: 1;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-.tabbar__tab[aria-current='page'] {
-  background: var(--accent);
-  color: var(--on-accent);
+.tile__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
 
-.tabbar__icon {
+.tile__hint {
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  text-align: right;
+  color: var(--glass-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tile__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tile__title {
+  font-size: min(1.375rem, 5.6vw);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.tile__sub {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.tile.card--glass .tile__sub {
+  color: var(--glass-muted);
+}
+
+/* Gewicht-Karte: die Zahl muss in die halbe Breite passen */
+.tile .num--l {
+  font-size: min(2.5rem, 10vw);
+}
+
+.tile__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-inner);
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.tile__icon svg {
   width: 22px;
   height: 22px;
-  flex: none;
 }
 
-/* ---------- Kräftige Effekte: Training-Tab, Trainingsansicht, Übersicht (.vivid) ---------- */
+/* Kleiner Ring „Trainings diese Woche“ */
+.week-ring {
+  flex: none;
+  width: 52px;
+  height: 52px;
+}
+
+.week-ring__track {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.12);
+  stroke-width: 4;
+}
+
+.week-ring__progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.week-ring__text {
+  fill: var(--text);
+  font-family: var(--font);
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Trainingskalender: breite Anthrazit-Karte mit Punkte-Raster */
+.calendar-card {
+  margin-top: var(--space-3);
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  color: var(--text);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.calendar__month {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.calendar__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 6px);
+  gap: 7px;
+}
+
+.calendar__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.22);
+}
+
+.calendar__dot--future {
+  background: rgb(255 255 255 / 0.07);
+}
+
+.calendar__dot--trained,
+.calendar__dot--trained-today {
+  background: var(--accent);
+  box-shadow: 0 0 6px rgb(220 255 26 / 0.6);
+}
+
+.calendar__dot--today,
+.calendar__dot--trained-today {
+  outline: 1.5px solid var(--text);
+  outline-offset: 2px;
+}
+
+.calendar-card__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Großer gelber Button fest über dem unteren Rand */
+.home-action {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-6) calc(env(safe-area-inset-right) + var(--space-4))
+    calc(env(safe-area-inset-bottom) + var(--space-3)) calc(env(safe-area-inset-left) + var(--space-4));
+  /* Inhalt darunter blendet ins Schwarz aus, statt hart abgeschnitten zu werden */
+  background: linear-gradient(to bottom, transparent, var(--bg) 45%);
+  pointer-events: none;
+}
+
+.home-action__btn {
+  min-height: 60px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  pointer-events: auto;
+}
+
+/* ---------- Kräftige Effekte: Übersicht, Training, Gewicht, Trainingsansicht (.vivid) ---------- */
 
 /* Großer Schein hinter den wichtigen Karten, strahlt weit über die Ränder ins Schwarz. */
 .vivid .glow::before {

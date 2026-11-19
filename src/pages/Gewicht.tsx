@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Icon from '../components/Icon';
 import LineChart from '../components/LineChart';
-import { PageHeader } from '../components/PageHeader';
+import { SubpageHeader } from '../components/PageHeader';
 import type { BodyWeight, LocalDate } from '../db';
 import {
   averageSeries,
@@ -257,7 +257,7 @@ export default function Gewicht() {
 
   return (
     <div className="vivid">
-      <PageHeader label="Körpergewicht" title="Gewicht" />
+      <SubpageHeader label="Körpergewicht" title="Gewicht" />
 
       <div className="stack">
         <EntryCard entries={entries} today={today} onSaved={reload} />

@@ -20,7 +20,7 @@ export function PageHeader({ label, title }: { label: string; title: string }) {
 export function SubpageHeader({
   label,
   title,
-  fallback = '#/training',
+  fallback = '#/',
 }: {
   label: string;
   title: string;

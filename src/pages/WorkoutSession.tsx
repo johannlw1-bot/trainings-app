@@ -29,7 +29,7 @@ import {
   saveSet,
   switchExercise,
 } from '../lib/workoutDb';
-import { goBack, replaceHash } from '../nav';
+import { replaceHash } from '../nav';
 
 interface SessionExercise extends Targets {
   id: number;
@@ -106,7 +106,7 @@ export default function WorkoutSession() {
       const loaded = await loadSession();
       if (cancelled) return;
       if (!loaded) {
-        replaceHash('#/training');
+        replaceHash('#/');
         return;
       }
       // Ohne offenen Abschnitt (z. B. Training von vor der Zeitmessung) die passende Übung starten.
@@ -157,7 +157,7 @@ export default function WorkoutSession() {
           className="btn btn--block"
           onClick={async () => {
             await finishWorkout(workout.id);
-            replaceHash('#/training');
+            replaceHash('#/');
           }}
         >
           Training abbrechen
@@ -200,7 +200,7 @@ export default function WorkoutSession() {
 
   const finish = async () => {
     const saved = await finishWorkout(workout.id);
-    replaceHash(saved ? `#/auswertung/${workout.id}/neu` : '#/training');
+    replaceHash(saved ? `#/auswertung/${workout.id}/neu` : '#/');
   };
 
   const overviewItems: OverviewItem[] = exercises.map((exercise, i) => ({
@@ -222,7 +222,7 @@ export default function WorkoutSession() {
           type="button"
           className="icon-btn"
           aria-label="Trainingsansicht verlassen, das Training läuft weiter"
-          onClick={() => goBack('#/training')}
+          onClick={() => replaceHash('#/')}
         >
           <Icon d="M6 6l12 12M18 6L6 18" />
         </button>

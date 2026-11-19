@@ -19,6 +19,11 @@ function setsOf(workoutId: number, exerciseId: number) {
 }
 
 /** Das laufende (nicht beendete) Training, falls es eines gibt. */
+/** Tage aller Trainings, auch des laufenden (für Wochenzählung und Kalender). */
+export async function loadWorkoutDates(): Promise<LocalDate[]> {
+  return (await db.workouts.toArray()).map((workout) => workout.date);
+}
+
 export async function getActiveWorkout(): Promise<Workout | undefined> {
   const open = (await db.workouts.toArray()).filter((workout) => !workout.finishedAt);
   return open.sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0];

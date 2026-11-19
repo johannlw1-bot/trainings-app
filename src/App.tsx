@@ -1,7 +1,6 @@
 import { useEffect, useState, type ComponentType } from 'react';
-import TabBar from './components/TabBar';
 import { noteNavigation } from './nav';
-import { DEFAULT_TAB, type TabId } from './tabs';
+import Uebersicht from './pages/Uebersicht';
 import Training from './pages/Training';
 import Gewicht from './pages/Gewicht';
 import Plan from './pages/Plan';
@@ -19,13 +18,16 @@ export interface PageProps {
 }
 
 /**
- * Tab-Seiten haben `tab` gesetzt und zeigen die Tab-Leiste.
- * Unterseiten haben keinen Tab: Sie zeigen oben einen Zurück-Pfeil und keine Tab-Leiste.
+ * Startseite ist die Übersicht unter `#/` (Schlüssel ''). Alle anderen Seiten sind Unterseiten
+ * mit Zurück-Pfeil. Eine Tab-Leiste gibt es nicht.
  * `fullscreen` (Trainingsansicht) bekommt den ganzen Bildschirm ohne Seitenrahmen.
  */
-const ROUTES: Record<string, { page: ComponentType<PageProps>; tab?: TabId; fullscreen?: boolean }> = {
-  training: { page: Training, tab: 'training' },
-  gewicht: { page: Gewicht, tab: 'gewicht' },
+const HOME = '';
+
+const ROUTES: Record<string, { page: ComponentType<PageProps>; fullscreen?: boolean }> = {
+  [HOME]: { page: Uebersicht },
+  training: { page: Training },
+  gewicht: { page: Gewicht },
   plan: { page: Plan },
   uebung: { page: ExerciseDetail },
   einstellungen: { page: Einstellungen },
@@ -36,7 +38,7 @@ const ROUTES: Record<string, { page: ComponentType<PageProps>; tab?: TabId; full
 
 function parseHash(hash: string): { route: string; param?: string; extra?: string } {
   const [route, param, extra] = hash.replace(/^#\/?/, '').split('/');
-  return route in ROUTES ? { route, param, extra } : { route: DEFAULT_TAB };
+  return route in ROUTES ? { route, param, extra } : { route: HOME };
 }
 
 export default function App() {
@@ -52,7 +54,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  const { page: Page, tab, fullscreen } = ROUTES[location.route];
+  const { page: Page, fullscreen } = ROUTES[location.route];
   // Schlüssel aus der ganzen Adresse: Ein Wechsel von #/auswertung/1 zu /2 baut die Seite neu auf.
   const key = `${location.route}/${location.param ?? ''}/${location.extra ?? ''}`;
 
@@ -66,10 +68,9 @@ export default function App() {
 
   return (
     <div className="app">
-      <main className={tab ? 'page' : 'page page--sub'}>
+      <main className="page">
         <Page key={key} param={location.param} extra={location.extra} />
       </main>
-      {tab && <TabBar active={tab} />}
     </div>
   );
 }

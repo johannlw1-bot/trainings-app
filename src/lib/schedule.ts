@@ -3,6 +3,9 @@ import type { Split } from '../db';
 /** Index = Date.getDay(), also Sonntag = 0. Mo/Do Oberkörper, Di/Fr Unterkörper, sonst Ruhetag. */
 const BY_WEEKDAY: (Split | null)[] = [null, 'upper', 'lower', null, 'upper', 'lower', null];
 
+/** Geplante Trainingstage pro Woche (derzeit 4). */
+export const TRAININGS_PER_WEEK = BY_WEEKDAY.filter(Boolean).length;
+
 export const SPLITS: { split: Split; label: string; days: string }[] = [
   { split: 'upper', label: 'Oberkörper', days: 'Mo · Do' },
   { split: 'lower', label: 'Unterkörper', days: 'Di · Fr' },

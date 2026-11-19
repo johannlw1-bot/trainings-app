@@ -93,7 +93,7 @@ export default function Auswertung({ param, extra }: PageProps) {
         </section>
 
         {justFinished && (
-          <button type="button" className="btn btn--primary btn--block" onClick={() => replaceHash('#/training')}>
+          <button type="button" className="btn btn--primary btn--block" onClick={() => replaceHash('#/')}>
             Fertig
           </button>
         )}

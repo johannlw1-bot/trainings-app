@@ -8,7 +8,7 @@ Vorbild ist der Stil der Referenz „Glas, Orange“ (nicht im Repository): fast
 
 Dunkel, ruhig und klar. Große, fette Zahlen und weiße Titel tragen den Bildschirm, alles andere tritt in gedämpftem Grau zurück. Neongelb ist die einzige Farbe. Wo es um das Wichtigste geht, leuchtet sie weich durch Milchglas, sonst bleibt die Fläche schlicht anthrazit.
 
-Die App ist so minimalistisch wie möglich: zwei Tabs, wenige Bausteine, pro Bildschirm eine Aufgabe.
+Die App ist so minimalistisch wie möglich: eine Übersicht als Startseite, keine Tab-Leiste, wenige Bausteine, pro Bildschirm eine Aufgabe.
 
 ## Farben
 
@@ -17,7 +17,7 @@ Nur dunkel, es gibt keinen hellen Modus. Alle Flächen sind neutrale Grautöne, 
 | Variable | Wert | Verwendung |
 |---|---|---|
 | `--bg` | `#0a0a0b` | Seitenhintergrund, fast schwarz |
-| `--surface` | `#1e1e21` | Karten, Listen-Karten, Tab-Leiste, Steuerknöpfe (Anthrazit) |
+| `--surface` | `#1e1e21` | Karten, Listen-Karten, Kacheln der Übersicht, Steuerknöpfe (Anthrazit) |
 | `--surface-2` | `#2c2c30` | Flächen auf Karten: Eingabefelder, Nebenbuttons, Kacheln im Ruhezustand |
 | `--line` | `#2a2a2e` | Trennlinien in Listen |
 | `--text` | `#ffffff` | Titel, große Zahlen, Namen |
@@ -66,7 +66,7 @@ Nachgerechnet nach WCAG. Normaler Text braucht mindestens 4,5 : 1.
 Neongelb steht für „das ist jetzt das Wichtigste“. Erlaubt ist sie an genau diesen Stellen:
 
 1. **Hauptbutton:** höchstens einer pro Bildschirm
-2. **Aktiver Tab** und **aktive Pille** im Umschalter
+2. **Aktive Pille** im Umschalter
 3. **Icon-Kacheln:** Icons in gelben, abgerundeten Quadraten vor Listen-Karten
 4. **Hervorgehobener Wert:** eine Zahl pro Bildschirm, der aktuelle Punkt und die Linie im Diagramm
 5. **Ring-Uhr:** Fortschrittsbogen und Punkte der erledigten und aktuellen Übung
@@ -81,7 +81,8 @@ Verläufe und Leuchten sind **gezielt und sparsam** einzusetzen, nur für die wi
 
 **Mit Milchglas und Leuchten**, und nur diese:
 
-- die Karte „Heute“ im Training-Tab (in allen Zuständen: Training starten, läuft, erledigt, Ruhetag)
+- die Training-Karte der Übersicht (nur sie, Gewicht und Kalender bleiben anthrazit)
+- die Karte „Heute“ auf der Training-Seite (in allen Zuständen: Training starten, läuft, erledigt, Ruhetag)
 - die Ring-Uhr in der Trainingsansicht
 - die Zusammenfassung oben in der Auswertung
 
@@ -104,7 +105,7 @@ Aufbau:
 
 ### Kräftige Effekte (`.vivid`)
 
-Training-Tab, Trainingsansicht, Übersicht und Gewicht tragen die Klasse `.vivid`. Auf der Gewicht-Seite ist die Eingabekarte oben aus Glas mit Leuchten. Dort sind die Effekte bewusst kräftig, näher an Referenz 8. Alle Werte stehen als `--vivid-*` in `src/styles.css`, die übrigen Seiten bleiben ruhig.
+Übersicht (Startseite), Training-Seite, Trainingsansicht, Übersicht des Trainings und Gewicht tragen die Klasse `.vivid`. Auf der Gewicht-Seite ist die Eingabekarte oben aus Glas mit Leuchten. Dort sind die Effekte bewusst kräftig, näher an Referenz 8. Alle Werte stehen als `--vivid-*` in `src/styles.css`, die übrigen Seiten bleiben ruhig.
 
 - **Leuchten:** Der Fleck ist größer (87 × 113 % bzw. 83 % der Karte) und kräftiger (Gelb 41 % im Kern) und strahlt über die Kartenränder ins Schwarz. Am 19.11.2026 überall um ein Drittel zurückgenommen, auch Button-Schein, Ring-Filter und Haken
 - **Glas:** Weiß 6 %, `blur(40px) saturate(190%)`, hauchdünne helle Kante nur oben und links (Weiß 24 %), rechts und unten fast unsichtbar
@@ -177,9 +178,9 @@ Listen-Karten stehen 10 px auseinander. Inhalt ist höchstens 480 px breit. Safe
 
 | Variable | Wert | Verwendung |
 |---|---|---|
-| `--radius-card` | 26 px | Karten, Glas-Karten, Tab-Leiste |
+| `--radius-card` | 26 px | Karten, Glas-Karten, Kacheln der Übersicht |
 | `--radius-item` | 22 px | Listen-Karten |
-| `--radius-btn` | 18 px | Buttons, Umschalter-Hülle, Steuerknöpfe, aktiver Tab |
+| `--radius-btn` | 18 px | Buttons, Umschalter-Hülle, Steuerknöpfe |
 | `--radius-inner` | 14 px | Eingabefelder, Icon-Kacheln, Haken, kleine Buttons, Pillen im Umschalter |
 
 Wie in der Vorlage sind Buttons gerundete Rechtecke, keine reinen Pillen. Ein Element in einer Karte ist immer weniger stark gerundet als die Karte.
@@ -190,7 +191,7 @@ Wie in der Vorlage sind Buttons gerundete Rechtecke, keine reinen Pillen. Ein El
 
 Titel groß und weiß, darunter die Beschriftung in Grau (wie „Your Balance / Money Received“ in der Vorlage). Komponenten in `src/components/PageHeader.tsx`.
 
-- **Tab-Seiten** (`<PageHeader>`): rechts das Zahnrad als nacktes Icon
+- **Übersicht** (`<PageHeader>`): rechts das Zahnrad als nacktes Icon
 - **Unterseiten** (`<SubpageHeader>`): oben links der Zurück-Pfeil als nacktes Icon, darunter Titel und Beschriftung
 
 ### Icon-Button
@@ -207,7 +208,7 @@ Icons kommen aus `src/components/Icon.tsx`: Linien-Icons, Strichstärke 2, runde
 
 `.item-list` mit `.item`: Jeder Eintrag ist eine eigene Anthrazit-Karte (`--radius-item`, mindestens 68 px hoch, 10 px Abstand). Links die Icon-Kachel, daneben Titel (weiß, 600) und Nebeninfo (grau), rechts ein Wert als Zahl M oder ein grauer Pfeil. Ohne Kachel: `.item--plain`.
 
-Verwendet für: „Vergangene Trainings“ und „Plan bearbeiten“ im Training-Tab, Verlauf, Übersicht während des Trainings, Zeit pro Übung in der Auswertung, Zeiten im Übungsdetail.
+Verwendet für: „Vergangene Trainings“ und „Plan bearbeiten“ auf der Training-Seite, Verlauf, Übersicht während des Trainings, Zeit pro Übung in der Auswertung, Zeiten im Übungsdetail.
 
 ### Karte
 
@@ -215,7 +216,7 @@ Verwendet für: „Vergangene Trainings“ und „Plan bearbeiten“ im Training
 
 ### Hauptkarte
 
-`.card.card--hero`: die eine Karte, um die es geht, mit mehr Luft. Darin Beschriftung, der Inhalt in Titelgröße oder als Zahl XL (weiß), eine kurze graue Zeile und höchstens ein Hauptbutton. Die Hauptkarten im Training-Tab und in der Auswertung sind aus Glas mit Leuchten.
+`.card.card--hero`: die eine Karte, um die es geht, mit mehr Luft. Darin Beschriftung, der Inhalt in Titelgröße oder als Zahl XL (weiß), eine kurze graue Zeile und höchstens ein Hauptbutton. Die Hauptkarten auf der Training-Seite und in der Auswertung sind aus Glas mit Leuchten.
 
 ### Zeilenliste
 
@@ -276,7 +277,7 @@ Löschen fragt immer an Ort und Stelle nach: Der aufgeklappte Bereich zeigt eine
 
 ### Trainingsansicht
 
-`.session` füllt genau den Bildschirm (`100dvh`), ohne Tab-Leiste. Von oben nach unten:
+`.session` füllt genau den Bildschirm (`100dvh`). Das X führt zur Übersicht. Von oben nach unten:
 
 1. **Kopf:** „Übung 3 von 9“ in Grau, rechts das X als nacktes Icon
 2. **Übung:** Name (26 px, 700), Zeile mit Ziel und „− Satz“ / „+ Satz“, „Letztes Mal“, ggf. Hinweis
@@ -307,9 +308,14 @@ SVG in einer Glas-Karte mit Leuchten in der Mitte (`.ring__card.glow.glow--cente
 
 Laufende Zeiten (`.timer`) im Format „0:00“, ab einer Stunde „1:05:00“, immer aus gespeicherten Zeitstempeln berechnet und mit Tabellenziffern.
 
-### Tab-Leiste
+### Übersicht (Startseite)
 
-Schwebt als Anthrazit-Fläche (`--radius-card`, 64 px hoch, höchstens 320 px breit) mittig über dem Inhalt, mit dunklem Schatten. Genau zwei Tabs mit Icon und Beschriftung. Der aktive Tab ist eine gelbe Fläche mit dunkler Schrift, der andere grau. Auf Unterseiten und in der Trainingsansicht ausgeblendet. Sie entfällt später, wenn die Übersicht zur Startseite wird.
+Aufbau nach Referenz 6: oben der Seitenkopf mit Zahnrad, darunter zwei quadratische Kacheln, dann der Trainingskalender, unten fest der Startbutton.
+
+- **Kachel** (`.tile`): quadratisch (`aspect-ratio: 1`), `--radius-card`, 16 px Innenabstand. Oben ein Ring oder eine Zahl, unten Titel (22 px, 800, schrumpft unter 390 px mit) und graue Nebenzeile. Ganze Kachel ist ein Link. Nur die Training-Kachel ist Glas mit Leuchten (`.glow.tile-glow` > `.tile.card--glass`), die Gewicht-Kachel bleibt anthrazit, die Zahl darin als Zahl L (höchstens 40 px)
+- **Wochenring** (`.week-ring`): 52 px, Ring Weiß 12 %, Bogen gelb, in der Mitte die Zahl der Trainingstage dieser Woche (Mo bis So), daneben „2 von 4 diese Woche“
+- **Trainingskalender** (`.calendar-card`): breite Anthrazit-Karte, drei Monate nebeneinander mit Monatsnamen, darunter ein Raster aus 6-px-Punkten in sieben Wochentagsspalten (Mo zuerst). Vergangene Tage Weiß 22 %, künftige Weiß 7 %, Trainingstage gelb mit leichtem gelbem Schein, heute weiß umrandet. Darunter „Trainingskalender“ mit Anzahl und grauem Pfeil
+- **Startbutton** (`.home-action`): fest über dem unteren Rand, gelber Hauptbutton 60 px hoch, 18 px, 700, mit gelbem Schein. Hinter ihm blendet der Inhalt in einem kurzen Verlauf ins Schwarz aus (einzige erlaubte Ausnahme von „keine Verläufe als Hintergrund“). An Ruhetagen und nach dem heutigen Training entfällt er
 
 ## Diagramme
 
@@ -336,7 +342,7 @@ Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animation
 
 ## Vor dem Fertigmelden prüfen
 
-- In 390 und 375 px Breite angesehen, nichts ragt über den Rand, die Tab-Leiste sitzt unten
+- In 390 und 375 px Breite angesehen, nichts ragt über den Rand, der Startbutton der Übersicht sitzt unten und verdeckt nichts
 - Glas und Leuchten nur an den drei erlaubten Stellen, Text nie über dem kräftigen Kern des Leuchtens
 - Höchstens ein gelber Hauptbutton und eine gelbe Zahl pro Bildschirm
 - Beschriftungen gedämpft, aber lesbar (mindestens 4,5 : 1, auf Glas `--glass-muted`)

@@ -25,7 +25,7 @@ Vier Funktionen:
 | PWA | **vite-plugin-pwa** | Erzeugt Manifest und Service Worker, damit die App installierbar ist und offline läuft |
 | Styling | **Eigenes CSS mit CSS-Variablen** | Vier Seiten brauchen kein UI-Framework. Das Design (fast schwarz, Anthrazit-Karten, Milchglas mit gelbem Leuchten für die wichtigsten Elemente, Neongelb als einzige Akzentfarbe, Schrift Outfit lokal) ist in `DESIGN.md` festgelegt |
 | Diagramm | **Selbst gezeichnetes SVG** | Es gibt zwei einfache Liniendiagramme (Körpergewicht, Übungsfortschritt), die sich eine Komponente teilen. Eine Chart-Bibliothek wäre mehr Ballast als Nutzen |
-| Navigation | **Tab-Leiste mit Hash-Routen** (`#/training` usw.) | Kein Router-Paket nötig, funktioniert auf jedem statischen Hoster |
+| Navigation | **Übersicht als Startseite mit Hash-Routen** (`#/`, `#/training` usw.), keine Tab-Leiste | Kein Router-Paket nötig, funktioniert auf jedem statischen Hoster |
 | Sortieren | **Hoch/Runter-Buttons** | Auf dem Handy zuverlässiger als Drag-and-drop und ohne Zusatzbibliothek. Drag-and-drop kann später nachkommen |
 
 Bewusst weggelassen: Backend, Login, State-Management-Bibliothek, UI-Kit, Chart-Bibliothek, Router-Bibliothek.
@@ -92,26 +92,40 @@ Entscheidungen dahinter:
 
 ## Seitenstruktur
 
-So minimalistisch wie möglich: Die Tab-Leiste unten hat nur **zwei Tabs**, Training und Gewicht. Alles andere sind Unterseiten.
+So minimalistisch wie möglich: Die **Übersicht** ist die Startseite, es gibt **keine Tab-Leiste**. Alles andere sind Unterseiten.
 
 | Seite | Adresse | Art | Erreichbar über |
 |---|---|---|---|
-| Training | `#/training` | Tab, Startseite | Tab-Leiste |
-| Gewicht | `#/gewicht` | Tab | Tab-Leiste |
-| Plan | `#/plan` | Unterseite | Button „Plan bearbeiten“ im Training-Tab |
+| Übersicht | `#/` | Startseite | App-Start, Zurück-Pfeil, X der Trainingsansicht |
+| Training | `#/training` | Unterseite | Training-Karte der Übersicht |
+| Gewicht | `#/gewicht` | Unterseite | Gewicht-Karte der Übersicht |
+| Plan | `#/plan` | Unterseite | Button „Plan bearbeiten“ auf der Training-Seite |
 | Übungsdetail | `#/uebung/<id>` | Unterseite | Tippen auf den Übungsnamen in der Trainingsansicht oder in der Auswertung |
-| Einstellungen | `#/einstellungen` | Unterseite | Zahnrad oben rechts auf beiden Tabs |
-| Verlauf | `#/verlauf` | Unterseite | Link „Vergangene Trainings“ im Training-Tab |
-| Trainingsansicht | `#/einheit` | ganzer Bildschirm, ohne Tab-Leiste | „Training starten“ / „Training fortsetzen“ |
+| Einstellungen | `#/einstellungen` | Unterseite | Zahnrad oben rechts auf der Übersicht |
+| Verlauf | `#/verlauf` | Unterseite | Trainingskalender der Übersicht, „Vergangene Trainings“ auf der Training-Seite |
+| Trainingsansicht | `#/einheit` | ganzer Bildschirm | Startbutton der Übersicht, „Training starten“ / „Training fortsetzen“ |
 | Auswertung | `#/auswertung/<id>` | Unterseite | nach „Training beenden“, Tippen im Verlauf oder im Übungsdetail |
 
 Regeln für die Navigation:
 
-- **Tab-Seiten** zeigen die Tab-Leiste und oben rechts das Zahnrad
-- **Unterseiten** zeigen oben links einen Zurück-Pfeil und keine Tab-Leiste. Der Pfeil führt dorthin zurück, von wo die Seite geöffnet wurde. Wurde sie direkt aufgerufen, führt er zum Training-Tab
+- **Die Übersicht** zeigt oben rechts das Zahnrad
+- **Unterseiten** zeigen oben links einen Zurück-Pfeil. Der Pfeil führt dorthin zurück, von wo die Seite geöffnet wurde, von Training, Gewicht und Kalender also zur Übersicht. Wurde sie direkt aufgerufen, führt er zur Übersicht
+- Das X der Trainingsansicht, „Training beenden“ ohne Sätze und „Fertig“ in der Auswertung führen zur Übersicht
 - Die Seiten „Mehr“ und „Design-Muster“ gibt es nicht mehr
 
-### 1. Training (`#/training`) – Tab, Startseite
+### Übersicht (`#/`) – Startseite
+
+Aufbau nach Referenz 6, Stil nach DESIGN.md.
+
+- Oben „Übersicht“ mit Datum, rechts das Zahnrad
+- Zwei quadratische Karten nebeneinander:
+  - **Training** (Glas mit Leuchten): groß „Oberkörper“ / „Unterkörper“, an Ruhetagen „Ruhetag“ und der nächste Termin. Kleiner Ring mit den Trainingstagen dieser Woche (Mo bis So) von 4. Läuft ein Training, steht dort die laufende Gesamtzeit. Öffnet die Training-Seite
+  - **Gewicht** (anthrazit): groß der 7-Tage-Durchschnitt, darunter die Veränderung zur Vorwoche. Ohne Einträge „Gewicht eintragen“. Öffnet die Gewicht-Seite
+- **Trainingskalender** (breite Anthrazit-Karte): Punkte-Raster der letzten drei Monate, ein Punkt pro Tag in Wochentagsspalten (Mo zuerst). Trainingstage gelb, heute umrandet. Öffnet den Verlauf
+- **Startbutton** fest über dem unteren Rand: „Oberkörper starten“ / „Unterkörper starten“, bei laufendem Training „Training fortsetzen · 12:34“. An Ruhetagen und wenn heute schon trainiert wurde nicht sichtbar
+- Rechenlogik in `lib/overview.ts` mit Tests. Gezählt werden Tage mit Training (auch das laufende), nicht einzelne Trainings
+
+### 1. Training (`#/training`) – Unterseite
 
 - Vor dem Start nur das Nötigste: groß „Oberkörper“ oder „Unterkörper“, darunter klein die Anzahl der Übungen, und „Training starten“
 - Darunter dezent, ohne Karte: „Vergangene Trainings“ (mit Anzahl) und „Plan bearbeiten“
@@ -123,7 +137,7 @@ Regeln für die Navigation:
 
 Eine Übung nach der anderen statt einer langen Liste. Keine Tab-Leiste. Muss auf einem iPhone mit 390 × 844 px ohne Scrollen passen.
 
-- **Oben:** „Übung 3 von 9“ und rechts ein X. Das X verlässt die Ansicht, das Training läuft im Hintergrund weiter (Training-Tab zeigt „Training fortsetzen“)
+- **Oben:** „Übung 3 von 9“ und rechts ein X. Das X verlässt die Ansicht, das Training läuft im Hintergrund weiter (die Übersicht zeigt „Training fortsetzen“)
 - **Übung:** Name, Zeile mit Ziel („Ziel 3 × 8–12“) und den kleinen Knöpfen „− Satz“ und „+ Satz“, darunter „Letztes Mal: …“ mit Datum und ggf. der Hinweis „Gewicht erhöhen“
 - **Sätze:** Aufwärmsätze (mit „A“, umrandete Felder) vor den Arbeitssätzen. „kg“ und „Wdh“ stehen klein in den Feldern. Eingabelogik:
   - Die Werte vom letzten Mal stehen als grauer Vorschlag in den Feldern
@@ -194,7 +208,7 @@ Geplant (Schritt 5):
 - Zeitraum umschaltbar (3 Monate, 1 Jahr, alles)
 - Darunter die letzten Trainings dieser Übung mit allen Sätzen
 
-### 2. Gewicht (`#/gewicht`) – Tab
+### 2. Gewicht (`#/gewicht`) – Unterseite
 
 - Glas-Karte oben: Feld für heute, vorbefüllt mit dem letzten Wert, Knöpfe − 0,1 und + 0,1, „Speichern“. Über das Datum lässt sich ein früherer Tag nachtragen. Ein Eintrag pro Tag, ein zweiter überschreibt den ersten
 - Groß der aktuelle 7-Tage-Durchschnitt (zum neuesten Eintrag), daneben die Veränderung zur Vorwoche („+0,3 kg“), ohne Farbe oder Bewertung
@@ -207,7 +221,7 @@ Geplant (Schritt 5):
 
 ### Einstellungen (`#/einstellungen`) – Unterseite
 
-Erreichbar über das Zahnrad oben rechts auf beiden Tabs.
+Erreichbar über das Zahnrad oben rechts auf der Übersicht.
 
 - Backup: Export und Import als JSON-Datei, mit Datum des letzten Backups. Der Export muss alle Tabellen enthalten, auch `segments`
 
@@ -216,7 +230,7 @@ Erreichbar über das Zahnrad oben rechts auf beiden Tabs.
 ```
 src/
   main.tsx
-  App.tsx              Tab-Leiste und Routen
+  App.tsx              Routen
   db.ts                Dexie-Schema und Typen
   pages/
     Training.tsx
@@ -226,7 +240,7 @@ src/
     Einstellungen.tsx  Backup
     Verlauf.tsx        Vergangene Trainings
   nav.ts               Zurück-Navigation der Unterseiten
-  components/          Seitenkopf, Satzzeile, Übungskarte, Liniendiagramm, Tab-Leiste
+  components/          Seitenkopf, Satzzeile, Übungskarte, Liniendiagramm
   lib/
     schedule.ts        Wochentag → Oberkörper/Unterkörper/Ruhetag
     average.ts         7-Tage-Durchschnitt
@@ -267,6 +281,7 @@ Beantwortet am 16.11.2026:
 | Öffentliches Repository in Ordnung? | Ja | GitHub Pages im kostenlosen Tarif, Code öffentlich sichtbar, Daten nicht |
 | Wert im Fortschrittsdiagramm | Umschalter zwischen höchstem Gewicht und geschätztem 1RM | Übungsdetail-Seite bleibt wie beschrieben |
 | Wie viele Tabs? | Nur zwei: Training und Gewicht. Plan, Übungsdetail und Einstellungen sind Unterseiten mit Zurück-Pfeil | Abschnitt „Seitenstruktur“ neu gefasst, „Mehr“ und „Design-Muster“ entfernt |
+| Startseite (19.11.2026) | Die Übersicht nach Referenz 6 ersetzt die Tab-Leiste. Training und Gewicht werden Unterseiten | Abschnitte „Seitenstruktur“ und „Übersicht“ neu, Tab-Leiste entfernt |
 
 ## Fester Trainingsplan
 
