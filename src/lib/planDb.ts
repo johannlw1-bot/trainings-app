@@ -144,7 +144,7 @@ export async function moveEntry(split: Split, entryId: number, direction: -1 | 1
  *   eingetragenen Sätze bleiben aber für den Verlauf erhalten.
  */
 export async function deleteFromPlan(entryId: number): Promise<void> {
-  await db.transaction('rw', db.exercises, db.planEntries, db.sets, async () => {
+  await db.transaction('rw', [db.exercises, db.planEntries, db.sets, db.segments], async () => {
     const entry = await db.planEntries.get(entryId);
     if (!entry) return;
     await db.planEntries.delete(entryId);
@@ -152,7 +152,12 @@ export async function deleteFromPlan(entryId: number): Promise<void> {
     const stillPlanned = await db.planEntries.where('exerciseId').equals(entry.exerciseId).count();
     if (stillPlanned > 0) return;
 
-    if ((await setCount(entry.exerciseId)) === 0) await db.exercises.delete(entry.exerciseId);
-    else await db.exercises.update(entry.exerciseId, { archived: true });
+    if ((await setCount(entry.exerciseId)) === 0) {
+      // Nie trainiert: Übung und ihre Zeitabschnitte (falls sie nur angesehen wurde) ganz entfernen.
+      await db.segments.where('exerciseId').equals(entry.exerciseId).delete();
+      await db.exercises.delete(entry.exerciseId);
+    } else {
+      await db.exercises.update(entry.exerciseId, { archived: true });
+    }
   });
 }

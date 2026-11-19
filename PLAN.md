@@ -63,6 +63,7 @@ exercises      id, name, note?, archived
 planEntries    id, split (upper|lower), exerciseId, order, warmupSets, targetSets, targetRepsMin, targetRepsMax
 workouts       id, date (YYYY-MM-DD), split (upper|lower), startedAt, finishedAt?
 sets           id, workoutId, exerciseId, warmup, setNumber, weightKg, reps
+segments       id, workoutId, exerciseId, startedAt, endedAt?
 bodyWeights    date (YYYY-MM-DD, eindeutig), weightKg
 ```
 
@@ -85,6 +86,7 @@ Entscheidungen dahinter:
 - **Aufwärmsätze sind eigene Sätze** mit `warmup: true`, getrennt nummeriert. Sie zählen nicht für „Letztes Mal“, nicht für den Hinweis „Gewicht erhöhen“, nicht für die Satzanzahl im Verlauf und nicht für das Fortschrittsdiagramm.
 - **Der feste Plan wird vorab eingetragen** (`src/lib/seed.ts`), aber nur, wenn es noch gar keine Übungen gibt. Spätere Änderungen werden so nie überschrieben.
 - **Sollte später doch ein A/B-Split gewünscht sein**, reicht ein weiterer Wert für `split` und eine angepasste Wochentag-Zuordnung. Bestehende Daten bleiben gültig.
+- **Zeit pro Übung als Abschnitte** (`segments`, seit Datenbank-Version 3). Jeder Aufenthalt bei einer Übung wird mit Start und Ende gespeichert, die Zeit ist die Summe. Version 3 fügt nur diese Tabelle hinzu, bestehende Daten bleiben unverändert. Alte Trainings haben keine Abschnitte.
 - **Gewichte in kg**, Eingabe mit Komma oder Punkt.
 - **Ein Körpergewicht pro Tag.** Ein zweiter Eintrag am selben Tag überschreibt den ersten.
 
@@ -97,9 +99,11 @@ So minimalistisch wie möglich: Die Tab-Leiste unten hat nur **zwei Tabs**, Trai
 | Training | `#/training` | Tab, Startseite | Tab-Leiste |
 | Gewicht | `#/gewicht` | Tab | Tab-Leiste |
 | Plan | `#/plan` | Unterseite | Button „Plan bearbeiten“ im Training-Tab |
-| Übungsdetail | `#/uebung/<id>` | Unterseite | Tippen auf eine Übung im Training-Tab |
+| Übungsdetail | `#/uebung/<id>` | Unterseite | Tippen auf den Übungsnamen in der Trainingsansicht oder in der Auswertung |
 | Einstellungen | `#/einstellungen` | Unterseite | Zahnrad oben rechts auf beiden Tabs |
 | Verlauf | `#/verlauf` | Unterseite | Link „Vergangene Trainings“ im Training-Tab |
+| Trainingsansicht | `#/einheit` | ganzer Bildschirm, ohne Tab-Leiste | „Training starten“ / „Training fortsetzen“ |
+| Auswertung | `#/auswertung/<id>` | Unterseite | nach „Training beenden“, Tippen im Verlauf oder im Übungsdetail |
 
 Regeln für die Navigation:
 
@@ -109,32 +113,57 @@ Regeln für die Navigation:
 
 ### 1. Training (`#/training`) – Tab, Startseite
 
-- Vor dem Start nur das Nötigste: groß „Oberkörper“ oder „Unterkörper“, darunter klein die Anzahl der Übungen, und „Training starten“. Die einzelnen Übungen erscheinen erst nach dem Start
+- Vor dem Start nur das Nötigste: groß „Oberkörper“ oder „Unterkörper“, darunter klein die Anzahl der Übungen, und „Training starten“
 - Darunter dezent, ohne Karte: „Vergangene Trainings“ (mit Anzahl) und „Plan bearbeiten“
-- Nach dem Beenden: Karte „Erledigt“ mit Dauer und Satzanzahl und „Wieder öffnen“
-- An Ruhetagen (Mi, Sa, So): Hinweis plus Auswahl Oberkörper/Unterkörper, falls ein Training nachgeholt wird
-- Im laufenden Training steht oben eine Leiste mit dem **Trainingstimer** (0:00, ab einer Stunde 1:05:00). Sie bleibt beim Scrollen oben stehen. Der Timer rechnet ab dem gespeicherten Startzeitpunkt und stimmt deshalb auch nach dem Schließen von Safari oder dem Sperren des iPhones
-- Darunter die Übungen in Planreihenfolge, pro Übung
-  - Zeile „Letztes Mal: 80 kg × 8, 8, 7“ mit Datum
-  - Satzzeilen mit Gewicht und Wiederholungen. Die Werte vom letzten Mal stehen als grauer Vorschlag in den Feldern
-  - Ein Tipp auf den Haken trägt den Vorschlag ein, Tippen in ein Feld überschreibt ihn. Nur eingetragene Sätze werden gespeichert, offene Vorschläge verfallen beim Beenden
+- Läuft ein Training: Karte mit der laufenden Gesamtzeit und „Training fortsetzen“
+- Nach dem Beenden: Karte „Erledigt“ mit Dauer und Satzanzahl, „Auswertung“ und „Wieder öffnen“
+- An Ruhetagen (Mi, Sa, So): Hinweis plus „Oberkörper nachholen“ und „Unterkörper nachholen“
+
+### Trainingsansicht (`#/einheit`) – ganzer Bildschirm
+
+Eine Übung nach der anderen statt einer langen Liste. Keine Tab-Leiste. Muss auf einem iPhone mit 390 × 844 px ohne Scrollen passen.
+
+- **Oben:** „Übung 3 von 9“ und rechts ein X. Das X verlässt die Ansicht, das Training läuft im Hintergrund weiter (Training-Tab zeigt „Training fortsetzen“)
+- **Übung:** Name, Zeile mit Ziel („Ziel 3 × 8–12“) und den kleinen Knöpfen „− Satz“ und „+ Satz“, darunter „Letztes Mal: …“ mit Datum und ggf. der Hinweis „Gewicht erhöhen“
+- **Sätze:** Aufwärmsätze (mit „A“, umrandete Felder) vor den Arbeitssätzen. „kg“ und „Wdh“ stehen klein in den Feldern. Eingabelogik:
+  - Die Werte vom letzten Mal stehen als grauer Vorschlag in den Feldern
+  - Ein Tipp auf den Haken trägt den Vorschlag ein, Tippen in ein Feld überschreibt ihn. Nur eingetragene Sätze werden gespeichert
   - Wird heute ein anderes Gewicht eingetragen als letztes Mal, gilt es als Vorschlag für die folgenden Sätze
-  - So viele Zeilen wie Arbeitssätze im Plan, oder mehr, wenn es letztes Mal mehr waren
-  - Aufwärmsätze stehen vor den Arbeitssätzen unter der Überschrift „Aufwärmen“, mit „A“ statt Satznummer und umrandeten statt gefüllten Feldern
-  - Über den Sätzen steht das Ziel, z. B. „Ziel: 3 × 8–12“
-  - **Hinweis „Gewicht erhöhen“** (doppelte Progression): Er erscheint, wenn letztes Mal alle geplanten Arbeitssätze das obere Ende des Bereichs erreicht haben, und verschwindet, sobald heute ein schwererer Satz eingetragen ist. Erreichen die heutigen Arbeitssätze alle das obere Ende, steht dort „Nächstes Mal Gewicht erhöhen“
-  - „+ Satz“ fügt eine Zeile an, „− Satz“ entfernt die letzte
+  - So viele Zeilen wie Arbeitssätze im Plan, oder mehr, wenn es letztes Mal mehr waren. „+ Satz“ fügt eine Zeile an, „− Satz“ entfernt die letzte
+  - **Hinweis „Gewicht erhöhen“** (doppelte Progression): erscheint, wenn letztes Mal alle geplanten Arbeitssätze das obere Ende des Bereichs erreicht haben, und verschwindet, sobald heute ein schwererer Satz eingetragen ist. Erreichen die heutigen Arbeitssätze alle das obere Ende, steht dort „Nächstes Mal Gewicht erhöhen“
+- **Ring-Uhr:** groß die Zeit der aktuellen Übung, klein die Gesamtzeit. Rund um den Ring ein Punkt pro Übung (erledigt gelb gefüllt, aktuell gelb umrandet, offen gedämpft). Der gelbe Bogen zeigt den Anteil der eingetragenen an den geplanten Arbeitssätzen
+- **Steuerleiste:** links „Vorige Übung“ (in Planreihenfolge, kein Umlauf), Mitte gelb „Nächste Übung“, rechts „Übersicht“
+  - „Nächste Übung“ springt zur nächsten noch nicht erledigten Übung in Planreihenfolge. Ist danach keine mehr offen, geht die Suche vorne weiter
+  - Sind alle anderen Übungen erledigt, heißt der Button „Training beenden“
+- **Übersicht:** Blatt über der Ansicht mit allen Übungen, Status (offen, aktuell, erledigt), Arbeitssätzen und bisher gebrauchter Zeit. Ein Tipp springt zur Übung. Unten „Training beenden“, um vorzeitig zu beenden
+- **Tastatur:** Solange ein Eingabefeld aktiv ist, verschwindet die Ring-Uhr. Die Übungszeit steht dann klein neben „Übung 3 von 9“
+- **Platz auf kleinen iPhones:** Die Uhr nimmt den freien Platz zwischen Sätzen und Steuerleiste ein (Ring höchstens 260 px). Unter 150 px wird sie zur schmalen Zeile mit beiden Zeiten und kleinen Punkten. Reicht auch das nicht, scrollt nur der Bereich mit den Sätzen. Gemessen: 390 × 844 passt auch mit Aufwärmsatz, Hinweis und fünf Arbeitssätzen; 375 × 667 zeigt dann die schmale Zeile und scrollt die Sätze
+- **Display:** Solange die Ansicht offen ist, hält die Screen Wake Lock API das Display wach. Nach der Rückkehr in die App wird die Sperre neu angefordert. Fehlt die Funktion oder wird sie abgelehnt, läuft die App normal weiter
+- Tippen auf den Namen einer Übung öffnet ihre Detailseite
 - „Letztes Mal“ ist das jüngste beendete Training, in dem die Übung vorkam, egal in welcher Liste
-- Jede Eingabe wird sofort gespeichert. Ein geschlossener Browser kostet kein Training: Das laufende Training ist beim nächsten Öffnen wieder da, auch an einem anderen Tag
-- „Training beenden“ schließt die Einheit ab. Ohne eingetragene Sätze heißt der Button „Training abbrechen“ und verwirft das leere Training
-- Ein heute beendetes Training lässt sich über „Wieder öffnen“ fortsetzen, zum Beispiel nach versehentlichem Beenden. Der Timer läuft dann ab der gespeicherten Dauer weiter, die Pause zählt nicht mit
-- Die Dauer ergibt sich aus Start- und Endzeitpunkt (`startedAt`, `finishedAt`). Beim Wiederöffnen wird `startedAt` um die Pause nach vorn verschoben
-- Tippen auf den Namen einer Übung öffnet ihre Detailseite mit dem Fortschrittsdiagramm
+- Jede Eingabe wird sofort gespeichert. Ein geschlossener Browser kostet kein Training: Das laufende Training ist beim nächsten Öffnen wieder da, mit der zuletzt aktiven Übung
+- Ein Training ohne eingetragene Sätze wird beim Beenden verworfen
+- Nach dem Beenden öffnet sich die Auswertung. Ein heute beendetes Training lässt sich über „Wieder öffnen“ fortsetzen; Gesamt- und Übungszeit laufen ab der gespeicherten Dauer weiter, die Pause zählt nicht mit
+
+### Zeit pro Übung
+
+- Jeder Aufenthalt bei einer Übung ist ein **Abschnitt** in `segments` mit Start und Ende. Offen ist immer nur der Abschnitt der gerade angezeigten Übung
+- Die Zeit pro Übung ist die Summe ihrer Abschnitte. Hin- und Herspringen zählt zusammen, nichts wird überschrieben
+- Alle Zeiten werden aus Zeitstempeln berechnet, nicht hochgezählt. Sie stimmen deshalb auch nach dem Schließen von Safari oder dem Sperren des iPhones
+- Eine Übung gilt als **erledigt**, wenn mindestens ein Arbeitssatz eingetragen ist und sie verlassen wurde (abgeschlossener Abschnitt). „Training beenden“ zählt als Verlassen
+- Die Gesamtzeit ergibt sich aus `startedAt` und `finishedAt` des Trainings. Beim Wiederöffnen wird `startedAt` um die Pause nach vorn verschoben
+- Rechenlogik in `src/lib/exerciseTiming.ts` und `src/lib/duration.ts`, mit Tests
+
+### Auswertung (`#/auswertung/<id>`) – Unterseite
+
+- Gesamtzeit (groß, gelb), Anzahl der Arbeitssätze und Übungen, darunter die Zeit pro Übung mit den Arbeitssätzen
+- Öffnet sich nach „Training beenden“ (Titel „Geschafft“ und Button „Fertig“) und beim Antippen eines Trainings im Verlauf
+- Alte Trainings von vor der Zeitmessung zeigen bei den Übungen „–“ statt einer Zeit
 
 ### Verlauf (`#/verlauf`) – Unterseite
 
 - Vergangene Trainings, neueste zuerst: Datum, Liste, Dauer und Anzahl der Arbeitssätze
-- Antippen zum Ansehen und Korrigieren folgt in Schritt 6
+- Ein Tipp öffnet die Auswertung. Korrigieren alter Trainings folgt in Schritt 6
 
 ### Plan (`#/plan`) – Unterseite
 
@@ -152,7 +181,11 @@ Regeln für die Navigation:
 
 ### Übungsdetail (`#/uebung/<id>`) – Unterseite
 
-Öffnet sich beim Tippen auf eine Übung im Training-Tab.
+Öffnet sich beim Tippen auf den Übungsnamen in der Trainingsansicht oder in der Auswertung.
+
+- Schon gebaut: Liste „Zeit bei den letzten Trainings“ (die letzten 10) mit Datum, Arbeitssätzen und Zeit für diese Übung. Ein Tipp öffnet die Auswertung des Trainings
+
+Geplant (Schritt 5):
 
 - Diagramm: ein Punkt pro Training, verbunden als Linie
 - Umschalter für den angezeigten Wert:
@@ -174,7 +207,7 @@ Regeln für die Navigation:
 
 Erreichbar über das Zahnrad oben rechts auf beiden Tabs.
 
-- Backup: Export und Import als JSON-Datei, mit Datum des letzten Backups
+- Backup: Export und Import als JSON-Datei, mit Datum des letzten Backups. Der Export muss alle Tabellen enthalten, auch `segments`
 
 ## Ordnerstruktur (geplant)
 

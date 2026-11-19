@@ -57,6 +57,20 @@ export interface WorkoutSet {
   reps: number;
 }
 
+/**
+ * Ein Aufenthalt bei einer Übung während eines Trainings. Die Zeit pro Übung ist die Summe ihrer
+ * Abschnitte. Offen (ohne `endedAt`) ist immer nur der Abschnitt der gerade angezeigten Übung.
+ */
+export interface Segment {
+  id: number;
+  workoutId: number;
+  exerciseId: number;
+  /** ISO-Zeitstempel */
+  startedAt: string;
+  /** ISO-Zeitstempel, fehlt beim laufenden Abschnitt */
+  endedAt?: string;
+}
+
 /** Ein Eintrag pro Tag, das Datum ist der Schlüssel. */
 export interface BodyWeight {
   date: LocalDate;
@@ -68,6 +82,7 @@ export const db = new Dexie('trainings-app') as Dexie & {
   planEntries: EntityTable<PlanEntry, 'id'>;
   workouts: EntityTable<Workout, 'id'>;
   sets: EntityTable<WorkoutSet, 'id'>;
+  segments: EntityTable<Segment, 'id'>;
   bodyWeights: Table<BodyWeight, LocalDate>;
 };
 
@@ -98,3 +113,11 @@ db.version(2)
     await tx.table('planEntries').clear();
     await tx.table('exercises').clear();
   });
+
+// Version 3 (19.11.2026): Zeit pro Übung als Abschnitte (segments).
+// Fügt nur die neue Tabelle hinzu. Bestehende Tabellen, Indizes und Daten bleiben unverändert,
+// deshalb gibt es keine upgrade-Funktion. Alte Trainings haben einfach keine Abschnitte.
+db.version(3).stores({
+  ...STORES,
+  segments: '++id, workoutId, exerciseId',
+});

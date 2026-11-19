@@ -53,6 +53,8 @@ Neongelb steht für „das ist jetzt das Wichtigste“. Erlaubt ist sie an genau
 
 Nicht erlaubt: Überschriften, Fließtext, Icons außerhalb des aktiven Tabs, Rahmen von Karten, Hintergründe von Karten, Flächen im Diagramm. Wenn auf einem Bildschirm mehr als zwei gelbe Elemente gleichzeitig zu sehen sind (Tab-Leiste nicht mitgezählt), ist eines zu viel.
 
+**Ausnahme Ring-Uhr:** In der Trainingsansicht sind die Fortschrittspunkte (erledigt gefüllt, aktuell umrandet) und der Fortschrittsbogen gelb, zusätzlich zum Hauptbutton. Sie zusammen sind der eine Blickfang des Bildschirms. Die Zeit in der Mitte bleibt weiß.
+
 ### Verboten
 
 - Farbverläufe jeder Art, besonders Lila und Blau-Lila
@@ -182,9 +184,31 @@ Es gibt zwei Arten von Seiten, und jede hat ihren eigenen Kopf. Beide kommen aus
 
 `.list.list--quiet`: Zeilen ohne Karte, gedämpfte Schrift, Trennlinie, Pfeil nach rechts, rechts davor bei Bedarf eine Anzahl. Für Wege, die erreichbar sein müssen, aber nicht ablenken sollen, zum Beispiel „Vergangene Trainings“ und „Plan bearbeiten“ unter dem heutigen Training.
 
-### Timerleiste
+### Timer
 
-`.workout-bar` im laufenden Training: oben die Liste als Beschriftung, darunter der Timer als Zahl L (`.timer`, weiß, nicht gelb). Die Leiste bleibt beim Scrollen am oberen Rand stehen (`position: sticky`), hat den Seitenhintergrund und unten eine feine Linie. Format „0:00“, ab einer Stunde „1:05:00“. Alle Ziffern von Unbounded sind gleich breit, der Timer springt beim Zählen also nicht.
+Laufende Zeiten (`.timer`) im Format „0:00“, ab einer Stunde „1:05:00“, immer aus gespeicherten Zeitstempeln berechnet. Alle Ziffern von Unbounded sind gleich breit, ein Timer springt beim Zählen also nicht. Im Training-Tab steht die laufende Gesamtzeit als Zahl XL in Weiß über „Training fortsetzen“.
+
+### Trainingsansicht
+
+`.session` füllt genau den Bildschirm (`100dvh`), ohne Tab-Leiste. Von oben nach unten:
+
+1. **Kopf** (`.session__top`): „Übung 3 von 9“ als Beschriftung, rechts ein Icon-Button mit X
+2. **Übung** (`.session__exercise`): Name (`.session__name`, Unbounded 22 px, bricht um), Zeile mit Ziel und den kleinen Knöpfen „− Satz“ / „+ Satz“, „Letztes Mal“, ggf. Hinweis
+3. **Sätze** (`.session__sets`): Satzzeilen in kompakter Höhe (52 px). Nur dieser Bereich darf scrollen
+4. **Ring-Uhr** (`.ring`): nimmt den restlichen Platz
+5. **Steuerleiste** (`.session__controls`): zwei runde Steuerknöpfe (`.control-btn`, 56 px, `--surface-2`) links und rechts, dazwischen der gelbe Hauptbutton. Seine Schrift schrumpft auf schmalen Geräten, er bleibt einzeilig
+
+Solange ein Eingabefeld aktiv ist (`.session--typing`), entfällt die Ring-Uhr und die Übungszeit steht klein im Kopf.
+
+### Ring-Uhr
+
+SVG, quadratisch, höchstens 260 px. In der Mitte klein „DIESE ÜBUNG“, groß die Übungszeit (Unbounded, weiß), darunter klein „Gesamt 42:10“. Der Ring selbst ist `--surface`, der Fortschrittsbogen gelb mit runden Enden, beginnend oben im Uhrzeigersinn. Außen ein Punkt pro Übung, gleichmäßig verteilt, beginnend oben: erledigt gelb gefüllt, aktuell gelb umrandet, offen `--chart-mark`.
+
+Unter 150 px Höhe wird sie zur **schmalen Zeile** (`.ring--compact`): links die Übungszeit als Zahl L, rechts die Punkte in einer Reihe und darunter die Gesamtzeit, in einer Fläche `--surface` mit `--radius-inner`.
+
+### Blatt
+
+`.sheet`: legt sich über den ganzen Bildschirm, Seitenhintergrund, scrollt selbst. Oben Beschriftung und X wie im Kopf der Trainingsansicht. Für die Übersicht während des Trainings: Zeilen mit Status-Punkt (`.ring__dot`), Nummer und Name, Status und Sätze klein darunter, rechts die Zeit als Zahl M. Die aktuelle Übung hat einen gelben Namen.
 
 ### Karte
 
@@ -268,15 +292,15 @@ Zwei oder drei Pillen in einer gemeinsamen Hülle (`.segmented`), zum Beispiel O
 
 ### Satzzeile
 
-`.set-row` im laufenden Training: Satznummer, Zahlenfeld für das Gewicht, Zahlenfeld für die Wiederholungen, Haken. Über der ersten Zeile stehen einmal die Beschriftungen „kg“ und „Wdh“. Die Eingabe muss mit einer Hand schnell gehen:
+`.set-row` im laufenden Training: Satznummer, Zahlenfeld für das Gewicht, Zahlenfeld für die Wiederholungen, Haken. „kg“ und „Wdh“ stehen klein unten rechts in den Feldern (`.set-field__unit`), es gibt keine Spaltenköpfe. Die Eingabe muss mit einer Hand schnell gehen:
 
 - **Grau ist Vorschlag, hell ist eingetragen.** Die Felder zeigen die Werte vom letzten Mal als grauen Platzhalter. Erst was eingetragen ist, steht in heller Schrift und ist gespeichert
-- **Ein Tipp auf den Haken** (`.check-btn`, 56 px) trägt den Vorschlag unverändert ein. Ein zweiter Tipp trägt den Satz wieder aus
+- **Ein Tipp auf den Haken** (`.check-btn`, 52 px) trägt den Vorschlag unverändert ein. Ein zweiter Tipp trägt den Satz wieder aus
 - **Tippen in ein Feld** überschreibt den Vorschlag. Das Feld ist leer, es muss nichts gelöscht werden. Der andere Wert wird aus dem Vorschlag ergänzt
-- Gewicht mit `inputmode="decimal"`, Wiederholungen mit `inputmode="numeric"`, Felder 64 px hoch
+- Gewicht mit `inputmode="decimal"`, Wiederholungen mit `inputmode="numeric"`, Felder 52 px hoch
 - Der eingetragene Haken ist **hell** (`--text`), nicht gelb: Auf einem Bildschirm stehen viele davon, Gelb bleibt „Training beenden“ vorbehalten
-- Unter den Zeilen stehen „− Satz“ (entfernt die letzte Zeile) und „+ Satz“
-- **Aufwärmsätze** (`.set-row--warmup`) stehen vor den Arbeitssätzen und sind dreifach markiert: Zwischenüberschrift „Aufwärmen“, ein „A“ statt der Satznummer, und Felder, die nur umrandet statt gefüllt sind. Darunter folgt die Zwischenüberschrift „Arbeitssätze“
+- „− Satz“ (entfernt die letzte Zeile) und „+ Satz“ stehen als kleine Knöpfe in der Zeile mit dem Ziel
+- **Aufwärmsätze** (`.set-row--warmup`) stehen vor den Arbeitssätzen und sind doppelt markiert: ein „A“ statt der Satznummer und Felder, die nur umrandet statt gefüllt sind
 - Die Felder müssen „142,5“ bei 375 px Breite vollständig zeigen. Darunter schrumpft die Schrift mit
 
 ### Hinweis
@@ -324,3 +348,4 @@ Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animation
 - Alle Farben, Abstände und Rundungen kommen aus den Variablen, keine frei gewählten Werte
 - Tippflächen mindestens 44 px, Buttons 52 px, Eingabefelder mindestens 16 px Schrift
 - Tab-Seite mit Zahnrad und Tab-Leiste, Unterseite mit Zurück-Pfeil und ohne Tab-Leiste
+- Trainingsansicht in 390 × 844 ohne Scrollen, auch mit Aufwärmsatz, Hinweis und Zusatzsätzen; in 375 × 667 darf nur der Satzbereich scrollen

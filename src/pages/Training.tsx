@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import ActiveWorkout from '../components/ActiveWorkout';
 import { PageHeader } from '../components/PageHeader';
+import WorkoutTimer from '../components/WorkoutTimer';
 import type { Split, Workout } from '../db';
 import { toLocalDate } from '../lib/dates';
 import { formatDurationShort, workoutDuration } from '../lib/duration';
@@ -94,8 +94,7 @@ export default function Training() {
 
   const start = async (which: Split) => {
     await startWorkout(which, todayDate);
-    await reload();
-    window.scrollTo(0, 0);
+    window.location.hash = '#/einheit';
   };
 
   const doneToday = data?.history.find((entry) => entry.workout.date === todayDate);
@@ -109,15 +108,13 @@ export default function Training() {
       {data && (
         <div className="stack">
           {data.active && (
-            <ActiveWorkout
-              key={data.active.id}
-              workout={data.active}
-              items={data.plans[data.active.split]}
-              onDone={async () => {
-                await reload();
-                window.scrollTo(0, 0);
-              }}
-            />
+            <section className="card card--hero">
+              <p className="label">Läuft · {splitLabel(data.active.split)}</p>
+              <WorkoutTimer startedAt={data.active.startedAt} className="num num--xl" />
+              <a className="btn btn--primary btn--block" href="#/einheit">
+                Training fortsetzen
+              </a>
+            </section>
           )}
 
           {!data.active && doneToday && (
@@ -128,12 +125,15 @@ export default function Training() {
                 {doneDuration !== undefined && `${formatDurationShort(doneDuration)} · `}
                 {doneToday.setCount} {doneToday.setCount === 1 ? 'Satz' : 'Sätze'}
               </p>
+              <a className="btn btn--block" href={`#/auswertung/${doneToday.workout.id}`}>
+                Auswertung
+              </a>
               <button
                 type="button"
-                className="btn btn--block"
+                className="btn btn--ghost btn--block"
                 onClick={async () => {
                   await reopenWorkout(doneToday.workout.id);
-                  await reload();
+                  window.location.hash = '#/einheit';
                 }}
               >
                 Wieder öffnen

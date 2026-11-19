@@ -5,7 +5,7 @@ import { formatDurationShort, workoutDuration } from '../lib/duration';
 import { splitLabel } from '../lib/schedule';
 import { loadHistory, type HistoryEntry } from '../lib/workoutDb';
 
-/** Vergangene Trainings, neueste zuerst. Ansehen und Korrigieren einzelner Trainings folgt in Schritt 6. */
+/** Vergangene Trainings, neueste zuerst. Ein Tipp öffnet die Auswertung. */
 export default function Verlauf() {
   const [history, setHistory] = useState<HistoryEntry[] | null>(null);
 
@@ -27,7 +27,7 @@ export default function Verlauf() {
                 const duration = workoutDuration(workout);
                 return (
                   <li key={workout.id}>
-                    <div className="row">
+                    <a className="row" href={`#/auswertung/${workout.id}`}>
                       <span className="row__main">
                         <span className="row__name">{formatShortDate(workout.date)}</span>
                         <span className="muted small">
@@ -39,7 +39,7 @@ export default function Verlauf() {
                         {setCount}
                         <span className="num__unit">{setCount === 1 ? 'Satz' : 'Sätze'}</span>
                       </span>
-                    </div>
+                    </a>
                   </li>
                 );
               })}
