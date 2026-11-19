@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { formatTimer } from '../lib/duration';
-import type { ExerciseStatus } from '../lib/exerciseTiming';
+import { useEffect, useRef, useState } from "react";
+import { formatTimer } from "../lib/duration";
+import type { ExerciseStatus } from "../lib/exerciseTiming";
 
 const SIZE = 240;
 const CENTER = SIZE / 2;
@@ -13,7 +13,10 @@ const MIN_RING_HEIGHT = 150;
 
 function dotPosition(index: number, count: number) {
   const angle = -Math.PI / 2 + (index / count) * 2 * Math.PI;
-  return { x: CENTER + DOT_R * Math.cos(angle), y: CENTER + DOT_R * Math.sin(angle) };
+  return {
+    x: CENTER + DOT_R * Math.cos(angle),
+    y: CENTER + DOT_R * Math.sin(angle),
+  };
 }
 
 /**
@@ -52,54 +55,93 @@ export default function RingClock({
   const label = `Übung ${exerciseTime}, gesamt ${totalTime}`;
 
   return (
-    <div ref={box} className={compact ? 'ring ring--compact' : 'ring'} role="timer" aria-label={label}>
-      {compact ? (
-        <div className="ring__line" aria-hidden="true">
-          <span className="num num--l">{exerciseTime}</span>
-          <span className="ring__line-side">
-            <span className="ring__dots">
-              {statuses.map((status, index) => (
-                <span key={index} className={`ring__dot ring__dot--${status}`} />
-              ))}
-            </span>
-            <span className="muted small">Gesamt {totalTime}</span>
-          </span>
-        </div>
-      ) : (
-        <svg className="ring__svg" viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true">
-          <circle className="ring__track" cx={CENTER} cy={CENTER} r={TRACK_R} />
-          {progress > 0 && (
-            <circle
-              className="ring__progress"
-              cx={CENTER}
-              cy={CENTER}
-              r={TRACK_R}
-              strokeDasharray={`${progress * CIRCUMFERENCE} ${CIRCUMFERENCE}`}
-              transform={`rotate(-90 ${CENTER} ${CENTER})`}
-            />
+    <div
+      ref={box}
+      className={compact ? "ring ring--compact" : "ring"}
+      role="timer"
+      aria-label={label}
+    >
+      <div className="ring__card glow glow--center">
+        <div className="ring__glass card--glass">
+          {compact ? (
+            <div className="ring__line" aria-hidden="true">
+              <span className="num num--l">{exerciseTime}</span>
+              <span className="ring__line-side">
+                <span className="ring__dots">
+                  {statuses.map((status, index) => (
+                    <span
+                      key={index}
+                      className={`ring__dot ring__dot--${status}`}
+                    />
+                  ))}
+                </span>
+                <span className="muted small">Gesamt {totalTime}</span>
+              </span>
+            </div>
+          ) : (
+            <svg
+              className="ring__svg"
+              viewBox={`0 0 ${SIZE} ${SIZE}`}
+              aria-hidden="true"
+            >
+              <circle
+                className="ring__track"
+                cx={CENTER}
+                cy={CENTER}
+                r={TRACK_R}
+              />
+              {progress > 0 && (
+                <circle
+                  className="ring__progress"
+                  cx={CENTER}
+                  cy={CENTER}
+                  r={TRACK_R}
+                  strokeDasharray={`${progress * CIRCUMFERENCE} ${CIRCUMFERENCE}`}
+                  transform={`rotate(-90 ${CENTER} ${CENTER})`}
+                />
+              )}
+              {statuses.map((status, index) => {
+                const { x, y } = dotPosition(index, statuses.length);
+                return (
+                  <circle
+                    key={index}
+                    className={`ring__dot-svg ring__dot-svg--${status}`}
+                    cx={x}
+                    cy={y}
+                    r={5.5}
+                  />
+                );
+              })}
+              <text
+                className="ring__caption"
+                x={CENTER}
+                y={CENTER - 36}
+                textAnchor="middle"
+              >
+                Diese Übung
+              </text>
+              <text
+                className="ring__time"
+                x={CENTER}
+                y={CENTER + 4}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize={exerciseTime.length > 5 ? 38 : 48}
+              >
+                {exerciseTime}
+              </text>
+              <text
+                className="ring__total"
+                x={CENTER}
+                y={CENTER + 42}
+                textAnchor="middle"
+              >
+                Gesamt {totalTime}
+              </text>
+            </svg>
           )}
-          {statuses.map((status, index) => {
-            const { x, y } = dotPosition(index, statuses.length);
-            return <circle key={index} className={`ring__dot-svg ring__dot-svg--${status}`} cx={x} cy={y} r={5.5} />;
-          })}
-          <text className="ring__caption" x={CENTER} y={CENTER - 34} textAnchor="middle">
-            DIESE ÜBUNG
-          </text>
-          <text
-            className="ring__time"
-            x={CENTER}
-            y={CENTER + 4}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fontSize={exerciseTime.length > 5 ? 32 : 42}
-          >
-            {exerciseTime}
-          </text>
-          <text className="ring__total" x={CENTER} y={CENTER + 42} textAnchor="middle">
-            Gesamt {totalTime}
-          </text>
-        </svg>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

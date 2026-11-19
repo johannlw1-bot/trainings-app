@@ -64,24 +64,22 @@ export default function ExerciseDetail({ param }: PageProps) {
         </section>
       ) : (
         <section className="section section--tight">
-          <h2 className="label">Zeit bei den letzten Trainings</h2>
-          <div className="card">
-            <ul className="rows">
-              {visits.map(({ workout, timeMs, workingSets }) => (
-                <li key={workout.id}>
-                  <a className="row" href={`#/auswertung/${workout.id}`}>
-                    <span className="row__main">
-                      <span className="row__name">{formatShortDate(workout.date)}</span>
-                      <span className="muted small">
-                        {workingSets} {workingSets === 1 ? 'Satz' : 'Sätze'}
-                      </span>
+          <h2 className="heading">Zeit bei den letzten Trainings</h2>
+          <ul className="item-list">
+            {visits.map(({ workout, timeMs, workingSets }) => (
+              <li key={workout.id}>
+                <a className="item item--plain" href={`#/auswertung/${workout.id}`}>
+                  <span className="item__main">
+                    <span className="item__title">{formatShortDate(workout.date)}</span>
+                    <span className="item__sub">
+                      {workingSets} {workingSets === 1 ? 'Satz' : 'Sätze'}
                     </span>
-                    <span className="num num--m timer">{timeMs !== undefined ? formatTimer(timeMs) : '–'}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+                  </span>
+                  <span className="num num--m timer">{timeMs !== undefined ? formatTimer(timeMs) : '–'}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
     </>

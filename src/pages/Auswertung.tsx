@@ -50,46 +50,46 @@ export default function Auswertung({ param, extra }: PageProps) {
       />
 
       <div className="stack">
-        <section className="card card--hero">
-          <p className="label">Gesamtzeit</p>
-          <p className="num num--xl num--accent timer">{formatTimer(totalMs)}</p>
-          <div className="card__row card__row--start">
-            <p className="num num--m">
-              {workingSetCount}
-              <span className="num__unit">{workingSetCount === 1 ? 'Satz' : 'Sätze'}</span>
-            </p>
-            <p className="num num--m">
-              {exercises.length}
-              <span className="num__unit">{exercises.length === 1 ? 'Übung' : 'Übungen'}</span>
-            </p>
-          </div>
-        </section>
+        <div className="glow">
+          <section className="card card--hero card--glass">
+            <p className="label">Gesamtzeit</p>
+            <p className="num num--xl timer">{formatTimer(totalMs)}</p>
+            <div className="card__row card__row--start">
+              <p className="num num--m">
+                {workingSetCount}
+                <span className="num__unit">{workingSetCount === 1 ? 'Satz' : 'Sätze'}</span>
+              </p>
+              <p className="num num--m">
+                {exercises.length}
+                <span className="num__unit">{exercises.length === 1 ? 'Übung' : 'Übungen'}</span>
+              </p>
+            </div>
+          </section>
+        </div>
 
         <section className="section section--tight">
-          <h2 className="label">Zeit pro Übung</h2>
-          <div className="card">
-            {exercises.length === 0 ? (
-              <p className="muted">Keine Übungen eingetragen.</p>
-            ) : (
-              <ul className="rows">
-                {exercises.map((exercise) => (
-                  <li key={exercise.id}>
-                    <a className="row" href={`#/uebung/${exercise.id}`}>
-                      <span className="row__main">
-                        <span className="row__name">{exercise.name}</span>
-                        <span className="muted small">
-                          {exercise.workingSets.length > 0 ? formatSets(exercise.workingSets) : 'Kein Satz'}
-                        </span>
+          <h2 className="heading">Zeit pro Übung</h2>
+          {exercises.length === 0 ? (
+            <p className="muted">Keine Übungen eingetragen.</p>
+          ) : (
+            <ul className="item-list">
+              {exercises.map((exercise) => (
+                <li key={exercise.id}>
+                  <a className="item item--plain" href={`#/uebung/${exercise.id}`}>
+                    <span className="item__main">
+                      <span className="item__title">{exercise.name}</span>
+                      <span className="item__sub">
+                        {exercise.workingSets.length > 0 ? formatSets(exercise.workingSets) : 'Kein Satz'}
                       </span>
-                      <span className="num num--m timer">
-                        {exercise.timeMs !== undefined ? formatTimer(exercise.timeMs) : '–'}
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+                    </span>
+                    <span className="num num--m timer">
+                      {exercise.timeMs !== undefined ? formatTimer(exercise.timeMs) : '–'}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         {justFinished && (

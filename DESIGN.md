@@ -2,29 +2,43 @@
 
 Verbindlich für jede Seite und jede neue Komponente. Die Werte stehen als CSS-Variablen in `src/styles.css`. Dort werden sie geändert, nirgends sonst.
 
-Die App ist so minimalistisch wie möglich: zwei Tabs, wenige Bausteine, pro Bildschirm eine Aufgabe. Was nicht gebraucht wird, kommt nicht auf den Bildschirm.
+Vorbild ist der Stil der Referenz „Glas, Orange“ (nicht im Repository): fast schwarzer Grund, Anthrazit-Karten, Milchglas mit farbigem Leuchten, Icons in farbigen Kacheln. Statt Orange steht überall unser Neongelb. Fotos, Kreditkarten und andere Inhalte der Vorlage werden nicht übernommen, nur die Gestaltung.
 
 ## Leitidee
 
-Tiefes Marineblau, eine breite, technische Schrift, und die Zahl ist der Star. Auf jedem Bildschirm gibt es genau einen Blickfang: das Gewicht, die Wiederholungen oder das Körpergewicht, groß und fett gesetzt. Alles andere tritt zurück. Blau ist die Grundstimmung, Neongelb die einzige Akzentfarbe, und sie ist selten.
+Dunkel, ruhig und klar. Große, fette Zahlen und weiße Titel tragen den Bildschirm, alles andere tritt in gedämpftem Grau zurück. Neongelb ist die einzige Farbe. Wo es um das Wichtigste geht, leuchtet sie weich durch Milchglas, sonst bleibt die Fläche schlicht anthrazit.
+
+Die App ist so minimalistisch wie möglich: zwei Tabs, wenige Bausteine, pro Bildschirm eine Aufgabe.
 
 ## Farben
 
-Die App ist ausschließlich dunkel. Es gibt keinen hellen Modus. Alle Flächen sind Abstufungen desselben Blaus, es gibt kein neutrales Grau und kein reines Schwarz.
+Nur dunkel, es gibt keinen hellen Modus. Alle Flächen sind neutrale Grautöne, ohne Blaustich.
 
 | Variable | Wert | Verwendung |
 |---|---|---|
-| `--bg` | `#060b1f` | Seitenhintergrund, sehr dunkles Marineblau |
-| `--surface` | `#0f1838` | Karten, dunkelblau |
-| `--surface-2` | `#1c2a5e` | Flächen auf Karten: Eingabefelder, normale Buttons |
-| `--tabbar-bg` | `#162050` | Tab-Leiste |
-| `--line` | `#1f2c5c` | Trennlinien in Listen |
-| `--text` | `#f3f5ff` | Text, Zahlen, Überschriften |
-| `--text-muted` | `#9ba6d1` | Beschriftungen, Einheiten, Erklärtext |
-| `--text-faint` | `#6b77a8` | Platzhalter, Achsenbeschriftung, deaktivierte Elemente |
+| `--bg` | `#0a0a0b` | Seitenhintergrund, fast schwarz |
+| `--surface` | `#1e1e21` | Karten, Listen-Karten, Tab-Leiste, Steuerknöpfe (Anthrazit) |
+| `--surface-2` | `#2c2c30` | Flächen auf Karten: Eingabefelder, Nebenbuttons, Kacheln im Ruhezustand |
+| `--line` | `#2a2a2e` | Trennlinien in Listen |
+| `--text` | `#ffffff` | Titel, große Zahlen, Namen |
+| `--text-muted` | `#8e8e95` | Beschriftungen, Nebeninfos, Einheiten |
+| `--text-faint` | `#5d5d64` | Platzhalter, Einheiten in Feldern, deaktivierte Elemente |
 | `--accent` | `#dcff1a` | Neongelb, die einzige Akzentfarbe |
-| `--on-accent` | `#060b1f` | Schrift und Icons auf Akzentflächen (immer dunkel, nie weiß) |
-| `--danger` | `#ff8a7f` | Nur als Textfarbe für „Löschen“ und Fehlermeldungen |
+| `--on-accent` | `#0a0a0b` | Schrift und Icons auf Gelb (immer dunkel) |
+| `--danger` | `#ff6f61` | Nur als Textfarbe für „Löschen“ und Fehlermeldungen |
+| `--glass-bg` | Weiß 5 % | Fläche der Milchglas-Karten |
+| `--glass-border` | Weiß 9 % | Feiner Rand der Milchglas-Karten |
+| `--glass-muted` | `#c6c6cc` | Beschriftungen auf Glas (heller, weil das Leuchten durchscheint) |
+| `--glass-bright` | `#e4e4e8` | Nebentexte in der Ring-Uhr, direkt über dem Leuchten |
+| `--glow-corner` | Gelb 42 % | Kern des Leuchtens in der Ecke |
+| `--glow-center` | Gelb 30 % | Kern des Leuchtens in der Mitte (Ring-Uhr) |
+
+### Textfarben
+
+Wie in der Vorlage gibt es zwei Stimmen:
+
+- **Kräftig:** Titel, Namen und große Zahlen in Weiß, fett
+- **Gedämpft:** Beschriftungen und Nebeninfos in Grau, normale Schriftstärke, normale Groß- und Kleinschreibung. Deutlich weniger Kontrast, aber immer lesbar
 
 ### Kontraste
 
@@ -32,82 +46,103 @@ Nachgerechnet nach WCAG. Normaler Text braucht mindestens 4,5 : 1.
 
 | Paar | Kontrast |
 |---|---|
-| Text auf Karte | 16,0 : 1 |
-| Gelb auf Karte | 15,2 : 1 |
-| Dunkel auf Gelb (Hauptbutton) | 17,1 : 1 |
-| Text auf normalem Button (`--surface-2`) | 12,5 : 1 |
-| Gedämpfter Text auf Hintergrund | 8,2 : 1 |
-| Gedämpfter Text auf Karte | 7,3 : 1 |
-| Graue Icons in der Tab-Leiste | 5,7 : 1 |
+| Weiß auf Karte | 16,6 : 1 |
+| Grau auf Hintergrund | 6,1 : 1 |
+| Grau auf Karte | 5,1 : 1 |
+| Grau auf `--surface-2` | 4,3 : 1, deshalb dort nur für große oder nebensächliche Texte |
+| Dunkel auf Gelb (Hauptbutton, Kacheln) | 17,3 : 1 |
+| Gelb auf Karte | 14,5 : 1 |
+| Rot auf Karte | 6,1 : 1 |
+| Glas-Grau auf Glas, wo das Leuchten schwach ist (am Text) | 7,3 : 1 |
+| Weiß auf Glas mitten im Leuchten der Ring-Uhr | 7,2 : 1 |
+| `--glass-bright` auf Glas mitten im Leuchten der Ring-Uhr | 5,7 : 1 |
 
-`--text-faint` liegt auf der Karte bei rund 4 : 1 und ist deshalb nur für Platzhalter, Achsentext und deaktivierte Elemente erlaubt, nie für Text, den man lesen muss. Gelbe Schrift steht nur auf `--bg` oder `--surface`, nie auf `--surface-2` in kleiner Größe.
+`--text-faint` liegt bei 2,5 : 1 und ist nur für Platzhalter, Einheiten in Feldern und deaktivierte Elemente erlaubt, nie für Text, den man lesen muss.
+
+**Auf Glas** wird normales Grau zu schwach (bis 2,7 : 1 im Leuchten). Deshalb stellt `.card--glass` Beschriftungen, `.muted` und Einheiten automatisch auf `--glass-muted` um. Der kräftige Kern des Leuchtens (`--glow-corner`) liegt in der Ecke, wo kein Text steht. Text darf dort nicht hin.
 
 ### Regeln für die Akzentfarbe
 
 Neongelb steht für „das ist jetzt das Wichtigste“. Erlaubt ist sie an genau diesen Stellen:
 
-1. **Hauptbutton** – höchstens einer pro Bildschirm
-2. **Aktiver Tab** in der Tab-Leiste
-3. **Hervorgehobener Wert** – eine Zahl pro Bildschirm (aktueller Durchschnitt, neue Bestleistung, Veränderung) und der dazugehörige Punkt im Diagramm
-4. **Fokusrahmen** von Eingabefeldern
+1. **Hauptbutton:** höchstens einer pro Bildschirm
+2. **Aktiver Tab** und **aktive Pille** im Umschalter
+3. **Icon-Kacheln:** Icons in gelben, abgerundeten Quadraten vor Listen-Karten
+4. **Hervorgehobener Wert:** eine Zahl pro Bildschirm, der aktuelle Punkt und die Linie im Diagramm
+5. **Ring-Uhr:** Fortschrittsbogen und Punkte der erledigten und aktuellen Übung
+6. **Leuchten** hinter Milchglas, siehe unten
+7. **Fokusrahmen** von Eingabefeldern, der Pfeil im Hinweis „Gewicht erhöhen“, der Name der aktuellen Übung in der Übersicht
 
-Nicht erlaubt: Überschriften, Fließtext, Icons außerhalb des aktiven Tabs, Rahmen von Karten, Hintergründe von Karten, Flächen im Diagramm. Wenn auf einem Bildschirm mehr als zwei gelbe Elemente gleichzeitig zu sehen sind (Tab-Leiste nicht mitgezählt), ist eines zu viel.
+Nicht erlaubt: Titel, Fließtext, Rahmen und Hintergründe normaler Karten, die Haken der Satzzeilen (davon gibt es zu viele).
 
-**Ausnahme Ring-Uhr:** In der Trainingsansicht sind die Fortschrittspunkte (erledigt gefüllt, aktuell umrandet) und der Fortschrittsbogen gelb, zusätzlich zum Hauptbutton. Sie zusammen sind der eine Blickfang des Bildschirms. Die Zeit in der Mitte bleibt weiß.
+## Glas, Leuchten und Verläufe
+
+Verläufe und Leuchten sind **gezielt und sparsam** einzusetzen, nur für die wichtigsten Elemente. Alles andere bleibt schlicht anthrazit, sonst wirkt es überladen.
+
+**Mit Milchglas und Leuchten**, und nur diese:
+
+- die Karte „Heute“ im Training-Tab (in allen Zuständen: Training starten, läuft, erledigt, Ruhetag)
+- die Ring-Uhr in der Trainingsansicht
+- die Zusammenfassung oben in der Auswertung
+
+**Mit Verlauf**, und nur dieser: die Fläche unter der Linie im Diagramm (siehe Diagramme).
+
+Aufbau:
+
+```html
+<div class="glow">                                  <!-- Leuchten oben rechts -->
+  <section class="card card--hero card--glass">…</section>
+</div>
+
+<div class="glow glow--center">…</div>              <!-- Leuchten in der Mitte (Ring-Uhr) -->
+```
+
+- **`.glow`** ist die Hülle. Ihr `::before` ist ein weicher gelber Fleck aus einem radialen Verlauf, kein Unschärfe-Filter. Standard ist die obere rechte Ecke, er darf über die Karte hinausragen. `.glow--center` setzt ihn in die Mitte
+- **`.card--glass`** liegt darin: Weiß 5 %, feiner heller Rand, `backdrop-filter: blur(28px) saturate(170%)`. Dadurch wird der Fleck hinter dem Glas unscharf und leuchtet satter durch
+- **Leistung:** Der Fleck ist ein einfacher Verlauf, unscharf gerechnet wird nur an drei Stellen. Mehr Glas kommt nicht dazu. Ohne `backdrop-filter` gibt es eine fast deckende Fläche als Ersatz
+- **Seitenränder:** `.app` schneidet alles ab, was seitlich übersteht (`overflow-x: clip`). Sonst würde das Leuchten die Seite verbreitern und Safari herauszoomen
 
 ### Verboten
 
-- Farbverläufe jeder Art, besonders Lila und Blau-Lila
-- Eine zweite Akzentfarbe
-- Neutrales Grau oder reines Schwarz als Fläche
+- Lila oder Blau-Lila, überhaupt jede zweite Farbe
+- Glas oder Leuchten außerhalb der drei genannten Elemente
+- Verläufe als Hintergrund von Seiten, Karten oder Buttons
 - Fotos und Illustrationen
 - Emojis als Icons
-- Glas-Effekte, Unschärfe, leuchtende Schatten (Glow)
-- Rahmenlinien um Karten. Karten heben sich nur durch ihre Fläche ab
+- Schatten als Leuchten (`box-shadow` in Gelb)
 
 ## Schrift
 
-Zwei Schriften, beide als variable Schrift lokal in `src/fonts/` und unter der SIL Open Font License. Die App liefert sie selbst aus. Es gibt keine Links zu Google Fonts oder anderen fremden Servern.
+Eine Schrift für alles: **Outfit**, variabel (Gewicht 100–900), unter der SIL Open Font License. Die Datei liegt lokal in `src/fonts/outfit-latin-variable.woff2`, die Lizenz daneben. Keine Links zu Google Fonts oder anderen fremden Servern.
 
-- **Unbounded** (`--font-display`, `unbounded-latin-variable.woff2`): breit und technisch. Für Zahlen, Seitentitel, Überschriften, Buttons und Tab-Beschriftung
-- **IBM Plex Sans** (`--font-body`, `ibm-plex-sans-latin-variable.woff2`): gut lesbar und schmaler. Für Fließtext, Beschriftungen und Einheiten
+Nicht verwenden: Inter, Roboto, Archivo, Unbounded, IBM Plex Sans.
 
-Nicht verwenden: Inter, Roboto, Archivo, Systemschriften als bewusste Wahl.
+| Stil | Klasse | Größe bei 390 px | Gewicht | Sonstiges |
+|---|---|---|---|---|
+| Zahl XL | `.num.num--xl` | 70 px | 700 | schrumpft unter 390 px mit |
+| Zahl L | `.num.num--l` | 44 px | 700 | schrumpft unter 390 px mit |
+| Zahl M | `.num.num--m` | 24 px | 700 | |
+| Seitentitel | `.title` | 32 px | 700 | Sperrung −0,02 em |
+| Name der Übung (Trainingsansicht) | `.session__name` | 26 px | 700 | |
+| Überschrift | `.heading` | 20 px | 600 | auch für Abschnittsüberschriften |
+| Titel in Listen-Karten | `.item__title`, `.row__name` | 17 px | 600 | |
+| Button | `.btn` | 17 px | 600 | |
+| Fließtext | (Standard) | 16 px | 400 | Zeilenhöhe 1,45 |
+| Beschriftung | `.label` | 14 px | 400 | gedämpft, normale Schreibweise |
+| Nebeninfo | `.item__sub`, `.small` | 14 px | 400 | gedämpft |
 
-| Stil | Klasse | Schrift | Größe bei 390 px | Gewicht | Sonstiges |
-|---|---|---|---|---|---|
-| Zahl XL | `.num.num--xl` | Unbounded | 64 px | 800 | Sperrung −0,03 em |
-| Zahl L | `.num.num--l` | Unbounded | 40 px | 800 | Sperrung −0,03 em |
-| Zahl M | `.num.num--m` | Unbounded | 22 px | 800 | |
-| Seitentitel | `.title` | Unbounded | 32 px | 800 | Sperrung −0,02 em |
-| Überschrift | `.heading` | Unbounded | 18 px | 700 | |
-| Button | `.btn` | Unbounded | 15 px | 700 | |
-| Tab | `.tabbar__tab` | Unbounded | 12 px | 700 | |
-| Eingabefeld | `.field__input` | Unbounded | 26 px | 800 | zentriert |
-| Beschriftung | `.label` | IBM Plex Sans | 12 px | 600 | Großbuchstaben, Sperrung 0,1 em |
-| Fließtext | (Standard) | IBM Plex Sans | 16 px | 400 | Zeilenhöhe 1,5 |
-| Klein | `.small` | IBM Plex Sans | 14 px | 400 | |
-
-Unbounded wird in normaler Groß- und Kleinschreibung gesetzt, nie in durchgehenden Großbuchstaben. Großbuchstaben gibt es nur bei Beschriftungen (`.label`) in IBM Plex Sans.
-
-### Breite Schrift, große Zahlen
-
-Unbounded ist sehr breit: Eine Ziffer braucht etwa 0,75 em, das Komma 0,3 em. Damit Gewichte und Wiederholungen auf dem iPhone Platz haben, gilt:
-
-- **Die Größen sind auf die längsten Werte ausgelegt.** In eine Karte passen bei 390 px Breite 310 px Inhalt. „142,5 kg“ in XL braucht davon etwa 240 px, „142,5 kg“ und „12 Wdh“ nebeneinander in L etwa 250 px
-- **XL und L schrumpfen auf schmalen Geräten mit** (`--num-xl: min(4rem, 16.4vw)`, `--num-l: min(2.5rem, 10.25vw)`). Bei 320 px Breite ist XL noch 52 px groß
-- **Die Einheit steht in IBM Plex Sans** (`.num__unit`), klein und gedämpft. Das spart gegenüber Unbounded gut ein Drittel Breite
-- **Höchstens zwei L-Zahlen nebeneinander**, höchstens drei M-Zahlen. XL steht immer allein in der Zeile
-- **Zahlen umbrechen nie** (`white-space: nowrap`). Reicht der Platz nicht, wird die nächstkleinere Stufe genommen, nicht die Schrift von Hand verkleinert
-- **Nur die Nachkommastellen zeigen, die es braucht:** „80“ statt „80,0“, höchstens eine Nachkommastelle beim Körpergewicht, höchstens zwei bei Hantelgewichten („82,25“)
-- Wer Zahlengrößen ändert oder Zahlen neu anordnet, prüft die längsten Werte („142,5 kg“, „12 Wdh“) in 390 px und 320 px Breite
-
-Weitere Regeln:
-
-- Zahlen stehen immer in `.num`, mit Tabellenziffern (`tabular-nums`)
-- Dezimalzahlen mit Komma („82,5“), das Malzeichen ist „×“, nicht „x“
+- **Groß- und Kleinschreibung wie im Satz,** auch bei Beschriftungen und Buttons. Keine durchgehenden Großbuchstaben, keine Sperrung von Beschriftungen
+- **Zahlen** stehen in `.num` mit **Tabellenziffern** (`font-variant-numeric: tabular-nums`). Bei Outfit ist das Pflicht: Ohne sind die Ziffern unterschiedlich breit (die 1 nur halb so breit wie die 0), und jeder Timer würde beim Zählen wackeln
+- **Einheiten** (`.num__unit`) klein, normal stark und grau direkt hinter der Zahl
+- Dezimalzahlen mit Komma („82,5“), das Malzeichen ist „×“
 - Eingabefelder nie unter 16 px, sonst zoomt Safari auf dem iPhone ins Feld
-- Seitentitel sind kurz (ein Wort, höchstens etwa 13 Zeichen). Längere Titel brechen um
+
+### Große Zahlen
+
+- XL und L schrumpfen auf schmalen Geräten mit (`--num-xl: min(4.375rem, 18vw)`, `--num-l: min(2.75rem, 11.3vw)`)
+- Zahlen umbrechen nie (`white-space: nowrap`). Reicht der Platz nicht, wird die nächstkleinere Stufe genommen
+- XL steht allein in der Zeile, höchstens zwei L oder drei M nebeneinander
+- Längste Werte zum Prüfen: „142,5 kg“, „12 Wdh“, „1:05:00“, in 390 und 320 px Breite
 
 ## Abstände
 
@@ -115,237 +150,179 @@ Alles liegt auf einem 4-px-Raster.
 
 | Variable | Wert | Verwendung |
 |---|---|---|
-| `--space-1` | 4 px | Innerhalb von Pillen-Umschaltern |
-| `--space-2` | 8 px | Icon zu Text, Beschriftung zu Feld |
+| `--space-1` | 4 px | Innerhalb von Umschaltern |
+| `--space-2` | 8 px | Icon zu Text, Satzzeilen untereinander |
 | `--space-3` | 12 px | Zwischen Elementen in einer Karte |
 | `--space-4` | 16 px | Seitenrand, Abstand zwischen Karten |
-| `--space-5` | 24 px | Innenabstand von Karten, Kopfbereich zu Inhalt |
+| `--space-5` | 24 px | Innenabstand von Karten, Kopf zu Inhalt |
 | `--space-6` | 32 px | Zwischen Abschnitten |
 | `--space-7` | 48 px | Großer Freiraum, selten |
 
-- Inhalt ist höchstens 480 px breit und zentriert
-- Buttons und Listenzeilen sind mindestens 52 px hoch (`--tap`). Kleine Buttons und Icon-Buttons sind 44 px groß, nie kleiner
-- Oben, unten und seitlich gelten zusätzlich die Safe-Area-Abstände des iPhones
-- Der Seiteninhalt endet über der Tab-Leiste, nichts liegt dauerhaft dahinter
+Listen-Karten stehen 10 px auseinander. Inhalt ist höchstens 480 px breit. Safe-Area-Abstände des iPhones gelten zusätzlich. Tippflächen sind mindestens 44 px, Buttons 52 px hoch.
 
 ## Rundungen
 
 | Variable | Wert | Verwendung |
 |---|---|---|
-| `--radius-card` | 28 px | Karten |
-| `--radius-inner` | 18 px | Elemente in Karten: Eingabefelder, Satzzeilen |
-| `--radius-pill` | 999 px | Buttons, Umschalter, Tab-Leiste, Tabs |
+| `--radius-card` | 26 px | Karten, Glas-Karten, Tab-Leiste |
+| `--radius-item` | 22 px | Listen-Karten |
+| `--radius-btn` | 18 px | Buttons, Umschalter-Hülle, Steuerknöpfe, aktiver Tab |
+| `--radius-inner` | 14 px | Eingabefelder, Icon-Kacheln, Haken, kleine Buttons, Pillen im Umschalter |
 
-Eckige Elemente gibt es nicht. Ein Element in einer Karte ist immer weniger stark gerundet als die Karte selbst.
+Wie in der Vorlage sind Buttons gerundete Rechtecke, keine reinen Pillen. Ein Element in einer Karte ist immer weniger stark gerundet als die Karte.
 
 ## Bausteine
 
 ### Seitenkopf
 
-Es gibt zwei Arten von Seiten, und jede hat ihren eigenen Kopf. Beide kommen aus `src/components/PageHeader.tsx`.
+Titel groß und weiß, darunter die Beschriftung in Grau (wie „Your Balance / Money Received“ in der Vorlage). Komponenten in `src/components/PageHeader.tsx`.
 
-**Tab-Seiten** (Training, Gewicht) – `<PageHeader>`: links kleine Beschriftung und Seitentitel, rechts oben das Zahnrad zu den Einstellungen. Unten schwebt die Tab-Leiste.
-
-**Unterseiten** (Plan, Übungsdetail, Einstellungen, Verlauf) – `<SubpageHeader>`: oben links der Zurück-Pfeil, darunter Beschriftung und Seitentitel. Keine Tab-Leiste, kein Zahnrad.
-
-```html
-<!-- Tab-Seite -->
-<header class="page-header page-header--row">
-  <div>
-    <p class="label">Montag, 16. November</p>
-    <h1 class="title">Training</h1>
-  </div>
-  <a class="icon-btn" href="#/einstellungen" aria-label="Einstellungen">…</a>
-</header>
-
-<!-- Unterseite -->
-<header class="page-header">
-  <button class="icon-btn" aria-label="Zurück">…</button>
-  <div class="page-header__text">
-    <p class="label">Zwei Listen, vier Tage</p>
-    <h1 class="title">Plan</h1>
-  </div>
-</header>
-```
+- **Tab-Seiten** (`<PageHeader>`): rechts das Zahnrad als nacktes Icon
+- **Unterseiten** (`<SubpageHeader>`): oben links der Zurück-Pfeil als nacktes Icon, darunter Titel und Beschriftung
 
 ### Icon-Button
 
-`.icon-btn`: runder Kreis mit 44 px Durchmesser in Kartenfarbe, Icon 22 px in gedämpfter Farbe. Die Tippfläche ist rundum 6 px größer als der sichtbare Kreis. Es gibt genau zwei: Zahnrad (oben rechts auf Tab-Seiten) und Zurück-Pfeil (oben links auf Unterseiten). Jeder Icon-Button hat ein `aria-label`.
+`.icon-btn`: nacktes weißes Icon (24 px), 44 px Tippfläche, kein Kreis, keine Fläche. Für Zahnrad, Zurück-Pfeil und X, bündig mit dem Seitenrand. Auf Karten (Zähler, Sortierpfeile) bekommt er eine dunkle Kachel (`.icon-btn--on-card`). Jeder Icon-Button hat ein `aria-label`.
 
-### Abschnitt
+### Icon-Kachel
 
-`.section`: kleine Beschriftung (`.label`) als Überschrift, darunter eine Karte. Für nachgeordnete Inhalte am Seitenende. 32 px Abstand nach oben.
+`.icon-tile`: 44 × 44 px, `--radius-inner`, gelbe Fläche, dunkles Icon (22 px). Steht links in Listen-Karten, wie bei „Recent Transactions“ in der Vorlage. Varianten für den Status einer Übung: `.icon-tile--outline` (aktuell, nur gelb umrandet, gelbe Nummer) und `.icon-tile--muted` (offen, dunkle Fläche, graue Nummer). Erledigt ist eine gelbe Kachel mit Haken.
+
+Icons kommen aus `src/components/Icon.tsx`: Linien-Icons, Strichstärke 2, runde Enden, `currentColor`.
+
+### Listen-Karte
+
+`.item-list` mit `.item`: Jeder Eintrag ist eine eigene Anthrazit-Karte (`--radius-item`, mindestens 68 px hoch, 10 px Abstand). Links die Icon-Kachel, daneben Titel (weiß, 600) und Nebeninfo (grau), rechts ein Wert als Zahl M oder ein grauer Pfeil. Ohne Kachel: `.item--plain`.
+
+Verwendet für: „Vergangene Trainings“ und „Plan bearbeiten“ im Training-Tab, Verlauf, Übersicht während des Trainings, Zeit pro Übung in der Auswertung, Zeiten im Übungsdetail.
+
+### Karte
+
+`.card`: Anthrazit, `--radius-card`, 24 px Innenabstand, kein Rand, kein Schatten. Für alles, was kein Glas ist, zum Beispiel die Plan-Liste oder die Einstellungen.
 
 ### Hauptkarte
 
-`.card.card--hero`: die eine Karte, um die es auf dem Bildschirm geht, zum Beispiel das heutige Training vor dem Start. Mehr Innenabstand oben, darin Beschriftung, der Inhalt in Titelgröße (`.title`), eine kurze gedämpfte Zeile und höchstens ein Hauptbutton. Keine Listen in der Hauptkarte: Einzelheiten kommen erst, wenn sie gebraucht werden.
+`.card.card--hero`: die eine Karte, um die es geht, mit mehr Luft. Darin Beschriftung, der Inhalt in Titelgröße oder als Zahl XL (weiß), eine kurze graue Zeile und höchstens ein Hauptbutton. Die Hauptkarten im Training-Tab und in der Auswertung sind aus Glas mit Leuchten.
 
-### Dezente Links
+### Zeilenliste
 
-`.list.list--quiet`: Zeilen ohne Karte, gedämpfte Schrift, Trennlinie, Pfeil nach rechts, rechts davor bei Bedarf eine Anzahl. Für Wege, die erreichbar sein müssen, aber nicht ablenken sollen, zum Beispiel „Vergangene Trainings“ und „Plan bearbeiten“ unter dem heutigen Training.
+`.rows` mit `.row` in einer Karte, getrennt durch feine Linien. Nur noch im Plan, weil sich dort Zeilen zum Bearbeiten aufklappen. Rechts bis zu zwei Icon-Buttons auf dunklen Kacheln.
 
-### Timer
+### Zahlenanzeige
 
-Laufende Zeiten (`.timer`) im Format „0:00“, ab einer Stunde „1:05:00“, immer aus gespeicherten Zeitstempeln berechnet. Alle Ziffern von Unbounded sind gleich breit, ein Timer springt beim Zählen also nicht. Im Training-Tab steht die laufende Gesamtzeit als Zahl XL in Weiß über „Training fortsetzen“.
+```html
+<p class="label">Gesamtzeit</p>
+<p class="num num--xl">58:00</p>
+<p class="num num--m">12<span class="num__unit">Sätze</span></p>
+```
+
+XL einmal pro Bildschirm. `.num--accent` (gelb) für höchstens eine Zahl pro Bildschirm, nie auf Glas (dort ist die Zahl weiß, das Gelb kommt vom Leuchten).
+
+### Buttons
+
+| Variante | Aussehen | Wofür |
+|---|---|---|
+| `.btn--primary` | Gelb, dunkle Schrift | Die eine Hauptaktion des Bildschirms |
+| `.btn` | Anthrazit (`--surface-2`), weiße Schrift | Alle weiteren Aktionen |
+| `.btn--ghost` | Nur graue Schrift | Abbrechen, Zurück, „− Satz“ |
+| `.btn--danger` | Nur rote Schrift | Löschen, immer mit Rückfrage |
+| `.btn--small` | 44 px hoch, `--radius-inner` | „+ Satz“, Auswahl-Pillen |
+
+Mindestens 52 px hoch, `--radius-btn`, Schrift 17 px, 600. `.btn--block` macht den Button so breit wie die Karte.
+
+### Umschalter
+
+`.segmented`, wie „Incomings / Outgoings“ in der Vorlage: dunkle Hülle (`--surface`), darin zwei oder drei Pillen. Die aktive Pille ist **gelb mit dunkler Schrift**, die anderen sind gedämpft. Zum Beispiel Oberkörper / Unterkörper im Plan, später der Zeitraum im Diagramm.
+
+### Eingabefeld
+
+`.field__input`: `--surface-2`, `--radius-inner`, Zahl groß, fett und zentriert. Gelber Rahmen beim Antippen. Für Zahlen immer `inputmode="decimal"` oder `"numeric"`. Textfelder (`.field__input--text`) linksbündig, normale Schrift.
+
+### Zähler
+
+`.stepper`: links die Beschriftung, rechts Minus, Zahl M und Plus auf dunklen Kacheln. Für kleine ganze Zahlen wie Zielsätze.
+
+### Hinweis
+
+`.hint`: kleine Fläche `--surface-2`, weiße Schrift, gelber Pfeil. Für „Gewicht erhöhen“. Er kann bei mehreren Übungen stehen, deshalb ist nur der Pfeil gelb.
+
+### Löschen mit Nachfrage
+
+Löschen fragt immer an Ort und Stelle nach: Der aufgeklappte Bereich zeigt einen Satz, der genau sagt, was passiert, darunter „Abbrechen“ und „Ja, löschen“. Kein Systemdialog.
+
+### Satzzeile
+
+`.set-row`: Satznummer, Gewicht, Wiederholungen, Haken. „kg“ und „Wdh“ stehen klein unten rechts in den Feldern.
+
+- **Grau ist Vorschlag, weiß ist eingetragen.** Die Felder zeigen die Werte vom letzten Mal als grauen Platzhalter
+- **Ein Tipp auf den Haken** (`.check-btn`, `--radius-inner`) trägt den Vorschlag ein, ein zweiter trägt ihn wieder aus. Eingetragen ist der Haken eine **weiße** Kachel mit dunklem Haken, nicht gelb
+- **Tippen in ein Feld** überschreibt den Vorschlag
+- **Aufwärmsätze** (`.set-row--warmup`): „A“ statt Nummer, Felder nur umrandet statt gefüllt
+- In der Trainingsansicht sind Felder und Haken 52 px hoch, sonst 56 bis 64 px
+- „142,5“ muss bei 375 px Breite vollständig sichtbar sein
 
 ### Trainingsansicht
 
 `.session` füllt genau den Bildschirm (`100dvh`), ohne Tab-Leiste. Von oben nach unten:
 
-1. **Kopf** (`.session__top`): „Übung 3 von 9“ als Beschriftung, rechts ein Icon-Button mit X
-2. **Übung** (`.session__exercise`): Name (`.session__name`, Unbounded 22 px, bricht um), Zeile mit Ziel und den kleinen Knöpfen „− Satz“ / „+ Satz“, „Letztes Mal“, ggf. Hinweis
-3. **Sätze** (`.session__sets`): Satzzeilen in kompakter Höhe (52 px). Nur dieser Bereich darf scrollen
-4. **Ring-Uhr** (`.ring`): nimmt den restlichen Platz
-5. **Steuerleiste** (`.session__controls`): zwei runde Steuerknöpfe (`.control-btn`, 56 px, `--surface-2`) links und rechts, dazwischen der gelbe Hauptbutton. Seine Schrift schrumpft auf schmalen Geräten, er bleibt einzeilig
+1. **Kopf:** „Übung 3 von 9“ in Grau, rechts das X als nacktes Icon
+2. **Übung:** Name (26 px, 700), Zeile mit Ziel und „− Satz“ / „+ Satz“, „Letztes Mal“, ggf. Hinweis
+3. **Sätze:** nur dieser Bereich darf scrollen
+4. **Ring-Uhr:** Glas mit Leuchten in der Mitte, nimmt den restlichen Platz
+5. **Steuerleiste:** links und rechts Steuerknöpfe (`.control-btn`, 56 px, Anthrazit, `--radius-btn`), dazwischen der gelbe Hauptbutton, einzeilig
 
-Solange ein Eingabefeld aktiv ist (`.session--typing`), entfällt die Ring-Uhr und die Übungszeit steht klein im Kopf.
+Solange ein Eingabefeld aktiv ist, entfällt die Ring-Uhr und die Übungszeit steht klein im Kopf.
 
 ### Ring-Uhr
 
-SVG, quadratisch, höchstens 260 px. In der Mitte klein „DIESE ÜBUNG“, groß die Übungszeit (Unbounded, weiß), darunter klein „Gesamt 42:10“. Der Ring selbst ist `--surface`, der Fortschrittsbogen gelb mit runden Enden, beginnend oben im Uhrzeigersinn. Außen ein Punkt pro Übung, gleichmäßig verteilt, beginnend oben: erledigt gelb gefüllt, aktuell gelb umrandet, offen `--chart-mark`.
+SVG in einer Glas-Karte mit Leuchten in der Mitte (`.ring__card.glow.glow--center` > `.ring__glass.card--glass`). Ring höchstens 260 px.
 
-Unter 150 px Höhe wird sie zur **schmalen Zeile** (`.ring--compact`): links die Übungszeit als Zahl L, rechts die Punkte in einer Reihe und darunter die Gesamtzeit, in einer Fläche `--surface` mit `--radius-inner`.
+- In der Mitte klein „Diese Übung“, groß die Übungszeit (Outfit 700, weiß), darunter klein „Gesamt 42:10“. Die kleinen Texte in `--glass-bright`
+- Ring Weiß 10 %, Fortschrittsbogen gelb mit runden Enden, beginnt oben im Uhrzeigersinn
+- Außen ein Punkt pro Übung: erledigt gelb gefüllt, aktuell gelb umrandet, offen Weiß 28 %
+- Unter 150 px Höhe wird sie zur **schmalen Zeile**: Übungszeit als Zahl L, rechts Punkte und Gesamtzeit, ebenfalls auf Glas
 
 ### Blatt
 
-`.sheet`: legt sich über den ganzen Bildschirm, Seitenhintergrund, scrollt selbst. Oben Beschriftung und X wie im Kopf der Trainingsansicht. Für die Übersicht während des Trainings: Zeilen mit Status-Punkt (`.ring__dot`), Nummer und Name, Status und Sätze klein darunter, rechts die Zeit als Zahl M. Die aktuelle Übung hat einen gelben Namen.
+`.sheet`: legt sich über den ganzen Bildschirm (Übersicht während des Trainings). Oben rechts das X, darunter Titel und Beschriftung wie im Seitenkopf, dann Listen-Karten mit Status-Kachel, Name, Status und Zeit. Die aktuelle Übung hat einen gelben Namen.
 
-### Karte
+### Timer
 
-Dunkelblaue Fläche, 28 px Rundung, 24 px Innenabstand, kein Rahmen, kein Schatten. Mehrere Karten stehen in `.stack` mit 16 px Abstand untereinander.
-
-```html
-<section class="card">
-  <p class="label">Letztes Training</p>
-  <h2 class="heading">Bankdrücken</h2>
-  <div class="card__row">
-    <p class="num num--l">82,5<span class="num__unit">kg</span></p>
-    <p class="num num--l">8<span class="num__unit">Wdh</span></p>
-  </div>
-  <p class="muted small">Letztes Mal: 80 kg × 8, 8, 7</p>
-</section>
-```
-
-### Zahlenanzeige
-
-Die Zahl breit und fett in Unbounded, die Einheit klein und gedämpft in IBM Plex Sans dahinter. Darüber steht eine Beschriftung, die sagt, was die Zahl bedeutet.
-
-```html
-<p class="label">7-Tage-Durchschnitt</p>
-<p class="num num--xl num--accent">78,2<span class="num__unit">kg</span></p>
-```
-
-- **XL** einmal pro Bildschirm, für den einen Wert, um den es geht
-- **L** für Gewicht und Wiederholungen einer Übung
-- **M** für Nebenwerte in Zeilen (Sätze, Veränderung)
-- `.num--accent` für höchstens eine Zahl pro Bildschirm
-
-### Buttons
-
-Immer pillenförmig, mindestens 52 px hoch, Text in normaler Schreibweise.
-
-```html
-<button class="btn btn--primary btn--block">Training starten</button>
-<button class="btn btn--block">Satz hinzufügen</button>
-<button class="btn btn--ghost">Abbrechen</button>
-<button class="btn btn--danger">Löschen</button>
-```
-
-| Variante | Aussehen | Wofür |
-|---|---|---|
-| `.btn--primary` | Neongelb, dunkle Schrift | Die eine Hauptaktion des Bildschirms |
-| `.btn` | Mittelblau (`--surface-2`), helle Schrift | Alle weiteren Aktionen |
-| `.btn--ghost` | Nur gedämpfte Schrift | Abbrechen, Zurück |
-| `.btn--danger` | Nur rote Schrift | Löschen, immer mit Rückfrage |
-
-`.btn--small` (44 px hoch, 13 px Schrift) ist für kleine Auswahlknöpfe wie die Auswahl-Pillen. Nie in Gelb. Nebenwege wie „Plan bearbeiten“ sind dezente Links, keine Buttons.
-
-`.btn--block` macht den Button so breit wie die Karte. Der Hauptbutton steht im unteren Bereich, mit dem Daumen erreichbar. Ausnahme: Steht darunter eine lange Liste, kommt er darüber, damit er ohne Scrollen erreichbar ist. Beschriftungen sind kurz, höchstens zwei Wörter, weil die Schrift breit läuft.
-
-### Umschalter
-
-Zwei oder drei Pillen in einer gemeinsamen Hülle (`.segmented`), zum Beispiel Oberkörper/Unterkörper oder der Zeitraum eines Diagramms. Die gewählte Option ist **hell** (`--text`), nicht gelb: Sie ist eine Auswahl, keine Hauptaktion.
-
-### Eingabefeld
-
-`.field__input`: 64 px hoch, mittelblaue Fläche, die Zahl groß, fett und zentriert in Unbounded. Beim Antippen erscheint ein gelber Rahmen. Für Zahlen immer `inputmode="decimal"` oder `"numeric"`. Zwei Felder nebeneinander (Gewicht und Wiederholungen) müssen „142,5“ vollständig zeigen.
-
-### Textfeld
-
-`.field__input.field__input--text`: für Namen. 52 px hoch, mittelblaue Fläche, IBM Plex Sans 17 px, linksbündig. Gelber Rahmen beim Antippen wie beim Zahlenfeld. Fehlermeldungen stehen als `.error` (rote Schrift, 14 px) direkt unter dem Feld.
-
-### Zähler
-
-`.stepper` (Komponente `Stepper`): links die Beschriftung, rechts Minus-Button, Zahl in Größe M und Plus-Button. Für kleine ganze Zahlen wie Zielsätze und Zielwiederholungen, weil das mit dem Daumen schneller geht als die Tastatur. Am Rand des Wertebereichs ist der jeweilige Button ausgegraut.
-
-### Zeilenliste
-
-`.rows` mit `.row`: Liste in einer Karte, Zeilen mindestens 64 px hoch, getrennt durch eine feine Linie (`--line`). Links der Name (`.row__name`, IBM Plex Sans 17 px, Gewicht 600, bricht bei langen Namen um), darunter bei Bedarf eine gedämpfte Zusatzzeile. Rechts entweder eine Zahl in Größe M oder bis zu zwei Icon-Buttons.
-
-- Icon-Buttons auf einer Karte bekommen `.icon-btn--on-card` (mittelblaue Fläche), sonst verschwinden sie im Kartenhintergrund
-- Zum Sortieren dienen ein Hoch- und ein Runter-Pfeil pro Zeile, kein Ziehen
-- Lässt sich eine Zeile bearbeiten, klappt der Bereich `.row__editor` direkt unter ihr auf. Es ist immer höchstens eine Zeile aufgeklappt
-
-### Auswahl-Pillen
-
-`.chips`: kleine Buttons (`.btn--small`) in IBM Plex Sans, die umbrechen dürfen. Für eine Auswahl aus vorhandenen Einträgen, zum Beispiel „Vorhandene Übung übernehmen“.
-
-### Satzzeile
-
-`.set-row` im laufenden Training: Satznummer, Zahlenfeld für das Gewicht, Zahlenfeld für die Wiederholungen, Haken. „kg“ und „Wdh“ stehen klein unten rechts in den Feldern (`.set-field__unit`), es gibt keine Spaltenköpfe. Die Eingabe muss mit einer Hand schnell gehen:
-
-- **Grau ist Vorschlag, hell ist eingetragen.** Die Felder zeigen die Werte vom letzten Mal als grauen Platzhalter. Erst was eingetragen ist, steht in heller Schrift und ist gespeichert
-- **Ein Tipp auf den Haken** (`.check-btn`, 52 px) trägt den Vorschlag unverändert ein. Ein zweiter Tipp trägt den Satz wieder aus
-- **Tippen in ein Feld** überschreibt den Vorschlag. Das Feld ist leer, es muss nichts gelöscht werden. Der andere Wert wird aus dem Vorschlag ergänzt
-- Gewicht mit `inputmode="decimal"`, Wiederholungen mit `inputmode="numeric"`, Felder 52 px hoch
-- Der eingetragene Haken ist **hell** (`--text`), nicht gelb: Auf einem Bildschirm stehen viele davon, Gelb bleibt „Training beenden“ vorbehalten
-- „− Satz“ (entfernt die letzte Zeile) und „+ Satz“ stehen als kleine Knöpfe in der Zeile mit dem Ziel
-- **Aufwärmsätze** (`.set-row--warmup`) stehen vor den Arbeitssätzen und sind doppelt markiert: ein „A“ statt der Satznummer und Felder, die nur umrandet statt gefüllt sind
-- Die Felder müssen „142,5“ bei 375 px Breite vollständig zeigen. Darunter schrumpft die Schrift mit
-
-### Hinweis
-
-`.hint`: kleine Pille in `--surface-2` mit Pfeil-Icon und heller Schrift (13 px, Gewicht 600), linksbündig unter der Zeile „Letztes Mal“. Für dezente Empfehlungen wie „Gewicht erhöhen“. Bewusst nicht gelb: Der Hinweis ist ein Rat, keine Aktion, und er kann bei mehreren Übungen gleichzeitig stehen.
-
-### Löschen mit Nachfrage
-
-Löschen fragt immer nach, und zwar an Ort und Stelle: Der aufgeklappte Bereich der Zeile zeigt statt der Felder einen Satz, der genau sagt, was passiert, darunter „Abbrechen“ (`.btn--ghost`) und „Ja, löschen“ (`.btn--danger`). Kein Systemdialog, kein Overlay.
+Laufende Zeiten (`.timer`) im Format „0:00“, ab einer Stunde „1:05:00“, immer aus gespeicherten Zeitstempeln berechnet und mit Tabellenziffern.
 
 ### Tab-Leiste
 
-Schwebt als kompakte Pille mittig über dem Inhalt: höchstens 320 px breit, 64 px hoch, blau (`--tabbar-bg`) mit Schatten nach unten. Sie hat genau **zwei Tabs**, Training und Gewicht, jeweils mit Icon und Beschriftung. Der aktive Tab ist eine neongelbe Pille, der andere gedämpft. Weitere Tabs kommen nicht dazu: Neue Bereiche werden Unterseiten. Auf Unterseiten ist die Tab-Leiste ausgeblendet.
-
-### Icons
-
-Linien-Icons als SVG direkt im Code: Strichstärke 2 bis 2,25, runde Enden, Farbe über `currentColor`. Das Zahnrad stammt aus Feather Icons (MIT-Lizenz), die übrigen sind selbst gezeichnet. Keine Emojis, keine Icon-Schrift, keine gefüllten Icons, keine Icons von fremden Servern.
+Schwebt als Anthrazit-Fläche (`--radius-card`, 64 px hoch, höchstens 320 px breit) mittig über dem Inhalt, mit dunklem Schatten. Genau zwei Tabs mit Icon und Beschriftung. Der aktive Tab ist eine gelbe Fläche mit dunkler Schrift, der andere grau. Auf Unterseiten und in der Trainingsansicht ausgeblendet. Sie entfällt später, wenn die Übersicht zur Startseite wird.
 
 ## Diagramme
 
-Diagramme sind in gedämpftem Blau gehalten. Gelb bekommt nur der eine Wert, auf den es ankommt.
+Festgelegt für die Körpergewicht-Seite und das Fortschrittsdiagramm, gebaut wird es dort. Vorbild ist „Your Balance“ in der Vorlage.
 
 | Element | Klasse | Aussehen |
 |---|---|---|
-| Hilfslinien | `.chart__grid` | `#1a2550`, 1 px, nur waagrecht, höchstens drei |
-| Einzelwerte | `.chart__mark` | Punkte oder Balken in `#4a5a9c` |
-| Verlaufslinie | `.chart__line` | `#8f9bc9`, 2,5 px, runde Ecken |
-| Wichtigster Wert | `.chart__highlight` | Neongelber Punkt, 6 px Radius, mit schwachem Hof (`.chart__halo`) |
-| Achsentext | `.chart__axis` | 11 px, Großbuchstaben, `--text-faint` |
+| Linie | `.chart__line` | Gelb, 3 px, **geschwungen** (geglättete Kurve durch die Punkte, keine Ecken), runde Enden |
+| Fläche darunter | `<linearGradient>` mit `.chart__area-top` / `.chart__area-bottom` | Gelb 32 % direkt unter der Linie, nach unten ausblendend bis ganz durchsichtig, sodass sie ins Schwarz ausläuft |
+| Aktueller Wert | `.chart__highlight` | Gelber Punkt mit 3 px weißem Ring |
+| Schildchen | `.chart__tag` + `.chart__tag-text` | Kleine Fläche `--surface-2` mit `--radius-inner` über dem aktuellen Punkt, darin das Datum („5. Juni“) oder der Wert, weiß, 13 px, 600 |
+| Einzelwerte | `.chart__mark` | Kleine Punkte in `#4a4a50`, falls nötig (z. B. Tageswerte unter dem 7-Tage-Durchschnitt) |
+| Achsentext | `.chart__axis` | 12 px, grau, normale Schreibweise |
+| Hilfslinien | `.chart__grid` | Höchstens drei, waagrecht, kaum sichtbar, oft ganz weglassen |
 
-- Im Gewichtsdiagramm sind die Tageswerte gedämpfte Punkte, der 7-Tage-Durchschnitt ist die Linie, und nur der aktuelle Durchschnitt leuchtet gelb
-- Im Fortschrittsdiagramm einer Übung leuchtet nur das letzte Training (oder die Bestleistung)
-- Der hervorgehobene Wert steht zusätzlich als große Zahl über dem Diagramm
-- Keine Legende, keine Flächenfüllung unter der Linie, keine senkrechten Hilfslinien, keine zweite Akzentfarbe
+- Das Diagramm steht ohne eigene Karte direkt auf dem schwarzen Grund und darf bis an den Bildschirmrand reichen, wie in der Vorlage
+- Darüber groß der aktuelle Wert als Zahl (weiß oder gelb), darunter der Umschalter für den Zeitraum
+- Im Körpergewicht ist die Linie der 7-Tage-Durchschnitt, die Tageswerte sind kleine graue Punkte
+- Keine Legende, keine senkrechten Hilfslinien, keine zweite Farbe
 
 ## Bewegung
 
-Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animationen beim Seitenwechsel, keine hüpfenden Zahlen. Bei „Bewegung reduzieren“ in den iPhone-Einstellungen entfällt alles.
+Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animationen, keine hüpfenden Zahlen, kein pulsierendes Leuchten. Bei „Bewegung reduzieren“ entfällt alles.
 
 ## Vor dem Fertigmelden prüfen
 
-- In 390 px Breite angesehen, nichts ragt über den Rand. Bei Zahlen und Buttonzeilen zusätzlich in 320 px
-- Genau ein Blickfang pro Bildschirm
-- Höchstens ein gelber Button und eine gelbe Zahl
-- Alle Farben, Abstände und Rundungen kommen aus den Variablen, keine frei gewählten Werte
-- Tippflächen mindestens 44 px, Buttons 52 px, Eingabefelder mindestens 16 px Schrift
-- Tab-Seite mit Zahnrad und Tab-Leiste, Unterseite mit Zurück-Pfeil und ohne Tab-Leiste
-- Trainingsansicht in 390 × 844 ohne Scrollen, auch mit Aufwärmsatz, Hinweis und Zusatzsätzen; in 375 × 667 darf nur der Satzbereich scrollen
+- In 390 und 375 px Breite angesehen, nichts ragt über den Rand, die Tab-Leiste sitzt unten
+- Glas und Leuchten nur an den drei erlaubten Stellen, Text nie über dem kräftigen Kern des Leuchtens
+- Höchstens ein gelber Hauptbutton und eine gelbe Zahl pro Bildschirm
+- Beschriftungen gedämpft, aber lesbar (mindestens 4,5 : 1, auf Glas `--glass-muted`)
+- Zahlen und Timer mit Tabellenziffern
+- Alle Farben, Abstände und Rundungen aus den Variablen
+- Trainingsansicht in 390 × 844 ohne Scrollen; in 375 × 667 darf nur der Satzbereich scrollen

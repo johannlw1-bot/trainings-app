@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import Icon from '../components/Icon';
 import { PageHeader } from '../components/PageHeader';
 import WorkoutTimer from '../components/WorkoutTimer';
 import type { Split, Workout } from '../db';
@@ -28,40 +29,43 @@ interface Loaded {
   history: HistoryEntry[];
 }
 
-function Chevron() {
+/** Die Karte „Heute“: Milchglas mit gelbem Leuchten dahinter. */
+function TodayCard({ children }: { children: ReactNode }) {
   return (
-    <svg
-      className="list__chevron"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.25"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M9 6l6 6-6 6" />
-    </svg>
+    <div className="glow">
+      <section className="card card--hero card--glass">{children}</section>
+    </div>
   );
 }
 
-/** Dezente Wege zu Plan und Verlauf, unter dem Inhalt des Tabs. */
-function QuietLinks({ historyCount }: { historyCount: number }) {
+/** Wege zu Verlauf und Plan: einzelne Karten mit gelber Icon-Kachel. */
+function Links({ historyCount }: { historyCount: number }) {
   return (
-    <ul className="list list--quiet">
+    <ul className="item-list">
       <li>
-        <a className="list__item" href="#/verlauf">
-          <span>Vergangene Trainings</span>
-          <span className="list__end">
-            {historyCount > 0 && <span>{historyCount}</span>}
-            <Chevron />
+        <a className="item" href="#/verlauf">
+          <span className="icon-tile">
+            <Icon name="clock" />
           </span>
+          <span className="item__main">
+            <span className="item__title">Vergangene Trainings</span>
+            <span className="item__sub">
+              {historyCount === 0 ? 'Noch keine' : historyCount === 1 ? '1 Training' : `${historyCount} Trainings`}
+            </span>
+          </span>
+          <Icon name="chevron" className="item__chevron" />
         </a>
       </li>
       <li>
-        <a className="list__item" href="#/plan">
-          <span>Plan bearbeiten</span>
-          <Chevron />
+        <a className="item" href="#/plan">
+          <span className="icon-tile">
+            <Icon name="edit" />
+          </span>
+          <span className="item__main">
+            <span className="item__title">Plan bearbeiten</span>
+            <span className="item__sub">Oberkörper und Unterkörper</span>
+          </span>
+          <Icon name="chevron" className="item__chevron" />
         </a>
       </li>
     </ul>
@@ -108,17 +112,17 @@ export default function Training() {
       {data && (
         <div className="stack">
           {data.active && (
-            <section className="card card--hero">
+            <TodayCard>
               <p className="label">Läuft · {splitLabel(data.active.split)}</p>
               <WorkoutTimer startedAt={data.active.startedAt} className="num num--xl" />
               <a className="btn btn--primary btn--block" href="#/einheit">
                 Training fortsetzen
               </a>
-            </section>
+            </TodayCard>
           )}
 
           {!data.active && doneToday && (
-            <section className="card">
+            <TodayCard>
               <p className="label">Heute · {splitLabel(doneToday.workout.split)}</p>
               <h2 className="title">Erledigt</h2>
               <p className="muted">
@@ -138,11 +142,11 @@ export default function Training() {
               >
                 Wieder öffnen
               </button>
-            </section>
+            </TodayCard>
           )}
 
           {!data.active && !doneToday && split && (
-            <section className="card card--hero">
+            <TodayCard>
               <p className="label">Heute</p>
               <h2 className="title">{splitLabel(split)}</h2>
               {data.plans[split].length === 0 ? (
@@ -158,11 +162,11 @@ export default function Training() {
                   </button>
                 </>
               )}
-            </section>
+            </TodayCard>
           )}
 
           {!data.active && !doneToday && !split && (
-            <section className="card card--hero">
+            <TodayCard>
               <p className="label">Heute</p>
               <h2 className="title">Ruhetag</h2>
               <p className="muted">
@@ -178,10 +182,10 @@ export default function Training() {
                   {list.label} nachholen
                 </button>
               ))}
-            </section>
+            </TodayCard>
           )}
 
-          <QuietLinks historyCount={data.history.length} />
+          <Links historyCount={data.history.length} />
         </div>
       )}
     </>

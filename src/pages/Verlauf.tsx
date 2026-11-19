@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon';
 import { SubpageHeader } from '../components/PageHeader';
 import { formatShortDate } from '../lib/dates';
 import { formatDurationShort, workoutDuration } from '../lib/duration';
@@ -18,19 +19,24 @@ export default function Verlauf() {
       <SubpageHeader label="Vergangene Trainings" title="Verlauf" />
 
       {history && (
-        <section className="card">
+        <>
           {history.length === 0 ? (
-            <p className="muted">Noch keine Trainings.</p>
+            <section className="card">
+              <p className="muted">Noch keine Trainings.</p>
+            </section>
           ) : (
-            <ul className="rows">
+            <ul className="item-list">
               {history.map(({ workout, setCount }) => {
                 const duration = workoutDuration(workout);
                 return (
                   <li key={workout.id}>
-                    <a className="row" href={`#/auswertung/${workout.id}`}>
-                      <span className="row__main">
-                        <span className="row__name">{formatShortDate(workout.date)}</span>
-                        <span className="muted small">
+                    <a className="item" href={`#/auswertung/${workout.id}`}>
+                      <span className="icon-tile">
+                        <Icon name="dumbbell" />
+                      </span>
+                      <span className="item__main">
+                        <span className="item__title">{formatShortDate(workout.date)}</span>
+                        <span className="item__sub">
                           {splitLabel(workout.split)}
                           {duration !== undefined && ` · ${formatDurationShort(duration)}`}
                         </span>
@@ -45,7 +51,7 @@ export default function Verlauf() {
               })}
             </ul>
           )}
-        </section>
+        </>
       )}
     </>
   );
