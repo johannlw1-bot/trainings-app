@@ -1,6 +1,7 @@
 // Trainings und Sätze in der Datenbank. Jede Eingabe wird sofort gespeichert.
 import Dexie from 'dexie';
 import { db, type Exercise, type LocalDate, type Split, type Workout, type WorkoutSet } from '../db';
+import { resumedStart } from './duration';
 import { pickLastTime, type LastTime } from './lastTime';
 
 function setsOf(workoutId: number, exerciseId: number) {
@@ -82,12 +83,17 @@ export async function finishWorkout(workoutId: number): Promise<void> {
   });
 }
 
-/** Macht ein beendetes Training wieder zum laufenden, zum Beispiel nach versehentlichem Beenden. */
+/**
+ * Macht ein beendetes Training wieder zum laufenden, zum Beispiel nach versehentlichem Beenden.
+ * Der Startzeitpunkt wird so verschoben, dass der Timer ab der gespeicherten Dauer weiterläuft.
+ */
 export async function reopenWorkout(workoutId: number): Promise<void> {
+  const now = Date.now();
   await db.workouts
     .where('id')
     .equals(workoutId)
     .modify((workout) => {
+      if (workout.finishedAt) workout.startedAt = resumedStart(workout.startedAt, workout.finishedAt, now);
       delete workout.finishedAt;
     });
 }
@@ -122,7 +128,7 @@ export interface HistoryEntry {
 }
 
 /** Beendete Trainings, neueste zuerst. */
-export async function loadHistory(limit: number): Promise<HistoryEntry[]> {
+export async function loadHistory(limit = Infinity): Promise<HistoryEntry[]> {
   const finished = (await db.workouts.toArray())
     .filter((workout) => workout.finishedAt)
     .sort((a, b) => b.date.localeCompare(a.date) || b.startedAt.localeCompare(a.startedAt))

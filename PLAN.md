@@ -99,6 +99,7 @@ So minimalistisch wie möglich: Die Tab-Leiste unten hat nur **zwei Tabs**, Trai
 | Plan | `#/plan` | Unterseite | Button „Plan bearbeiten“ im Training-Tab |
 | Übungsdetail | `#/uebung/<id>` | Unterseite | Tippen auf eine Übung im Training-Tab |
 | Einstellungen | `#/einstellungen` | Unterseite | Zahnrad oben rechts auf beiden Tabs |
+| Verlauf | `#/verlauf` | Unterseite | Link „Vergangene Trainings“ im Training-Tab |
 
 Regeln für die Navigation:
 
@@ -108,10 +109,12 @@ Regeln für die Navigation:
 
 ### 1. Training (`#/training`) – Tab, Startseite
 
-- Oben ein kleiner Button „Plan bearbeiten“, der die Plan-Seite öffnet
-- Zeigt das Training des heutigen Wochentags (Oberkörper oder Unterkörper) mit Button „Training starten“
+- Vor dem Start nur das Nötigste: groß „Oberkörper“ oder „Unterkörper“, darunter klein die Anzahl der Übungen, und „Training starten“. Die einzelnen Übungen erscheinen erst nach dem Start
+- Darunter dezent, ohne Karte: „Vergangene Trainings“ (mit Anzahl) und „Plan bearbeiten“
+- Nach dem Beenden: Karte „Erledigt“ mit Dauer und Satzanzahl und „Wieder öffnen“
 - An Ruhetagen (Mi, Sa, So): Hinweis plus Auswahl Oberkörper/Unterkörper, falls ein Training nachgeholt wird
-- Im laufenden Training: Übungen in Planreihenfolge, pro Übung
+- Im laufenden Training steht oben eine Leiste mit dem **Trainingstimer** (0:00, ab einer Stunde 1:05:00). Sie bleibt beim Scrollen oben stehen. Der Timer rechnet ab dem gespeicherten Startzeitpunkt und stimmt deshalb auch nach dem Schließen von Safari oder dem Sperren des iPhones
+- Darunter die Übungen in Planreihenfolge, pro Übung
   - Zeile „Letztes Mal: 80 kg × 8, 8, 7“ mit Datum
   - Satzzeilen mit Gewicht und Wiederholungen. Die Werte vom letzten Mal stehen als grauer Vorschlag in den Feldern
   - Ein Tipp auf den Haken trägt den Vorschlag ein, Tippen in ein Feld überschreibt ihn. Nur eingetragene Sätze werden gespeichert, offene Vorschläge verfallen beim Beenden
@@ -124,9 +127,14 @@ Regeln für die Navigation:
 - „Letztes Mal“ ist das jüngste beendete Training, in dem die Übung vorkam, egal in welcher Liste
 - Jede Eingabe wird sofort gespeichert. Ein geschlossener Browser kostet kein Training: Das laufende Training ist beim nächsten Öffnen wieder da, auch an einem anderen Tag
 - „Training beenden“ schließt die Einheit ab. Ohne eingetragene Sätze heißt der Button „Training abbrechen“ und verwirft das leere Training
-- Ein heute beendetes Training lässt sich über „Wieder öffnen“ fortsetzen, zum Beispiel nach versehentlichem Beenden
+- Ein heute beendetes Training lässt sich über „Wieder öffnen“ fortsetzen, zum Beispiel nach versehentlichem Beenden. Der Timer läuft dann ab der gespeicherten Dauer weiter, die Pause zählt nicht mit
+- Die Dauer ergibt sich aus Start- und Endzeitpunkt (`startedAt`, `finishedAt`). Beim Wiederöffnen wird `startedAt` um die Pause nach vorn verschoben
 - Tippen auf den Namen einer Übung öffnet ihre Detailseite mit dem Fortschrittsdiagramm
-- Ganz unten: Liste der vergangenen Trainings nach Datum, neueste zuerst, antippbar zum Ansehen und Korrigieren
+
+### Verlauf (`#/verlauf`) – Unterseite
+
+- Vergangene Trainings, neueste zuerst: Datum, Liste, Dauer und Anzahl der Arbeitssätze
+- Antippen zum Ansehen und Korrigieren folgt in Schritt 6
 
 ### Plan (`#/plan`) – Unterseite
 
@@ -181,12 +189,14 @@ src/
     Gewicht.tsx
     ExerciseDetail.tsx Fortschrittsdiagramm einer Übung
     Einstellungen.tsx  Backup
+    Verlauf.tsx        Vergangene Trainings
   nav.ts               Zurück-Navigation der Unterseiten
   components/          Seitenkopf, Satzzeile, Übungskarte, Liniendiagramm, Tab-Leiste
   lib/
     schedule.ts        Wochentag → Oberkörper/Unterkörper/Ruhetag
     average.ts         7-Tage-Durchschnitt
     lastTime.ts        Werte vom letzten Mal
+    duration.ts        Trainingstimer und Dauer
     progress.ts        Höchstes Gewicht und geschätztes 1RM pro Training
     backup.ts          Export/Import
     dates.ts           Wochentag, Datumsformat
@@ -202,7 +212,7 @@ public/
 3. **Training loggen** – Einheit starten, Sätze eintragen, „letztes Mal“, beenden, Liste der vergangenen Trainings (erledigt, Ansehen und Korrigieren alter Trainings folgt in Schritt 6)
 4. **Körpergewicht** – Eingabe, Liste, Diagramm mit Durchschnitt
 5. **Fortschritt pro Übung** – Detailseite, nutzt die Diagramm-Komponente aus Schritt 4
-6. **Verlauf und Backup** – Liste der vergangenen Trainings im Training-Tab, Export und Import in den Einstellungen
+6. **Verlauf und Backup** – vergangene Trainings antippen, ansehen und korrigieren, Export und Import in den Einstellungen
 7. **PWA und Hosting** – Manifest, Icons, Service Worker, GitHub Action, Test in Safari auf dem iPhone
 
 Jeder Schritt ergibt eine benutzbare App. Tests gibt es für die Rechenlogik in `lib/` (Wochentag-Zuordnung, Durchschnitt, letztes Mal, Fortschritt, Backup), nicht für die Oberfläche.

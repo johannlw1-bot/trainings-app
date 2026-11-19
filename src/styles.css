@@ -531,6 +531,50 @@ button {
   border-top: 1px solid var(--line);
 }
 
+/* Dezente Links unter dem Tab-Inhalt: keine Karte, gedämpfte Schrift. */
+.list--quiet {
+  margin-top: var(--space-2);
+}
+
+.list--quiet .list__item {
+  color: var(--text-muted);
+}
+
+.list__end {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Karte für das eine, worum es auf dem Bildschirm geht: mehr Luft. */
+.card--hero {
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+}
+
+.card--hero .title {
+  margin: 0;
+}
+
+/* Leiste mit dem Trainingstimer. Bleibt beim Scrollen oben stehen. */
+.workout-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0 calc(-1 * var(--space-4));
+  padding: calc(env(safe-area-inset-top) + var(--space-3)) var(--space-4) var(--space-3);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Fester Platz pro Ziffer, damit der Timer beim Zählen nicht wackelt. */
+.timer {
+  font-variant-numeric: tabular-nums;
+}
+
 .list__chevron {
   width: 20px;
   height: 20px;

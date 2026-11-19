@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import ActiveWorkout from '../components/ActiveWorkout';
 import { PageHeader } from '../components/PageHeader';
 import type { Split, Workout } from '../db';
-import { formatShortDate, toLocalDate } from '../lib/dates';
-import { formatReps } from '../lib/plan';
+import { toLocalDate } from '../lib/dates';
+import { formatDurationShort, workoutDuration } from '../lib/duration';
 import { loadPlan, type PlanItem } from '../lib/planDb';
 import { SPLITS, nextTraining, splitForDate, splitLabel } from '../lib/schedule';
 import {
@@ -28,33 +28,48 @@ interface Loaded {
   history: HistoryEntry[];
 }
 
-function PlanList({ items }: { items: PlanItem[] }) {
+function Chevron() {
   return (
-    <ul className="rows">
-      {items.map(({ entry, exercise }) => (
-        <li key={entry.id}>
-          <a className="row" href={`#/uebung/${exercise.id}`}>
-            <span className="row__main">
-              <span className="row__name">{exercise.name}</span>
-              {entry.warmupSets > 0 && (
-                <span className="muted small">
-                  {entry.warmupSets === 1 ? '1 Aufwärmsatz' : `${entry.warmupSets} Aufwärmsätze`}
-                </span>
-              )}
-            </span>
-            <span
-              className="num num--m"
-              aria-label={`${entry.targetSets} Sätze mit ${entry.targetRepsMin} bis ${entry.targetRepsMax} Wiederholungen`}
-            >
-              {entry.targetSets}
-              <span className="num__unit">×</span>
-              {formatReps(entry.targetRepsMin, entry.targetRepsMax)}
-            </span>
-          </a>
-        </li>
-      ))}
+    <svg
+      className="list__chevron"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+/** Dezente Wege zu Plan und Verlauf, unter dem Inhalt des Tabs. */
+function QuietLinks({ historyCount }: { historyCount: number }) {
+  return (
+    <ul className="list list--quiet">
+      <li>
+        <a className="list__item" href="#/verlauf">
+          <span>Vergangene Trainings</span>
+          <span className="list__end">
+            {historyCount > 0 && <span>{historyCount}</span>}
+            <Chevron />
+          </span>
+        </a>
+      </li>
+      <li>
+        <a className="list__item" href="#/plan">
+          <span>Plan bearbeiten</span>
+          <Chevron />
+        </a>
+      </li>
     </ul>
   );
+}
+
+function exerciseCount(count: number): string {
+  return count === 1 ? '1 Übung' : `${count} Übungen`;
 }
 
 export default function Training() {
@@ -68,7 +83,7 @@ export default function Training() {
       getActiveWorkout(),
       loadPlan('upper'),
       loadPlan('lower'),
-      loadHistory(30),
+      loadHistory(),
     ]);
     setData({ active, plans: { upper, lower }, history });
   }, []);
@@ -84,6 +99,7 @@ export default function Training() {
   };
 
   const doneToday = data?.history.find((entry) => entry.workout.date === todayDate);
+  const doneDuration = doneToday && workoutDuration(doneToday.workout);
   const next = nextTraining(today);
 
   return (
@@ -92,12 +108,6 @@ export default function Training() {
 
       {data && (
         <div className="stack">
-          <div>
-            <a className="btn btn--small" href="#/plan">
-              Plan bearbeiten
-            </a>
-          </div>
-
           {data.active && (
             <ActiveWorkout
               key={data.active.id}
@@ -113,10 +123,10 @@ export default function Training() {
           {!data.active && doneToday && (
             <section className="card">
               <p className="label">Heute · {splitLabel(doneToday.workout.split)}</p>
-              <h2 className="heading">Erledigt</h2>
+              <h2 className="title">Erledigt</h2>
               <p className="muted">
-                {doneToday.setCount} {doneToday.setCount === 1 ? 'Satz' : 'Sätze'} eingetragen. Fehlt
-                noch etwas, kannst du das Training wieder öffnen.
+                {doneDuration !== undefined && `${formatDurationShort(doneDuration)} · `}
+                {doneToday.setCount} {doneToday.setCount === 1 ? 'Satz' : 'Sätze'}
               </p>
               <button
                 type="button"
@@ -132,9 +142,9 @@ export default function Training() {
           )}
 
           {!data.active && !doneToday && split && (
-            <section className="card">
+            <section className="card card--hero">
               <p className="label">Heute</p>
-              <h2 className="heading">{splitLabel(split)}</h2>
+              <h2 className="title">{splitLabel(split)}</h2>
               {data.plans[split].length === 0 ? (
                 <p className="muted">
                   Für {splitLabel(split)} sind noch keine Übungen angelegt. Das geht über „Plan
@@ -142,23 +152,21 @@ export default function Training() {
                 </p>
               ) : (
                 <>
-                  {/* Über der Liste, damit der Button ohne Scrollen erreichbar ist. */}
+                  <p className="muted">{exerciseCount(data.plans[split].length)}</p>
                   <button type="button" className="btn btn--primary btn--block" onClick={() => start(split)}>
                     Training starten
                   </button>
-                  <PlanList items={data.plans[split]} />
                 </>
               )}
             </section>
           )}
 
           {!data.active && !doneToday && !split && (
-            <section className="card">
+            <section className="card card--hero">
               <p className="label">Heute</p>
-              <h2 className="heading">Ruhetag</h2>
+              <h2 className="title">Ruhetag</h2>
               <p className="muted">
-                Heute steht kein Training an. Weiter geht es am {weekdayFormat.format(next.date)} mit{' '}
-                {splitLabel(next.split)}.
+                Weiter geht es am {weekdayFormat.format(next.date)} mit {splitLabel(next.split)}.
               </p>
               {SPLITS.filter((list) => data.plans[list.split].length > 0).map((list) => (
                 <button
@@ -172,35 +180,9 @@ export default function Training() {
               ))}
             </section>
           )}
-        </div>
-      )}
 
-      {data && (
-        <section className="section">
-          <h2 className="label">Vergangene Trainings</h2>
-          <div className="card">
-            {data.history.length === 0 ? (
-              <p className="muted">Noch keine Trainings.</p>
-            ) : (
-              <ul className="rows">
-                {data.history.map(({ workout, setCount }) => (
-                  <li key={workout.id}>
-                    <div className="row">
-                      <span className="row__main">
-                        <span className="row__name">{formatShortDate(workout.date)}</span>
-                        <span className="muted small">{splitLabel(workout.split)}</span>
-                      </span>
-                      <span className="num num--m">
-                        {setCount}
-                        <span className="num__unit">{setCount === 1 ? 'Satz' : 'Sätze'}</span>
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
+          <QuietLinks historyCount={data.history.length} />
+        </div>
       )}
     </>
   );

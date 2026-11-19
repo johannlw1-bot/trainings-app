@@ -7,6 +7,7 @@ import Gewicht from './pages/Gewicht';
 import Plan from './pages/Plan';
 import ExerciseDetail from './pages/ExerciseDetail';
 import Einstellungen from './pages/Einstellungen';
+import Verlauf from './pages/Verlauf';
 
 export interface PageProps {
   /** Zweiter Teil der Adresse, z. B. die Übungs-ID in #/uebung/12 */
@@ -23,6 +24,7 @@ const ROUTES: Record<string, { page: ComponentType<PageProps>; tab?: TabId }> = 
   plan: { page: Plan },
   uebung: { page: ExerciseDetail },
   einstellungen: { page: Einstellungen },
+  verlauf: { page: Verlauf },
 };
 
 function parseHash(hash: string): { route: string; param?: string } {

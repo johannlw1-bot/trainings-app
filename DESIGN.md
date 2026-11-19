@@ -144,7 +144,7 @@ Es gibt zwei Arten von Seiten, und jede hat ihren eigenen Kopf. Beide kommen aus
 
 **Tab-Seiten** (Training, Gewicht) – `<PageHeader>`: links kleine Beschriftung und Seitentitel, rechts oben das Zahnrad zu den Einstellungen. Unten schwebt die Tab-Leiste.
 
-**Unterseiten** (Plan, Übungsdetail, Einstellungen) – `<SubpageHeader>`: oben links der Zurück-Pfeil, darunter Beschriftung und Seitentitel. Keine Tab-Leiste, kein Zahnrad.
+**Unterseiten** (Plan, Übungsdetail, Einstellungen, Verlauf) – `<SubpageHeader>`: oben links der Zurück-Pfeil, darunter Beschriftung und Seitentitel. Keine Tab-Leiste, kein Zahnrad.
 
 ```html
 <!-- Tab-Seite -->
@@ -172,7 +172,19 @@ Es gibt zwei Arten von Seiten, und jede hat ihren eigenen Kopf. Beide kommen aus
 
 ### Abschnitt
 
-`.section`: kleine Beschriftung (`.label`) als Überschrift, darunter eine Karte. Für nachgeordnete Inhalte am Seitenende, zum Beispiel „Vergangene Trainings“. 32 px Abstand nach oben.
+`.section`: kleine Beschriftung (`.label`) als Überschrift, darunter eine Karte. Für nachgeordnete Inhalte am Seitenende. 32 px Abstand nach oben.
+
+### Hauptkarte
+
+`.card.card--hero`: die eine Karte, um die es auf dem Bildschirm geht, zum Beispiel das heutige Training vor dem Start. Mehr Innenabstand oben, darin Beschriftung, der Inhalt in Titelgröße (`.title`), eine kurze gedämpfte Zeile und höchstens ein Hauptbutton. Keine Listen in der Hauptkarte: Einzelheiten kommen erst, wenn sie gebraucht werden.
+
+### Dezente Links
+
+`.list.list--quiet`: Zeilen ohne Karte, gedämpfte Schrift, Trennlinie, Pfeil nach rechts, rechts davor bei Bedarf eine Anzahl. Für Wege, die erreichbar sein müssen, aber nicht ablenken sollen, zum Beispiel „Vergangene Trainings“ und „Plan bearbeiten“ unter dem heutigen Training.
+
+### Timerleiste
+
+`.workout-bar` im laufenden Training: oben die Liste als Beschriftung, darunter der Timer als Zahl L (`.timer`, weiß, nicht gelb). Die Leiste bleibt beim Scrollen am oberen Rand stehen (`position: sticky`), hat den Seitenhintergrund und unten eine feine Linie. Format „0:00“, ab einer Stunde „1:05:00“. Alle Ziffern von Unbounded sind gleich breit, der Timer springt beim Zählen also nicht.
 
 ### Karte
 
@@ -222,9 +234,9 @@ Immer pillenförmig, mindestens 52 px hoch, Text in normaler Schreibweise.
 | `.btn--ghost` | Nur gedämpfte Schrift | Abbrechen, Zurück |
 | `.btn--danger` | Nur rote Schrift | Löschen, immer mit Rückfrage |
 
-`.btn--small` (44 px hoch, 13 px Schrift) ist für Nebenwege, die nicht zur Aufgabe des Bildschirms gehören, zum Beispiel „Plan bearbeiten“ im Training-Tab. Nie in Gelb.
+`.btn--small` (44 px hoch, 13 px Schrift) ist für kleine Auswahlknöpfe wie die Auswahl-Pillen. Nie in Gelb. Nebenwege wie „Plan bearbeiten“ sind dezente Links, keine Buttons.
 
-`.btn--block` macht den Button so breit wie die Karte. Der Hauptbutton steht im unteren Bereich, mit dem Daumen erreichbar. Ausnahme: Steht darunter eine lange Liste, kommt er darüber, damit er ohne Scrollen erreichbar ist (z. B. „Training starten“). Beschriftungen sind kurz, höchstens zwei Wörter, weil die Schrift breit läuft.
+`.btn--block` macht den Button so breit wie die Karte. Der Hauptbutton steht im unteren Bereich, mit dem Daumen erreichbar. Ausnahme: Steht darunter eine lange Liste, kommt er darüber, damit er ohne Scrollen erreichbar ist. Beschriftungen sind kurz, höchstens zwei Wörter, weil die Schrift breit läuft.
 
 ### Umschalter
 

@@ -20,6 +20,7 @@ import {
   loadSets,
   saveSet,
 } from '../lib/workoutDb';
+import WorkoutTimer from './WorkoutTimer';
 
 interface WorkoutExercise extends Targets {
   id: number;
@@ -359,17 +360,13 @@ export default function ActiveWorkout({
 
   if (!sets) return null;
 
-  const startedAt = new Date(workout.startedAt).toLocaleTimeString('de', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
   const hasSets = sets.length > 0;
 
   return (
     <>
-      <div>
-        <p className="label">Läuft seit {startedAt} Uhr</p>
-        <h2 className="heading">{splitLabel(workout.split)}</h2>
+      <div className="workout-bar">
+        <p className="label">{splitLabel(workout.split)}</p>
+        <WorkoutTimer startedAt={workout.startedAt} />
       </div>
 
       {exercises.map((exercise) => {
