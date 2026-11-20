@@ -1,5 +1,6 @@
-// Der feste Trainingsplan, der beim ersten Start eingetragen wird.
-import { db, type Split } from '../db';
+// Der feste Trainingsplan, der beim ersten Start eingetragen wird. Reine Funktionen, das Eintragen
+// steht in seedDb.ts.
+import type { Exercise, Id, PlanEntry, Split } from '../db';
 
 interface SeedExercise {
   name: string;
@@ -31,28 +32,76 @@ export const DEFAULT_PLAN: Record<Split, SeedExercise[]> = {
   ],
 };
 
-/**
- * Trägt den festen Plan ein, aber nur, wenn es noch gar keine Übungen gibt.
- * So werden spätere Änderungen am Plan nie überschrieben. Gibt zurück, ob etwas eingetragen wurde.
- */
-export async function seedDefaultPlan(): Promise<boolean> {
-  return db.transaction('rw', db.exercises, db.planEntries, async () => {
-    if ((await db.exercises.count()) > 0) return false;
+/** Präfixe der Schlüssel, die Dexie Cloud den Tabellen gibt (`db.cloud.schema[table].idPrefix`). */
+export interface IdPrefixes {
+  exercises: string;
+  planEntries: string;
+}
 
-    for (const split of ['upper', 'lower'] as const) {
-      for (const [order, item] of DEFAULT_PLAN[split].entries()) {
-        const exerciseId = await db.exercises.add({ name: item.name, archived: false });
-        await db.planEntries.add({
-          split,
-          exerciseId,
-          order,
-          warmupSets: item.warmupSets,
-          targetSets: item.sets,
-          targetRepsMin: item.reps[0],
-          targetRepsMax: item.reps[1],
-        });
-      }
+export interface PlanRows {
+  exercises: Exercise[];
+  planEntries: PlanEntry[];
+}
+
+const SPLITS: readonly Split[] = ['upper', 'lower'];
+const splitName = (split: Split) => (split === 'upper' ? 'Upper' : 'Lower');
+
+/**
+ * Der feste Plan als Zeilen. Die Schlüssel sind fest und privat („#“ + Präfix der Tabelle, z. B.
+ * „#exrPlanUpper0“). Tragen iPhone und Mac den Plan beide ein, bevor sie sich abgleichen, sind es
+ * dieselben Zeilen und es entsteht beim Abgleich kein doppelter Plan.
+ */
+export function buildDefaultPlan(prefixes: IdPrefixes): PlanRows {
+  const rows: PlanRows = { exercises: [], planEntries: [] };
+  for (const split of SPLITS) {
+    for (const [order, item] of DEFAULT_PLAN[split].entries()) {
+      const key = `Plan${splitName(split)}${order}`;
+      const exerciseId: Id = `#${prefixes.exercises}${key}`;
+      rows.exercises.push({ id: exerciseId, name: item.name, archived: false });
+      rows.planEntries.push({
+        id: `#${prefixes.planEntries}${key}`,
+        split,
+        exerciseId,
+        order,
+        warmupSets: item.warmupSets,
+        targetSets: item.sets,
+        targetRepsMin: item.reps[0],
+        targetRepsMax: item.reps[1],
+      });
     }
-    return true;
+  }
+  return rows;
+}
+
+/** Inhalt eines Plans ohne Schlüssel, zum Vergleichen. */
+function planContent({ exercises, planEntries }: PlanRows): string[] {
+  const byId = new Map(exercises.map((exercise) => [exercise.id, exercise]));
+  const used = new Set(planEntries.map((entry) => entry.exerciseId));
+  const lines = planEntries.map((entry) => {
+    const exercise = byId.get(entry.exerciseId);
+    return JSON.stringify([
+      entry.split,
+      entry.order,
+      exercise?.name,
+      exercise?.archived,
+      exercise?.note ?? '',
+      entry.warmupSets,
+      entry.targetSets,
+      entry.targetRepsMin,
+      entry.targetRepsMax,
+    ]);
   });
+  // Übungen ohne Platz im Plan (gelöscht, aber schon trainiert) zählen als Änderung.
+  for (const exercise of exercises) if (!used.has(exercise.id)) lines.push(`unplanned:${exercise.name}`);
+  return lines.sort();
+}
+
+/**
+ * Ist der Plan genau der feste Plan, unverändert? Die Schlüssel spielen dabei keine Rolle.
+ * Dann kann er vor dem Anmelden weg: Er geht nicht verloren, er ist ja der feste Plan.
+ */
+export function isUntouchedDefaultPlan(rows: PlanRows): boolean {
+  const expected = planContent(buildDefaultPlan({ exercises: '', planEntries: '' }));
+  const actual = planContent(rows);
+  return actual.length === expected.length && actual.every((line, i) => line === expected[i]);
 }

@@ -12,8 +12,8 @@ export function segmentMs(segment: Pick<Segment, 'startedAt' | 'endedAt'>, now: 
 }
 
 /** Zusammengezählte Zeit je Übung über alle ihre Abschnitte. */
-export function exerciseTimes(segments: readonly SegmentTimes[], now: number): Map<number, number> {
-  const times = new Map<number, number>();
+export function exerciseTimes(segments: readonly SegmentTimes[], now: number): Map<string, number> {
+  const times = new Map<string, number>();
   for (const segment of segments) {
     times.set(segment.exerciseId, (times.get(segment.exerciseId) ?? 0) + segmentMs(segment, now));
   }
@@ -24,7 +24,7 @@ export function exerciseTimes(segments: readonly SegmentTimes[], now: number): M
  * Die Übung, die gerade angezeigt wird: die mit dem offenen Abschnitt.
  * Gibt es keinen offenen (z. B. nach dem Beenden), die zuletzt begonnene.
  */
-export function activeExerciseId(segments: readonly SegmentTimes[]): number | undefined {
+export function activeExerciseId(segments: readonly SegmentTimes[]): string | undefined {
   const open = segments.filter((segment) => !segment.endedAt);
   const pool = open.length ? open : segments;
   return [...pool].sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0]?.exerciseId;
@@ -37,8 +37,8 @@ export type ExerciseStatus = 'open' | 'current' | 'done';
  * eingetragen ist und sie mindestens einmal verlassen wurde (abgeschlossener Abschnitt).
  */
 export function exerciseStatus(
-  exerciseId: number,
-  currentId: number | undefined,
+  exerciseId: string,
+  currentId: string | undefined,
   segments: readonly SegmentTimes[],
   workingSetCount: number,
 ): ExerciseStatus {
@@ -53,10 +53,10 @@ export function exerciseStatus(
  * zurück und der Button heißt „Training beenden“, auch wenn weiter vorne noch Übungen offen sind.
  */
 export function nextOpenExercise(
-  order: readonly number[],
-  currentId: number | undefined,
-  isDone: (exerciseId: number) => boolean,
-): number | null {
+  order: readonly string[],
+  currentId: string | undefined,
+  isDone: (exerciseId: string) => boolean,
+): string | null {
   const start = currentId === undefined ? -1 : order.indexOf(currentId);
   for (let index = start + 1; index < order.length; index++) {
     if (!isDone(order[index])) return order[index];
@@ -71,8 +71,8 @@ export type FinishCheck = { kind: 'ok' } | { kind: 'open'; count: number } | { k
  * mit Übungen ohne Arbeitssätze „trotzdem beenden?“, sonst nichts.
  */
 export function finishCheck(
-  order: readonly number[],
-  workingSetCount: (exerciseId: number) => number,
+  order: readonly string[],
+  workingSetCount: (exerciseId: string) => number,
   totalSavedSets: number,
 ): FinishCheck {
   if (totalSavedSets === 0) return { kind: 'empty' };
@@ -81,7 +81,7 @@ export function finishCheck(
 }
 
 /** Ziel von „Zurück“: die vorige Übung in Planreihenfolge, ohne Umlauf. */
-export function previousExercise(order: readonly number[], currentId: number | undefined): number | null {
+export function previousExercise(order: readonly string[], currentId: string | undefined): string | null {
   const index = currentId === undefined ? -1 : order.indexOf(currentId);
   return index > 0 ? order[index - 1] : null;
 }
@@ -94,15 +94,15 @@ export function setProgress(doneWorkingSets: number, plannedWorkingSets: number)
 
 export interface SegmentSwitch {
   /** Abschnitte, die jetzt enden */
-  close: number[];
+  close: string[];
   /** Neuer Abschnitt für diese Übung, oder null, wenn sie schon läuft */
-  open: number | null;
+  open: string | null;
 }
 
 /** Was beim Wechsel zu einer Übung passiert: offene Abschnitte schließen, einen neuen öffnen. */
 export function planSwitch(
   segments: readonly Pick<Segment, 'id' | 'exerciseId' | 'endedAt'>[],
-  toExerciseId: number,
+  toExerciseId: string,
 ): SegmentSwitch {
   const open = segments.filter((segment) => !segment.endedAt);
   if (open.length === 1 && open[0].exerciseId === toExerciseId) return { close: [], open: null };

@@ -2,19 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { BACKUP_APP, backupFileName, buildBackup, serializeBackup, type BackupTables } from './backup';
 
 const tables: BackupTables = {
-  exercises: [{ id: 1, name: 'Bankdrücken', archived: false }],
+  exercises: [{ id: 'exr1', name: 'Bankdrücken', archived: false }],
   planEntries: [
-    { id: 1, split: 'upper', exerciseId: 1, order: 0, warmupSets: 1, targetSets: 3, targetRepsMin: 8, targetRepsMax: 12 },
+    { id: 'pln1', split: 'upper', exerciseId: 'exr1', order: 0, warmupSets: 1, targetSets: 3, targetRepsMin: 8, targetRepsMax: 12 },
   ],
   workouts: [
-    { id: 7, date: '2026-11-19', split: 'upper', startedAt: '2026-11-19T17:00:00.000Z', finishedAt: '2026-11-19T18:00:00.000Z' },
+    { id: 'wrk7', date: '2026-11-19', split: 'upper', startedAt: '2026-11-19T17:00:00.000Z', finishedAt: '2026-11-19T18:00:00.000Z' },
   ],
   sets: [
-    { id: 1, workoutId: 7, exerciseId: 1, warmup: true, setNumber: 1, weightKg: 40, reps: 10 },
-    { id: 2, workoutId: 7, exerciseId: 1, warmup: false, setNumber: 1, weightKg: 82.5, reps: 8 },
+    { id: 'sts1', workoutId: 'wrk7', exerciseId: 'exr1', warmup: true, setNumber: 1, weightKg: 40, reps: 10 },
+    { id: 'sts2', workoutId: 'wrk7', exerciseId: 'exr1', warmup: false, setNumber: 1, weightKg: 82.5, reps: 8 },
   ],
-  segments: [{ id: 1, workoutId: 7, exerciseId: 1, startedAt: '2026-11-19T17:00:00.000Z', endedAt: '2026-11-19T17:20:00.000Z' }],
-  bodyWeights: [{ date: '2026-11-19', weightKg: 78.4 }],
+  segments: [{ id: 'sgm1', workoutId: 'wrk7', exerciseId: 'exr1', startedAt: '2026-11-19T17:00:00.000Z', endedAt: '2026-11-19T17:20:00.000Z' }],
+  bodyWeights: [{ id: '#2026-11-19', date: '2026-11-19', weightKg: 78.4 }],
 };
 
 describe('backup', () => {

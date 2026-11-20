@@ -70,7 +70,7 @@ describe('formatKg', () => {
 });
 
 const workout = (id: number, date: string, finished = true): Workout => ({
-  id,
+  id: `w${id}`,
   date,
   split: 'upper',
   startedAt: `${date}T17:00:00.000Z`,
@@ -84,9 +84,9 @@ const set = (
   reps: number,
   warmup = false,
 ): WorkoutSet => ({
-  id: workoutId * 100 + setNumber + (warmup ? 50 : 0),
-  workoutId,
-  exerciseId: 1,
+  id: `s${workoutId * 100 + setNumber + (warmup ? 50 : 0)}`,
+  workoutId: `w${workoutId}`,
+  exerciseId: 'e1',
   warmup,
   setNumber,
   weightKg,
@@ -98,7 +98,7 @@ describe('pickLastTime', () => {
   const sets = [set(1, 1, 75, 8), set(2, 2, 80, 7), set(2, 1, 80, 8), set(3, 1, 82.5, 8)];
 
   it('nimmt das jüngste abgeschlossene Training und sortiert die Sätze', () => {
-    expect(pickLastTime(sets, workouts, 3)).toEqual({
+    expect(pickLastTime(sets, workouts, 'w3')).toEqual({
       date: '2026-11-12',
       sets: [
         { setNumber: 1, weightKg: 80, reps: 8 },

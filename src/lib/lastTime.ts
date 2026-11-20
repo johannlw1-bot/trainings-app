@@ -16,7 +16,7 @@ export interface LastTime {
   warmups: LoggedSet[];
 }
 
-function pick(sets: readonly WorkoutSet[], workoutId: number, warmup: boolean): LoggedSet[] {
+function pick(sets: readonly WorkoutSet[], workoutId: string, warmup: boolean): LoggedSet[] {
   return sets
     .filter((set) => set.workoutId === workoutId && set.warmup === warmup)
     .sort((a, b) => a.setNumber - b.setNumber)
@@ -31,7 +31,7 @@ function pick(sets: readonly WorkoutSet[], workoutId: number, warmup: boolean): 
 export function pickLastTime(
   setsOfExercise: readonly WorkoutSet[],
   workouts: readonly Workout[],
-  excludeWorkoutId?: number,
+  excludeWorkoutId?: string,
 ): LastTime | undefined {
   const candidates = workouts
     .filter((workout) => workout.finishedAt && workout.id !== excludeWorkoutId)

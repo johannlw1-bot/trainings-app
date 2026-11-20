@@ -27,9 +27,9 @@ const last: LastTime = {
 };
 
 const saved = (setNumber: number, weightKg: number, reps: number, warmup = false): WorkoutSet => ({
-  id: setNumber,
-  workoutId: 1,
-  exerciseId: 1,
+  id: `s${setNumber}${warmup ? 'w' : ''}`,
+  workoutId: 'w1',
+  exerciseId: 'e1',
   warmup,
   setNumber,
   weightKg,
@@ -239,14 +239,14 @@ describe('Haken in der Trainingsansicht, auch nach dem Wechsel der Übung', () =
   function session() {
     let sets: WorkoutSet[] = [];
     const drafts: Record<string, Draft> = {};
-    let currentId = 1;
+    let currentId = 'e1';
     const own = () => sets.filter((s) => s.exerciseId === currentId);
     const rowOf = (setNumber: number) =>
       buildRows(exercise, own(), last, 3).find((r) => !r.warmup && r.setNumber === setNumber)!;
     const key = (setNumber: number) => draftKey(currentId, false, setNumber);
     const save = (setNumber: number, weightKg: number, reps: number) => {
       // Wie in der Trainingsansicht: sofort in die Anzeige, ohne auf die Datenbank zu warten.
-      sets = withSavedSet(sets, { workoutId: 1, exerciseId: currentId, warmup: false, setNumber, weightKg, reps });
+      sets = withSavedSet(sets, { workoutId: 'w1', exerciseId: currentId, warmup: false, setNumber, weightKg, reps });
     };
     const fields = (setNumber: number) => shownDraft(drafts[key(setNumber)], rowOf(setNumber).saved);
     return {
@@ -262,7 +262,7 @@ describe('Haken in der Trainingsansicht, auch nach dem Wechsel der Übung', () =
         if (result.kind === 'save') save(setNumber, result.value.weightKg, result.value.reps);
       },
       /** Wie goTo in der Trainingsansicht: gelbe Sätze speichern, dann wechseln. */
-      switchTo(exerciseId: number) {
+      switchTo(exerciseId: string) {
         const pending = pendingSaves(exercise, own(), last, 3, (warmup, n) =>
           drafts[draftKey(currentId, warmup, n)],
         );
@@ -288,15 +288,15 @@ describe('Haken in der Trainingsansicht, auch nach dem Wechsel der Übung', () =
     s.type(1, 'weight', '85');
     s.check(1);
     expect(s.state(1)).toBe('saved');
-    expect(s.sets).toEqual([expect.objectContaining({ exerciseId: 1, setNumber: 1, weightKg: 85, reps: 8 })]);
+    expect(s.sets).toEqual([expect.objectContaining({ exerciseId: 'e1', setNumber: 1, weightKg: 85, reps: 8 })]);
     s.focus(1);
     expect(s.state(1)).toBe('editing');
     s.type(1, 'reps', '6');
     s.check(1);
     expect(s.state(1)).toBe('saved');
-    s.switchTo(2);
+    s.switchTo('e2');
     expect(s.state(1)).toBe('empty');
-    s.switchTo(1);
+    s.switchTo('e1');
     expect(s.state(1)).toBe('saved');
     expect(s.fields(1)).toMatchObject({ weight: '85', reps: '6' });
     expect(s.sets).toHaveLength(1);
@@ -307,8 +307,8 @@ describe('Haken in der Trainingsansicht, auch nach dem Wechsel der Übung', () =
     const s = session();
     s.focus(1);
     s.type(1, 'weight', '90');
-    s.switchTo(2);
-    s.switchTo(1);
+    s.switchTo('e2');
+    s.switchTo('e1');
     expect(s.state(1)).toBe('saved');
     expect(s.sets[0]).toMatchObject({ weightKg: 90, reps: 8 });
   });
@@ -323,13 +323,13 @@ describe('Haken in der Trainingsansicht, auch nach dem Wechsel der Übung', () =
 });
 
 describe('withSavedSet', () => {
-  const key = { workoutId: 1, exerciseId: 1, warmup: false, setNumber: 1 };
+  const key = { workoutId: 'w1', exerciseId: 'e1', warmup: false, setNumber: 1 };
 
-  it('fügt einen neuen Satz mit vorläufiger negativer id hinzu', () => {
+  it('fügt einen neuen Satz mit vorläufiger id hinzu', () => {
     const result = withSavedSet([saved(2, 80, 8)], { ...key, weightKg: 85, reps: 6 });
     expect(result).toHaveLength(2);
     expect(result[1]).toMatchObject({ ...key, weightKg: 85, reps: 6 });
-    expect(result[1].id).toBeLessThan(0);
+    expect(result[1].id).toBe('pending-1');
   });
 
   it('ändert einen vorhandenen Satz, statt ihn doppelt anzulegen', () => {

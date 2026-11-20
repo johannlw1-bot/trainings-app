@@ -11,9 +11,9 @@ import Auswertung from './pages/Auswertung';
 import Volumen from './pages/Volumen';
 
 export interface PageProps {
-  /** Zweiter Teil der Adresse, z. B. die Übungs-ID in #/uebung/12 */
+  /** Zweiter Teil der Adresse (dekodiert), z. B. die Übungs-ID in #/uebung/exr0Oro… */
   param?: string;
-  /** Dritter Teil der Adresse, z. B. „neu“ in #/auswertung/7/neu */
+  /** Dritter Teil der Adresse, z. B. „neu“ in #/auswertung/wrk0Oro…/neu */
   extra?: string;
 }
 
@@ -37,7 +37,11 @@ const ROUTES: Record<string, { page: ComponentType<PageProps>; fullscreen?: bool
 };
 
 function parseHash(hash: string): { route: string; param?: string; extra?: string } {
-  const [route, param, extra] = hash.replace(/^#\/?/, '').split('/');
+  // IDs stehen kodiert in der Adresse (encodeURIComponent), feste IDs beginnen mit „#“.
+  const [route, param, extra] = hash
+    .replace(/^#\/?/, '')
+    .split('/')
+    .map((part) => decodeURIComponent(part));
   return route in ROUTES ? { route, param, extra } : { route: HOME };
 }
 

@@ -15,7 +15,7 @@ import { exerciseTimes, planSwitch } from './exerciseTiming';
 import { pickLastTime, type LastTime, type LoggedSet } from './lastTime';
 import { loadPlan } from './planDb';
 
-function setsOf(workoutId: number, exerciseId: number) {
+function setsOf(workoutId: string, exerciseId: string) {
   return db.sets.where('[exerciseId+workoutId]').equals([exerciseId, workoutId]).toArray();
 }
 
@@ -48,7 +48,7 @@ export async function getActiveWorkout(): Promise<Workout | undefined> {
  * Startet ein Training. Die erste Übung der Liste läuft ab demselben Zeitpunkt,
  * damit die Zeiten pro Übung zusammen die Gesamtzeit ergeben.
  */
-export async function startWorkout(split: Split, date: LocalDate): Promise<number> {
+export async function startWorkout(split: Split, date: LocalDate): Promise<string> {
   const startedAt = new Date().toISOString();
   const first = (await loadPlan(split))[0];
   return db.transaction('rw', db.workouts, db.segments, async () => {
@@ -58,11 +58,11 @@ export async function startWorkout(split: Split, date: LocalDate): Promise<numbe
   });
 }
 
-export async function loadSets(workoutId: number): Promise<WorkoutSet[]> {
+export async function loadSets(workoutId: string): Promise<WorkoutSet[]> {
   return db.sets.where('workoutId').equals(workoutId).toArray();
 }
 
-export async function loadSegments(workoutId: number): Promise<Segment[]> {
+export async function loadSegments(workoutId: string): Promise<Segment[]> {
   return db.segments.where('workoutId').equals(workoutId).toArray();
 }
 
@@ -70,7 +70,7 @@ export async function loadSegments(workoutId: number): Promise<Segment[]> {
  * Wechselt die angezeigte Übung: Der laufende Abschnitt endet, ein neuer für die Ziel-Übung beginnt.
  * Läuft die Übung schon, passiert nichts.
  */
-export async function switchExercise(workoutId: number, exerciseId: number): Promise<void> {
+export async function switchExercise(workoutId: string, exerciseId: string): Promise<void> {
   const now = new Date().toISOString();
   await db.transaction('rw', db.segments, async () => {
     const change = planSwitch(await loadSegments(workoutId), exerciseId);
@@ -81,8 +81,8 @@ export async function switchExercise(workoutId: number, exerciseId: number): Pro
 
 /** Legt den Satz an oder überschreibt ihn. In einer Transaktion, damit schnelles Tippen keine Doppelten erzeugt. */
 export async function saveSet(
-  workoutId: number,
-  exerciseId: number,
+  workoutId: string,
+  exerciseId: string,
   warmup: boolean,
   setNumber: number,
   weightKg: number,
@@ -98,8 +98,8 @@ export async function saveSet(
 }
 
 export async function deleteSet(
-  workoutId: number,
-  exerciseId: number,
+  workoutId: string,
+  exerciseId: string,
   warmup: boolean,
   setNumber: number,
 ): Promise<void> {
@@ -119,7 +119,7 @@ export async function deleteSet(
  *
  * @returns true, wenn das Training abgeschlossen wurde, false, wenn es keine Sätze hat
  */
-export async function finishWorkout(workoutId: number): Promise<boolean> {
+export async function finishWorkout(workoutId: string): Promise<boolean> {
   return db.transaction('rw', db.workouts, db.sets, db.segments, async () => {
     const sets = await loadSets(workoutId);
     if (sets.length === 0) return false;
@@ -150,7 +150,7 @@ export async function finishWorkout(workoutId: number): Promise<boolean> {
  * Verwirft bzw. löscht ein Training samt Sätzen und Abschnitten (laufendes Training verwerfen,
  * vergangenes Training in der Auswertung löschen). Nur nach ausdrücklicher Nachfrage aufrufen.
  */
-export async function discardWorkout(workoutId: number): Promise<void> {
+export async function discardWorkout(workoutId: string): Promise<void> {
   await db.transaction('rw', db.workouts, db.sets, db.segments, async () => {
     await db.sets.where('workoutId').equals(workoutId).delete();
     await db.segments.where('workoutId').equals(workoutId).delete();
@@ -160,10 +160,10 @@ export async function discardWorkout(workoutId: number): Promise<void> {
 
 /** „Letztes Mal“ für mehrere Übungen auf einmal. */
 export async function loadLastTimes(
-  exerciseIds: readonly number[],
-  excludeWorkoutId: number,
-): Promise<Map<number, LastTime>> {
-  const result = new Map<number, LastTime>();
+  exerciseIds: readonly string[],
+  excludeWorkoutId: string,
+): Promise<Map<string, LastTime>> {
+  const result = new Map<string, LastTime>();
   for (const exerciseId of exerciseIds) {
     const sets = await db.sets
       .where('[exerciseId+workoutId]')
@@ -177,11 +177,11 @@ export async function loadLastTimes(
   return result;
 }
 
-export async function loadExercises(ids: readonly number[]): Promise<Exercise[]> {
+export async function loadExercises(ids: readonly string[]): Promise<Exercise[]> {
   return (await db.exercises.bulkGet([...ids])).filter((e): e is Exercise => !!e);
 }
 
-export async function getWorkout(workoutId: number): Promise<Workout | undefined> {
+export async function getWorkout(workoutId: string): Promise<Workout | undefined> {
   return db.workouts.get(workoutId);
 }
 
@@ -213,7 +213,7 @@ export interface ExerciseVisit {
 }
 
 /** Wie lange die letzten beendeten Trainings bei einer Übung gedauert haben, neueste zuerst. */
-export async function loadExerciseVisits(exerciseId: number, limit: number): Promise<ExerciseVisit[]> {
+export async function loadExerciseVisits(exerciseId: string, limit: number): Promise<ExerciseVisit[]> {
   const [sets, segments] = await Promise.all([
     db.sets
       .where('[exerciseId+workoutId]')
@@ -240,7 +240,7 @@ export async function loadExerciseVisits(exerciseId: number, limit: number): Pro
 }
 
 export interface SummaryExercise {
-  id: number;
+  id: string;
   name: string;
   /** Zeit bei dieser Übung, fehlt bei Trainings von vor der Zeitmessung */
   timeMs?: number;
@@ -260,7 +260,7 @@ export interface WorkoutSummary {
  * Die Übungen stehen in der Reihenfolge, in der sie zuerst besucht wurden. Übungen ohne
  * Zeitabschnitte (ältere Trainings) folgen in Planreihenfolge.
  */
-export async function loadSummary(workoutId: number): Promise<WorkoutSummary | undefined> {
+export async function loadSummary(workoutId: string): Promise<WorkoutSummary | undefined> {
   const workout = await db.workouts.get(workoutId);
   if (!workout) return undefined;
 
@@ -274,7 +274,7 @@ export async function loadSummary(workoutId: number): Promise<WorkoutSummary | u
   const ids = [...new Set([...segments.map((s) => s.exerciseId), ...sets.map((s) => s.exerciseId)])];
   const names = new Map((await loadExercises(ids)).map((exercise) => [exercise.id, exercise.name]));
   const planIndex = new Map(plan.map((item, index) => [item.exercise.id, index]));
-  const firstVisit = (id: number) =>
+  const firstVisit = (id: string) =>
     segments
       .filter((segment) => segment.exerciseId === id)
       .map((segment) => segment.startedAt)

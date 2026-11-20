@@ -27,7 +27,7 @@ function entriesOf(split: Split) {
     .toArray();
 }
 
-function setCount(exerciseId: number) {
+function setCount(exerciseId: string) {
   return db.sets
     .where('[exerciseId+workoutId]')
     .between([exerciseId, Dexie.minKey], [exerciseId, Dexie.maxKey])
@@ -89,7 +89,7 @@ export async function addExercise(
 
     if (existing && entries.some((entry) => entry.exerciseId === existing.id)) return 'duplicate';
 
-    let exerciseId: number;
+    let exerciseId: string;
     if (existing) {
       exerciseId = existing.id;
       if (existing.archived) await db.exercises.update(existing.id, { archived: false });
@@ -104,7 +104,7 @@ export async function addExercise(
 }
 
 /** Benennt die Übung um. Das gilt für beide Listen und alle bisherigen Trainings. */
-export async function renameExercise(exerciseId: number, rawName: string): Promise<NameResult> {
+export async function renameExercise(exerciseId: string, rawName: string): Promise<NameResult> {
   const name = normalizeName(rawName);
   if (!name) return 'empty';
 
@@ -118,12 +118,12 @@ export async function renameExercise(exerciseId: number, rawName: string): Promi
   });
 }
 
-export async function setTargets(entryId: number, targets: Targets): Promise<void> {
+export async function setTargets(entryId: string, targets: Targets): Promise<void> {
   await db.planEntries.update(entryId, { ...targets });
 }
 
 /** Verschiebt einen Eintrag um eine Stelle nach oben (-1) oder unten (+1). */
-export async function moveEntry(split: Split, entryId: number, direction: -1 | 1): Promise<void> {
+export async function moveEntry(split: Split, entryId: string, direction: -1 | 1): Promise<void> {
   await db.transaction('rw', db.planEntries, async () => {
     const entries = await entriesOf(split);
     const moved = moveItem(
@@ -143,7 +143,7 @@ export async function moveEntry(split: Split, entryId: number, direction: -1 | 1
  * - Wurde sie schon trainiert, verschwindet sie aus dem Plan, die Übung selbst und ihre
  *   eingetragenen Sätze bleiben aber für den Verlauf erhalten.
  */
-export async function deleteFromPlan(entryId: number): Promise<void> {
+export async function deleteFromPlan(entryId: string): Promise<void> {
   await db.transaction('rw', [db.exercises, db.planEntries, db.sets, db.segments], async () => {
     const entry = await db.planEntries.get(entryId);
     if (!entry) return;

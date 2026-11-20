@@ -12,7 +12,7 @@ import {
 } from './bodyWeight';
 import { addDays, addMonths, daysBetween } from './dates';
 
-const w = (date: string, weightKg: number): BodyWeight => ({ date, weightKg });
+const w = (date: string, weightKg: number): BodyWeight => ({ id: `#${date}`, date, weightKg });
 
 describe('sevenDayAverage', () => {
   it('nimmt alle Einträge der letzten 7 Kalendertage einschließlich des Tages', () => {

@@ -35,7 +35,7 @@ export type EntryResult =
   | { kind: 'focus'; field: 'weight' | 'reps'; draft: Draft }
   | { kind: 'none'; draft: Draft };
 
-export const draftKey = (exerciseId: number, warmup: boolean, setNumber: number) =>
+export const draftKey = (exerciseId: string, warmup: boolean, setNumber: number) =>
   `${exerciseId}:${warmup ? 'w' : 's'}:${setNumber}`;
 
 const isEmpty = (text: string) => text.trim() === '';
@@ -128,7 +128,7 @@ export function buildRows(
 
 /**
  * Die Sätze mit einem gespeicherten oder geänderten Satz, sofort für die Anzeige,
- * bevor die Datenbank antwortet. Ein neuer Satz bekommt eine vorläufige negative id.
+ * bevor die Datenbank antwortet. Ein neuer Satz bekommt eine vorläufige id „pending-…“.
  */
 export function withSavedSet(
   sets: readonly WorkoutSet[],
@@ -141,7 +141,7 @@ export function withSavedSet(
     s.setNumber === set.setNumber;
   const existing = sets.find(same);
   if (existing) return sets.map((s) => (same(s) ? { ...s, weightKg: set.weightKg, reps: set.reps } : s));
-  const id = Math.min(0, ...sets.map((s) => s.id)) - 1;
+  const id = `pending-${sets.filter((s) => s.id.startsWith('pending-')).length + 1}`;
   return [...sets, { ...set, id }];
 }
 
@@ -176,7 +176,7 @@ export function pendingSaves(
     const value = resolve(draft, fallbackOf(row));
     if ('missing' in value) continue;
     result.push({ warmup, setNumber, ...value });
-    const ids = { workoutId: row.saved?.workoutId ?? 0, exerciseId: row.saved?.exerciseId ?? 0 };
+    const ids = { workoutId: row.saved?.workoutId ?? '', exerciseId: row.saved?.exerciseId ?? '' };
     virtual = withSavedSet(virtual, { ...ids, warmup, setNumber, ...value });
   }
   return result;

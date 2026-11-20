@@ -11,6 +11,11 @@ exports/
 # Fremde Designs als Vorlage, nicht veröffentlichen
 design-referenz/
 
+# Dexie Cloud: Zugangsdaten der Datenbank (geheim) und lokale CLI-Einstellungen
+dexie-cloud.key
+dexie-cloud.json
+*.key
+
 # Lokales
 .DS_Store
 *.local

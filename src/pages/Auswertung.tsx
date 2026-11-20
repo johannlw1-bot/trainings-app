@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { PageProps } from '../App';
 import { SubpageHeader } from '../components/PageHeader';
+import { useDataVersion } from '../components/useDataVersion';
 import { formatDayMonth, formatShortDate } from '../lib/dates';
 import { formatTimer } from '../lib/duration';
 import { formatSets } from '../lib/lastTime';
@@ -17,15 +18,16 @@ export default function Auswertung({ param, extra }: PageProps) {
   const [summary, setSummary] = useState<WorkoutSummary | null | undefined>(undefined);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const justFinished = extra === 'neu';
+  const dataVersion = useDataVersion();
 
   useEffect(() => {
-    const id = Number(param);
-    if (!Number.isInteger(id)) {
+    const id = param;
+    if (!id) {
       setSummary(null);
       return;
     }
     loadSummary(id).then((found) => setSummary(found ?? null));
-  }, [param]);
+  }, [param, dataVersion]);
 
   if (summary === undefined) return <SubpageHeader label="Training" title="Auswertung" />;
 
@@ -76,7 +78,7 @@ export default function Auswertung({ param, extra }: PageProps) {
             <ul className="item-list">
               {exercises.map((exercise) => (
                 <li key={exercise.id}>
-                  <a className="item item--plain" href={`#/uebung/${exercise.id}`}>
+                  <a className="item item--plain" href={`#/uebung/${encodeURIComponent(exercise.id)}`}>
                     <span className="item__main">
                       <span className="item__title">{exercise.name}</span>
                       <span className="item__sub">

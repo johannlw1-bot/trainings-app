@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import BarChart from '../components/BarChart';
 import { SubpageHeader } from '../components/PageHeader';
+import { useDataVersion } from '../components/useDataVersion';
 import { addDays, formatDayMonth, isoWeek, toLocalDate } from '../lib/dates';
 import { weekStart } from '../lib/overview';
 import {
@@ -18,7 +19,7 @@ const WEEKS = 8;
 
 interface Loaded {
   sets: VolumeSet[];
-  names: Map<number, string>;
+  names: Map<string, string>;
 }
 
 /** Bewegtes Gewicht: letzte 7 Tage, die letzten 8 Kalenderwochen und die Übungen dieser Woche. */
@@ -28,6 +29,7 @@ export default function Volumen() {
   const thisWeek = weekStart(today);
   // Weit genug zurück für 8 Kalenderwochen und den Vergleich der letzten 7 Tage mit den 7 davor.
   const since = addDays(thisWeek, -7 * (WEEKS - 1));
+  const dataVersion = useDataVersion();
 
   useEffect(() => {
     (async () => {
@@ -36,7 +38,7 @@ export default function Volumen() {
       const exercises = await loadExercises(ids);
       setData({ sets, names: new Map(exercises.map((exercise) => [exercise.id, exercise.name])) });
     })();
-  }, [since]);
+  }, [since, dataVersion]);
 
   if (!data) return null;
 
@@ -85,7 +87,7 @@ export default function Volumen() {
             <ul className="item-list">
               {perExercise.map((entry) => (
                 <li key={entry.exerciseId}>
-                  <a className="item item--plain" href={`#/uebung/${entry.exerciseId}`}>
+                  <a className="item item--plain" href={`#/uebung/${encodeURIComponent(entry.exerciseId)}`}>
                     <span className="item__main">
                       <span className="item__title">{data.names.get(entry.exerciseId) ?? 'Übung'}</span>
                     </span>

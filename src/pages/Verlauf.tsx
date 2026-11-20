@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Icon from '../components/Icon';
 import { SubpageHeader } from '../components/PageHeader';
+import { useDataVersion } from '../components/useDataVersion';
 import { formatShortDate } from '../lib/dates';
 import { formatDurationShort, workoutDuration } from '../lib/duration';
 import { splitLabel } from '../lib/schedule';
@@ -10,9 +11,11 @@ import { loadHistory, type HistoryEntry } from '../lib/workoutDb';
 export default function Verlauf() {
   const [history, setHistory] = useState<HistoryEntry[] | null>(null);
 
+  const dataVersion = useDataVersion();
+
   useEffect(() => {
     loadHistory().then(setHistory);
-  }, []);
+  }, [dataVersion]);
 
   return (
     <>
@@ -30,7 +33,7 @@ export default function Verlauf() {
                 const duration = workoutDuration(workout);
                 return (
                   <li key={workout.id}>
-                    <a className="item" href={`#/auswertung/${workout.id}`}>
+                    <a className="item" href={`#/auswertung/${encodeURIComponent(workout.id)}`}>
                       <span className="icon-tile">
                         <Icon name="dumbbell" />
                       </span>

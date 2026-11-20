@@ -12,11 +12,11 @@ import {
 } from './volume';
 
 const set = (date: string, weightKg: number, reps: number, warmup = false, exerciseId?: number): VolumeSet => ({
+  exerciseId: exerciseId === undefined ? undefined : `e${exerciseId}`,
   date,
   weightKg,
   reps,
   warmup,
-  exerciseId,
 });
 
 describe('weeklyVolume', () => {
@@ -99,8 +99,8 @@ describe('exerciseVolumes', () => {
       set('2026-11-12', 500, 10, false, 1),
     ];
     expect(exerciseVolumes(sets, '2026-11-16', '2026-11-22')).toEqual([
-      { exerciseId: 2, volumeKg: 1000 },
-      { exerciseId: 1, volumeKg: 800 },
+      { exerciseId: 'e2', volumeKg: 1000 },
+      { exerciseId: 'e1', volumeKg: 800 },
     ]);
   });
 });

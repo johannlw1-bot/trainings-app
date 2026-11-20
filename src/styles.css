@@ -1782,6 +1782,14 @@ button.tile {
   margin: 0 calc(-1 * var(--space-4));
 }
 
+/* Abgleich in den Einstellungen: angemeldete E-Mail-Adresse */
+.cloud__user {
+  margin: 2px 0 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
 /* Nachfrage an Ort und Stelle, z. B. „Training löschen“ in der Auswertung */
 .confirm {
   display: flex;

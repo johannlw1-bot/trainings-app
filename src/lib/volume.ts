@@ -11,7 +11,7 @@ export interface VolumeSet {
   reps: number;
   warmup: boolean;
   /** Übung des Satzes, für das Volumen pro Übung */
-  exerciseId?: number;
+  exerciseId?: string;
 }
 
 /** Volumen der Arbeitssätze von `from` bis `to` (beide eingeschlossen). Aufwärmsätze zählen nicht. */
@@ -66,20 +66,20 @@ export function weeklyBuckets(sets: VolumeSet[], today: LocalDate, weeks = 8): W
 }
 
 export interface ExerciseVolume {
-  exerciseId: number;
+  exerciseId: string;
   volumeKg: number;
 }
 
 /** Volumen pro Übung von `from` bis `to`, größtes zuerst. Übungen nur mit Aufwärmsätzen fehlen. */
 export function exerciseVolumes(sets: VolumeSet[], from: LocalDate, to: LocalDate): ExerciseVolume[] {
-  const totals = new Map<number, number>();
+  const totals = new Map<string, number>();
   for (const set of sets) {
     if (set.warmup || set.exerciseId === undefined || set.date < from || set.date > to) continue;
     totals.set(set.exerciseId, (totals.get(set.exerciseId) ?? 0) + set.weightKg * set.reps);
   }
   return [...totals]
     .map(([exerciseId, volumeKg]) => ({ exerciseId, volumeKg }))
-    .sort((a, b) => b.volumeKg - a.volumeKg || a.exerciseId - b.exerciseId);
+    .sort((a, b) => b.volumeKg - a.volumeKg || a.exerciseId.localeCompare(b.exerciseId));
 }
 
 const tonnes = new Intl.NumberFormat('de', { minimumFractionDigits: 1, maximumFractionDigits: 1 });

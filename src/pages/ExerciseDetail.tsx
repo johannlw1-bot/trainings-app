@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { PageProps } from '../App';
 import { SubpageHeader } from '../components/PageHeader';
+import { useDataVersion } from '../components/useDataVersion';
 import { db, type Exercise } from '../db';
 import { formatShortDate } from '../lib/dates';
 import { formatTimer } from '../lib/duration';
@@ -14,10 +15,12 @@ export default function ExerciseDetail({ param }: PageProps) {
   const [exercise, setExercise] = useState<Exercise | null | undefined>(undefined);
   const [visits, setVisits] = useState<ExerciseVisit[]>([]);
 
+  const dataVersion = useDataVersion();
+
   useEffect(() => {
     let cancelled = false;
-    const id = Number(param);
-    if (!Number.isInteger(id)) {
+    const id = param;
+    if (!id) {
       setExercise(null);
       return;
     }
@@ -33,7 +36,7 @@ export default function ExerciseDetail({ param }: PageProps) {
     return () => {
       cancelled = true;
     };
-  }, [param]);
+  }, [param, dataVersion]);
 
   if (exercise === undefined) {
     return <SubpageHeader label="Fortschritt" title="" />;
@@ -68,7 +71,7 @@ export default function ExerciseDetail({ param }: PageProps) {
           <ul className="item-list">
             {visits.map(({ workout, timeMs, workingSets }) => (
               <li key={workout.id}>
-                <a className="item item--plain" href={`#/auswertung/${workout.id}`}>
+                <a className="item item--plain" href={`#/auswertung/${encodeURIComponent(workout.id)}`}>
                   <span className="item__main">
                     <span className="item__title">{formatShortDate(workout.date)}</span>
                     <span className="item__sub">

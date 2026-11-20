@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import Icon from '../components/Icon';
 import { PageHeader } from '../components/PageHeader';
+import { useDataVersion } from '../components/useDataVersion';
 import { useNow } from '../components/useNow';
 import type { BodyWeight, Split, Workout } from '../db';
 import { formatChange, formatKg1, weightSummary } from '../lib/bodyWeight';
@@ -134,6 +135,7 @@ export default function Uebersicht() {
   const today = toLocalDate(now);
   const split = splitForDate(now);
   const [data, setData] = useState<Loaded | null>(null);
+  const dataVersion = useDataVersion();
 
   const reload = useCallback(async () => {
     const [active, workouts, weights, volumeSets, plan] = await Promise.all([
@@ -148,7 +150,7 @@ export default function Uebersicht() {
 
   useEffect(() => {
     reload();
-  }, [reload]);
+  }, [reload, dataVersion]);
 
   if (!data) return null;
 
@@ -194,7 +196,7 @@ export default function Uebersicht() {
         week={week}
         title="Erledigt"
         sub={`${splitLabel(doneToday.split)}${duration !== undefined ? ` · ${formatDurationShort(duration)}` : ''}`}
-        href={`#/auswertung/${doneToday.id}`}
+        href={`#/auswertung/${encodeURIComponent(doneToday.id)}`}
         label={`Heute erledigt, Auswertung öffnen`}
       />
     );

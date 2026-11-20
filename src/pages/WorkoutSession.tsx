@@ -37,14 +37,14 @@ import {
 import { replaceHash } from '../nav';
 
 interface SessionExercise extends Targets {
-  id: number;
+  id: string;
   name: string;
 }
 
 interface Loaded {
   workout: Workout;
   exercises: SessionExercise[];
-  lastTimes: Map<number, LastTime>;
+  lastTimes: Map<string, LastTime>;
 }
 
 function Icon({ d }: { d: string }) {
@@ -94,7 +94,7 @@ export default function WorkoutSession() {
   const [sets, setSets] = useState<WorkoutSet[]>([]);
   const [segments, setSegments] = useState<Segment[]>([]);
   // Vom Nutzer geänderte Zeilenzahl je Übung. Ohne Eintrag gilt der Vorschlag.
-  const [rowCounts, setRowCounts] = useState<Record<number, number>>({});
+  const [rowCounts, setRowCounts] = useState<Record<string, number>>({});
   // Was in den Zeilen steht. Zeilen, die gerade bearbeitet werden (Haken gelb), werden beim Wechsel gespeichert.
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [overview, setOverview] = useState(false);
@@ -106,7 +106,7 @@ export default function WorkoutSession() {
   // Nur das zuletzt angestoßene Laden zählt. Sonst überschreibt eine ältere, langsamere Antwort
   // einen gerade gespeicherten oder ausgetragenen Satz, und der Haken springt zurück.
   const refreshSeq = useRef(0);
-  const refresh = useCallback(async (workoutId: number) => {
+  const refresh = useCallback(async (workoutId: string) => {
     const seq = ++refreshSeq.current;
     const [loadedSets, loadedSegments] = await Promise.all([loadSets(workoutId), loadSegments(workoutId)]);
     if (seq === refreshSeq.current) {
@@ -202,8 +202,8 @@ export default function WorkoutSession() {
   const index = Math.max(0, order.indexOf(currentId));
   const current = exercises[index];
   const times = exerciseTimes(segments, now);
-  const workingCount = (id: number) => sets.filter((set) => set.exerciseId === id && !set.warmup).length;
-  const statusOf = (id: number) => exerciseStatus(id, currentId, segments, workingCount(id));
+  const workingCount = (id: string) => sets.filter((set) => set.exerciseId === id && !set.warmup).length;
+  const statusOf = (id: string) => exerciseStatus(id, currentId, segments, workingCount(id));
   const statuses = order.map(statusOf);
 
   const own = sets.filter((set) => set.exerciseId === current.id);
@@ -247,7 +247,7 @@ export default function WorkoutSession() {
   };
   saveDraftsRef.current = saveDrafts;
 
-  const goTo = async (exerciseId: number) => {
+  const goTo = async (exerciseId: string) => {
     await saveDrafts();
     await switchExercise(workout.id, exerciseId);
     await refresh(workout.id);
@@ -257,7 +257,7 @@ export default function WorkoutSession() {
   const finish = async () => {
     await saveDrafts();
     if (await finishWorkout(workout.id)) {
-      replaceHash(`#/auswertung/${workout.id}/neu`);
+      replaceHash(`#/auswertung/${encodeURIComponent(workout.id)}/neu`);
     } else {
       // Ohne Sätze wird nichts still verworfen, sondern nachgefragt.
       setConfirm({ kind: 'empty' });
@@ -268,7 +268,7 @@ export default function WorkoutSession() {
   const requestFinish = async () => {
     setOverview(false);
     const latest = await saveDrafts();
-    const latestCount = (id: number) => latest.filter((set) => set.exerciseId === id && !set.warmup).length;
+    const latestCount = (id: string) => latest.filter((set) => set.exerciseId === id && !set.warmup).length;
     const check = finishCheck(order, latestCount, latest.length);
     if (check.kind === 'ok') finish();
     else setConfirm(check);

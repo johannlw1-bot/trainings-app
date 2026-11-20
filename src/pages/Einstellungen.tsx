@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import CloudCard from '../components/CloudCard';
 import Icon from '../components/Icon';
 import { SubpageHeader } from '../components/PageHeader';
 import { backupFileName, serializeBackup } from '../lib/backup';
@@ -55,7 +56,7 @@ export default function Einstellungen() {
 
   return (
     <>
-      <SubpageHeader label="Plan, Daten und Backup" title="Einstellungen" />
+      <SubpageHeader label="Plan, Abgleich und Backup" title="Einstellungen" />
 
       <div className="stack">
         <ul className="item-list">
@@ -73,11 +74,13 @@ export default function Einstellungen() {
           </li>
         </ul>
 
+        <CloudCard />
+
         <section className="card stack">
           <h2 className="heading">Backup</h2>
           <p className="muted">
-            Deine Daten liegen nur auf diesem Gerät. Der Export speichert alles als JSON-Datei, am
-            iPhone über das Teilen-Menü, zum Beispiel mit „In Dateien sichern“.
+            Der Export speichert alle Daten dieses Geräts als JSON-Datei, am iPhone über das
+            Teilen-Menü, zum Beispiel mit „In Dateien sichern“.
           </p>
           {error && <p className="error">Der Export konnte nicht vorbereitet werden.</p>}
           <button

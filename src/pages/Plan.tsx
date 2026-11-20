@@ -290,7 +290,7 @@ export default function Plan() {
   const [split, setSplit] = useState<Split>(() => splitForDate(new Date()) ?? 'upper');
   const [items, setItems] = useState<PlanItem[] | null>(null);
   const [addable, setAddable] = useState<AddableExercise[]>([]);
-  const [openEntryId, setOpenEntryId] = useState<number | null>(null);
+  const [openEntryId, setOpenEntryId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
 
   const reload = useCallback(async () => {

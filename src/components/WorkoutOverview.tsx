@@ -3,7 +3,7 @@ import type { ExerciseStatus } from '../lib/exerciseTiming';
 import Icon from './Icon';
 
 export interface OverviewItem {
-  id: number;
+  id: string;
   name: string;
   status: ExerciseStatus;
   timeMs: number;
@@ -36,7 +36,7 @@ export default function WorkoutOverview({
   onFinish,
 }: {
   items: OverviewItem[];
-  onPick: (exerciseId: number) => void;
+  onPick: (exerciseId: string) => void;
   onClose: () => void;
   onFinish: () => void;
 }) {

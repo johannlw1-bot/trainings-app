@@ -352,6 +352,14 @@ Festgelegt für die Körpergewicht-Seite und das Fortschrittsdiagramm, gebaut wi
 
 `BarChart` (Seite „Bewegtes Gewicht“): ohne Karte, bis an den Bildschirmrand, ohne Achsen und Hilfslinien. Balken höchstens 30 px breit, oben gerundet (bis 8 px), grau (`.bar`, wie `--chart-mark`), nur der hervorgehobene (aktuelle Woche) gelb (`.bar--highlight`). Über jedem Balken der Wert in 11 px (grau, beim gelben Balken weiß und fett), ab 1000 kg in Tonnen („32,4 t“). Darunter die Beschriftung im Achsenstil („KW 47“). Ein Wert von 0 bleibt als flacher Strich sichtbar.
 
+### Abgleich-Karte
+
+`<CloudCard>` in den Einstellungen, eine schlichte `.card` mit der Überschrift „Abgleich“, kein Glas.
+
+- **Nicht angemeldet**: ein grauer Satz, was der Abgleich tut und dass ohne Anmeldung alles nur auf dem Gerät bleibt, darunter „Anmelden“ als gelber Hauptbutton (`.btn--primary.btn--block`)
+- **Anmelden**: Die Fragen von Dexie Cloud (E-Mail, dann Code) erscheinen in derselben Karte: grauer Satz, Textfeld (`.field__input--text`, 16 px oder mehr) mit Beschriftung, darunter wie `.confirm__buttons` „Abbrechen“ (ghost) und „Code senden“ bzw. „Anmelden“ (gelb). Fehler in Rot (`.error`), alle Texte deutsch
+- **Angemeldet**: Beschriftung „Angemeldet als“, darunter die E-Mail-Adresse in 17 px / 600 (`.cloud__user`, bricht notfalls um), ein grauer Satz zum Stand („Alles abgeglichen.“, „Offline. …“), darunter „Abmelden“ (Anthrazit). Abmelden fragt an Ort und Stelle nach wie beim Löschen, mit „Abbrechen“ (ghost) und „Abmelden“ (rot)
+
 ## Bewegung
 
 Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animationen, keine hüpfenden Zahlen, kein pulsierendes Leuchten. Einzige Ausnahme: Der Punkt der aktuellen Übung in der Ring-Uhr pulsiert dezent. Bei „Bewegung reduzieren“ entfällt alles.
