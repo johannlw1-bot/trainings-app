@@ -146,7 +146,10 @@ export async function finishWorkout(workoutId: number): Promise<boolean> {
   });
 }
 
-/** Verwirft ein Training samt Sätzen und Abschnitten. Nur nach ausdrücklicher Nachfrage aufrufen. */
+/**
+ * Verwirft bzw. löscht ein Training samt Sätzen und Abschnitten (laufendes Training verwerfen,
+ * vergangenes Training in der Auswertung löschen). Nur nach ausdrücklicher Nachfrage aufrufen.
+ */
 export async function discardWorkout(workoutId: number): Promise<void> {
   await db.transaction('rw', db.workouts, db.sets, db.segments, async () => {
     await db.sets.where('workoutId').equals(workoutId).delete();

@@ -265,6 +265,8 @@ Mindestens 52 px hoch, `--radius-btn`, Schrift 17 px, 600. `.btn--block` macht d
 
 Löschen fragt immer an Ort und Stelle nach: Der aufgeklappte Bereich zeigt einen Satz, der genau sagt, was passiert, darunter „Abbrechen“ und „Ja, löschen“. Kein Systemdialog.
 
+`.card.confirm`: eigenständige Nachfrage-Karte, wenn nichts aufklappt, z. B. „Training löschen“ unten in der Auswertung eines vergangenen Trainings. Der Auslöser ist ein dezenter `.btn--danger.btn--block` (nur rote Schrift) und wird beim Nachfragen durch die Karte ersetzt. Satz in 17 px / 600 (`.confirm__text`), darunter zwei gleich breite Buttons (`.confirm__buttons`): „Abbrechen“ (ghost) und „Ja, löschen“ (rot).
+
 ### Satzzeile
 
 `.set-row`: Satznummer, Gewicht, Wiederholungen, Haken. „kg“ und „Wdh“ stehen klein unten rechts in den Feldern.

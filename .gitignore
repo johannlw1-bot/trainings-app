@@ -16,3 +16,6 @@ design-referenz/
 *.local
 .env
 .env.*
+
+# macOS-Ordnersymbol
+/Icon?

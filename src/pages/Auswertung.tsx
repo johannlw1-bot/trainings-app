@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { PageProps } from '../App';
 import { SubpageHeader } from '../components/PageHeader';
-import { formatShortDate } from '../lib/dates';
+import { formatDayMonth, formatShortDate } from '../lib/dates';
 import { formatTimer } from '../lib/duration';
 import { formatSets } from '../lib/lastTime';
 import { splitLabel } from '../lib/schedule';
-import { loadSummary, type WorkoutSummary } from '../lib/workoutDb';
-import { replaceHash } from '../nav';
+import { discardWorkout, loadSummary, type WorkoutSummary } from '../lib/workoutDb';
+import { replaceHash, returnTo } from '../nav';
 
 /**
  * Zusammenfassung eines Trainings (#/auswertung/<id>): Gesamtzeit, Sätze, Zeit pro Übung.
@@ -15,6 +15,7 @@ import { replaceHash } from '../nav';
 export default function Auswertung({ param, extra }: PageProps) {
   // undefined = wird geladen, null = nicht gefunden
   const [summary, setSummary] = useState<WorkoutSummary | null | undefined>(undefined);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const justFinished = extra === 'neu';
 
   useEffect(() => {
@@ -97,7 +98,47 @@ export default function Auswertung({ param, extra }: PageProps) {
             Fertig
           </button>
         )}
+
+        {!justFinished && workout.finishedAt && !confirmingDelete && (
+          <button
+            type="button"
+            className="btn btn--danger btn--block"
+            onClick={() => setConfirmingDelete(true)}
+          >
+            Training löschen
+          </button>
+        )}
+
+        {confirmingDelete && (
+          <section className="card confirm" role="alertdialog" aria-labelledby="delete-workout-text">
+            <p id="delete-workout-text" className="confirm__text">
+              Training vom {formatDayMonth(workout.date)} {setCountPhrase(workingSetCount)} endgültig
+              löschen?
+            </p>
+            <div className="confirm__buttons">
+              <button type="button" className="btn btn--ghost" onClick={() => setConfirmingDelete(false)}>
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                className="btn btn--danger"
+                onClick={async () => {
+                  await discardWorkout(workout.id);
+                  returnTo('#/verlauf');
+                }}
+              >
+                Ja, löschen
+              </button>
+            </div>
+          </section>
+        )}
       </div>
     </>
   );
+}
+
+/** „mit 12 Sätzen“, „mit 1 Satz“, „ohne Sätze“ (nur Arbeitssätze) */
+function setCountPhrase(count: number): string {
+  if (count === 0) return 'ohne Sätze';
+  return count === 1 ? 'mit 1 Satz' : `mit ${count} Sätzen`;
 }

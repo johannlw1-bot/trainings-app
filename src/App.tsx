@@ -45,8 +45,8 @@ export default function App() {
   const [location, setLocation] = useState(() => parseHash(window.location.hash));
 
   useEffect(() => {
-    const onHashChange = () => {
-      noteNavigation();
+    const onHashChange = (event: HashChangeEvent) => {
+      noteNavigation(event);
       setLocation(parseHash(window.location.hash));
       window.scrollTo(0, 0);
     };

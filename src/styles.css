@@ -1762,6 +1762,25 @@ button.tile {
   margin: 0 calc(-1 * var(--space-4));
 }
 
+/* Nachfrage an Ort und Stelle, z. B. „Training löschen“ in der Auswertung */
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.confirm__text {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.confirm__buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
 /* Eintrag mit aufklappbarer Korrektur darunter */
 .entry__editor {
   display: flex;
