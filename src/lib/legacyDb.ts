@@ -1,5 +1,6 @@
 import { db, type Id } from '../db';
 import { convertLegacy, isLegacyEmpty, type LegacyTables, type NewId } from './legacy';
+import { addToStash } from './stashDb';
 
 /** Neuer Schlüssel im Format von Dexie Cloud (`newId` ergänzt dexie-cloud-addon an jeder Tabelle). */
 const newId: NewId = (table) => (db.table(table) as unknown as { newId(): Id }).newId();
@@ -8,8 +9,11 @@ const newId: NewId = (table) => (db.table(table) as unknown as { newId(): Id }).
  * Wandelt die Daten aus der Zeit vor Dexie Cloud um (siehe Version 4 und 5 in db.ts).
  * Alles in einer Transaktion: Bricht sie ab, bleiben die alten Zeilen stehen und der nächste Start
  * versucht es erneut. Danach sind die legacy-Tabellen leer und der Aufruf tut nichts mehr.
+ *
+ * Ist das Gerät schon angemeldet, kommen die Zeilen in die Ablage (stash) und werden nach dem
+ * nächsten Abgleich mit der Cloud zusammengeführt, statt doppelt hochgeladen zu werden.
  */
-export async function migrateLegacyData(): Promise<void> {
+export async function migrateLegacyData(loggedIn: boolean): Promise<void> {
   const legacyTables = [
     db.legacyExercises,
     db.legacyPlanEntries,
@@ -20,7 +24,7 @@ export async function migrateLegacyData(): Promise<void> {
   ];
   const newTables = [db.exercises, db.planEntries, db.workouts, db.sets, db.segments, db.bodyWeights];
 
-  await db.transaction('rw', [...legacyTables, ...newTables], async () => {
+  await db.transaction('rw', [...legacyTables, ...newTables, db.stash], async () => {
     const legacy: LegacyTables = {
       exercises: await db.legacyExercises.toArray(),
       planEntries: await db.legacyPlanEntries.toArray(),
@@ -32,6 +36,11 @@ export async function migrateLegacyData(): Promise<void> {
     if (isLegacyEmpty(legacy)) return;
 
     const converted = convertLegacy(legacy, newId);
+    if (loggedIn) {
+      await addToStash(converted);
+      await Promise.all(legacyTables.map((table) => table.clear()));
+      return;
+    }
     await db.exercises.bulkAdd(converted.exercises);
     await db.planEntries.bulkAdd(converted.planEntries);
     await db.workouts.bulkAdd(converted.workouts);

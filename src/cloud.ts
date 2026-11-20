@@ -2,10 +2,21 @@
 // Ohne Anmeldung läuft alles lokal. Andere Server als Dexie Cloud gibt es nicht.
 import { db } from './db';
 import { migrateLegacyData } from './lib/legacyDb';
-import { buildDefaultPlan, isUntouchedDefaultPlan } from './lib/seed';
+import { buildDefaultPlan } from './lib/seed';
+import { mergeStash, restoreStash, stashLocalData } from './lib/stashDb';
 
 function isLoggedIn(): boolean {
   return !!db.cloud.currentUser.value.isLoggedIn;
+}
+
+/**
+ * Hat ein Abgleich die Daten des angemeldeten Nutzers schon geholt? Direkt aus der Tabelle
+ * $syncState von Dexie Cloud gelesen, das Observable persistedSyncState kann hinterherhinken.
+ */
+async function userDataSynced(): Promise<boolean> {
+  if (!isLoggedIn()) return false;
+  const state = (await db.table('$syncState').get('syncState')) as { realms?: string[] } | undefined;
+  return state?.realms?.includes(db.cloud.currentUserId) ?? false;
 }
 
 /**
@@ -56,72 +67,75 @@ async function waitForUser(): Promise<void> {
   });
 }
 
-/** Beim Start, bevor die App gezeigt wird. */
-export async function startCloud(): Promise<void> {
-  await db.open();
-  await migrateLegacyData();
-  await waitForUser();
-
-  // Nicht angemeldet (auch direkt nach dem Abmelden, das die Daten auf dem Gerät leert):
-  // fester Plan lokal, damit die App benutzbar ist.
-  if (!isLoggedIn()) await seedDefaultPlan();
-  db.cloud.currentUser.subscribe((user) => {
-    if (user.isLoading || user.isLoggedIn || loginInProgress) return;
-    seedDefaultPlan()
-      .then((seeded) => seeded && bumpDataVersion())
-      .catch((error) => console.error('Plan konnte nicht eingetragen werden', error));
-  });
-
-  // Angemeldet: erst nach einem Abgleich prüfen, ob es schon Übungen gibt.
-  db.cloud.events.syncComplete.subscribe(() => {
-    const seeding = isLoggedIn() ? seedDefaultPlan() : Promise.resolve(false);
-    seeding
-      .catch((error) => console.error('Plan konnte nicht eingetragen werden', error))
-      .finally(bumpDataVersion);
-  });
-}
-
 let loginInProgress = false;
 
 /**
- * Meldet an. Die Abfrage von E-Mail und Code zeigt CloudDialog (db.cloud.userInteraction).
+ * Bringt die Daten in einen stimmigen Zustand. Läuft beim Start, nach jedem Abgleich und wenn sich
+ * die Anmeldung ändert, immer nacheinander (settled), nie gleichzeitig.
+ * - Angemeldet, nach dem Abgleich: zurückgehaltene Daten des Geräts zusammenführen, dann den festen
+ *   Plan eintragen, falls es noch gar keine Übungen gibt.
+ * - Nicht angemeldet (auch nach abgebrochenem Anmelden oder nach dem Abmelden, das die Daten auf
+ *   dem Gerät leert): zurückgehaltene Daten zurücklegen, fester Plan, damit die App benutzbar ist.
+ */
+async function settle(): Promise<void> {
+  if (isLoggedIn()) {
+    if (!(await userDataSynced())) return;
+    await mergeStash();
+    await seedDefaultPlan();
+  } else {
+    if (loginInProgress) return;
+    await restoreStash();
+    await seedDefaultPlan();
+  }
+  bumpDataVersion();
+}
+
+let settled: Promise<void> = Promise.resolve();
+
+function scheduleSettle(): Promise<void> {
+  settled = settled
+    .then(settle)
+    .catch((error) => console.error('Daten konnten nicht abgestimmt werden', error));
+  return settled;
+}
+
+/** Beim Start, bevor die App gezeigt wird. */
+export async function startCloud(): Promise<void> {
+  await db.open();
+  await waitForUser();
+  await migrateLegacyData(isLoggedIn());
+  await scheduleSettle();
+
+  db.cloud.currentUser.subscribe((user) => {
+    if (!user.isLoading) void scheduleSettle();
+  });
+  db.cloud.events.syncComplete.subscribe(() => void scheduleSettle());
+}
+
+/**
+ * Meldet an. Die Abfrage von E-Mail und Code zeigt CloudCard (db.cloud.userInteraction).
  *
- * Nach dem Anmelden lädt Dexie Cloud alle lokalen Daten hoch. Steht auf dem Gerät nur der
- * unveränderte feste Plan und noch kein Training, wird er vorher entfernt: Sonst gäbe es ihn nach
- * dem Abgleich doppelt, falls das andere Gerät ihn schon hochgeladen hat. Fehlt nach dem ersten
- * Abgleich jeder Plan, trägt seedDefaultPlan() ihn wieder ein. Ein geänderter Plan oder eingetragene
- * Trainings bleiben immer erhalten und werden hochgeladen.
+ * Dexie Cloud würde nach dem Anmelden alle Daten des Geräts hochladen, auch einen Plan, den die
+ * Cloud schon hat. Deshalb kommen sie vorher in die Ablage (stash) und werden nach dem ersten
+ * Abgleich zusammengeführt: gleiche Übungen nicht doppelt, nichts geht verloren (lib/merge.ts).
  */
 export async function login(): Promise<void> {
   if (isLoggedIn()) return;
   loginInProgress = true;
   try {
-    await db.transaction(
-      'rw',
-      [db.exercises, db.planEntries, db.workouts, db.sets, db.segments],
-      async () => {
-        const trained =
-          (await db.workouts.count()) + (await db.sets.count()) + (await db.segments.count()) > 0;
-        const plan = { exercises: await db.exercises.toArray(), planEntries: await db.planEntries.toArray() };
-        if (trained || !isUntouchedDefaultPlan(plan)) return;
-        await db.planEntries.clear();
-        await db.exercises.clear();
-      },
-    );
+    await settled;
+    await stashLocalData();
     await db.cloud.login();
   } finally {
     loginInProgress = false;
-    // Abgebrochen oder fehlgeschlagen: Der Plan muss wieder da sein.
-    if (!isLoggedIn()) {
-      await seedDefaultPlan();
-      bumpDataVersion();
-    }
+    // Abgebrochen: Daten zurück. Angemeldet: zusammenführen, sobald der Abgleich da ist.
+    await scheduleSettle();
   }
 }
 
 /**
  * Meldet ab. Dexie Cloud leert dabei die Daten auf diesem Gerät, in der Cloud bleiben sie erhalten.
- * Gibt es noch nicht abgeglichene Änderungen, fragt CloudDialog vorher nach.
+ * Gibt es noch nicht abgeglichene Änderungen, fragt CloudCard vorher nach.
  */
 export async function logout(): Promise<void> {
   await db.cloud.logout();

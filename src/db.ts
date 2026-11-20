@@ -99,6 +99,19 @@ export type LegacyWorkoutSet = Legacy<WorkoutSet>;
 export type LegacySegment = Legacy<Segment>;
 export type LegacyBodyWeight = Omit<BodyWeight, 'id'>;
 
+/**
+ * Daten des Geräts, die beim Anmelden zurückgehalten werden, bis der erste Abgleich die Daten aus
+ * der Cloud geholt hat. Dann werden sie zusammengeführt (cloud.ts), statt doppelt hochgeladen.
+ */
+export interface StashRow {
+  table: SyncedTable;
+  id: Id;
+  row: object;
+}
+
+export const SYNCED_TABLES = ['exercises', 'planEntries', 'workouts', 'sets', 'segments', 'bodyWeights'] as const;
+export type SyncedTable = (typeof SYNCED_TABLES)[number];
+
 /** Zwischenablage für die Umstellung auf Dexie Cloud, siehe Version 4. Werden nie abgeglichen. */
 export const LEGACY_TABLES = [
   'legacyExercises',
@@ -124,6 +137,7 @@ export const db = new Dexie('trainings-app', { addons: [dexieCloud] }) as Dexie 
   legacySets: Table<LegacyWorkoutSet, number>;
   legacySegments: Table<LegacySegment, number>;
   legacyBodyWeights: Table<LegacyBodyWeight, LocalDate>;
+  stash: Table<StashRow, [SyncedTable, Id]>;
 };
 
 // Schemaänderungen nur über eine neue Version mit Migration, die bestehende Daten erhält.
@@ -210,6 +224,10 @@ db.version(5).stores({
   bodyWeights: 'id, date',
 });
 
+// Version 6 (20.11.2026): Tabelle stash, nicht abgeglichen. Hält die Daten des Geräts beim Anmelden
+// zurück, bis sie mit der Cloud zusammengeführt sind. Bestehende Tabellen bleiben unverändert.
+db.version(6).stores({ stash: '[table+id]' });
+
 db.cloud.configure({
   databaseUrl: DATABASE_URL,
   // Ohne Anmeldung läuft die App lokal weiter. Nach dem Anmelden werden die lokalen Daten hochgeladen.
@@ -218,5 +236,5 @@ db.cloud.configure({
   customLoginGui: true,
   // Bestehende Datenbank weiterverwenden (siehe oben).
   nameSuffix: false,
-  unsyncedTables: LEGACY_TABLES,
+  unsyncedTables: [...LEGACY_TABLES, 'stash'],
 });
