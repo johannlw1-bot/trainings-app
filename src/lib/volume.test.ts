@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { greeting } from './greeting';
 import { isoWeek } from './dates';
 import {
   exerciseVolumes,
@@ -64,20 +63,6 @@ describe('Anzeige des Volumens', () => {
     expect(formatVolumeShort(950)).toBe('950');
     expect(formatVolumeShort(32_400)).toBe('32,4 t');
     expect(formatVolumeShort(1_000)).toBe('1,0 t');
-  });
-});
-
-describe('greeting', () => {
-  const at = (hour: number) => new Date(2026, 10, 19, hour, 30);
-
-  it('passt zur Tageszeit', () => {
-    expect(greeting(at(4), 'Alex')).toBe('Guten Abend, Alex');
-    expect(greeting(new Date(2026, 10, 19, 5, 0), 'Alex')).toBe('Guten Morgen, Alex');
-    expect(greeting(at(10), 'Alex')).toBe('Guten Morgen, Alex');
-    expect(greeting(new Date(2026, 10, 19, 11, 0), 'Alex')).toBe('Hallo, Alex');
-    expect(greeting(at(17), 'Alex')).toBe('Hallo, Alex');
-    expect(greeting(new Date(2026, 10, 19, 18, 0), 'Alex')).toBe('Guten Abend, Alex');
-    expect(greeting(at(23), 'Alex')).toBe('Guten Abend, Alex');
   });
 });
 

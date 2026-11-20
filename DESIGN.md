@@ -192,7 +192,8 @@ Wie in der Vorlage sind Buttons gerundete Rechtecke, keine reinen Pillen. Ein El
 
 Titel groß und weiß, darunter die Beschriftung in Grau (wie „Your Balance / Money Received“ in der Vorlage). Komponenten in `src/components/PageHeader.tsx`.
 
-- **Übersicht** (`<PageHeader>`): rechts das Zahnrad als nacktes Icon
+- **Übersicht** (`<PageHeader>`): oben klein und gedämpft der Gruß („Guten Morgen“, „Hallo“, „Guten Abend“, ohne Komma, `.page-header__overline`), darunter groß und fett der Name in einer eigenen Zeile, nie getrennt (`.title--nowrap`), darunter das Datum. Rechts das Zahnrad als nacktes Icon
+- **Seitentitel** (`.title`) werden nie automatisch getrennt (`hyphens: manual`)
 - **Unterseiten** (`<SubpageHeader>`): oben links der Zurück-Pfeil als nacktes Icon, darunter Titel und Beschriftung
 
 ### Icon-Button
@@ -320,7 +321,7 @@ Laufende Zeiten (`.timer`) im Format „0:00“, ab einer Stunde „1:05:00“, 
 
 ### Übersicht (Startseite)
 
-Aufbau nach Referenz 6: oben die Begrüßung als Titel (bricht bei Bedarf in zwei Zeilen um) mit Datum und Zahnrad, darunter zwei quadratische Kacheln, dann Trainingskalender und Wochenvolumen. Kein fester Button.
+Aufbau nach Referenz 6: oben der Gruß klein und grau, darunter der Name als Titel, dann Datum, rechts das Zahnrad, darunter zwei quadratische Kacheln, dann Trainingskalender und Wochenvolumen. Kein fester Button.
 
 - **Kachel** (`.tile`): quadratisch (`aspect-ratio: 1`), `--radius-card`, 16 px Innenabstand. Oben ein Ring oder eine Zahl, unten Titel (22 px, 800, schrumpft unter 390 px mit) und graue Nebenzeile. Ganze Kachel ist ein Link. Nur die Training-Kachel ist Glas mit Leuchten (`.glow.tile-glow` > `.tile.card--glass`), die Gewicht-Kachel bleibt anthrazit, die Zahl darin als Zahl L (höchstens 40 px)
 - **Wochenring** (`.week-ring`): 52 px, Ring Weiß 12 %, Bogen gelb, in der Mitte die Zahl der Trainingstage dieser Woche (Mo bis So), daneben „2 von 4 diese Woche“
@@ -357,7 +358,7 @@ Sparsam. Buttons geben beim Drücken kurz nach (80 ms). Keine Einblend-Animation
 
 ## Vor dem Fertigmelden prüfen
 
-- In 390 und 375 px Breite angesehen, nichts ragt über den Rand, die Begrüßung auf der Startseite bricht sauber um
+- In 390 und 375 px Breite angesehen, nichts ragt über den Rand, Gruß und Name auf der Startseite stehen je in einer eigenen Zeile, nichts wird getrennt
 - Glas und Leuchten nur an den drei erlaubten Stellen, Text nie über dem kräftigen Kern des Leuchtens
 - Höchstens ein gelber Hauptbutton und eine gelbe Zahl pro Bildschirm
 - Beschriftungen gedämpft, aber lesbar (mindestens 4,5 : 1, auf Glas `--glass-muted`)

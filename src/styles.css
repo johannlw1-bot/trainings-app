@@ -166,6 +166,16 @@ button {
   margin-top: var(--space-2);
 }
 
+/* Textblock neben dem Zahnrad darf schrumpfen, damit das Zahnrad nie verdrängt wird */
+.page-header__text--row {
+  min-width: 0;
+}
+
+/* Gruß über dem Namen auf der Startseite */
+.page-header__overline {
+  margin-bottom: 2px;
+}
+
 /* Zahnrad bündig mit dem rechten Rand */
 .page-header--row .icon-btn {
   margin-right: -10px;
@@ -191,9 +201,14 @@ button {
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  overflow-wrap: anywhere;
-  -webkit-hyphens: auto;
-  hyphens: auto;
+  /* Seitentitel nie mitten im Wort trennen */
+  -webkit-hyphens: manual;
+  hyphens: manual;
+}
+
+/* Name in der Begrüßung: immer eine eigene, ungetrennte Zeile */
+.title--nowrap {
+  white-space: nowrap;
 }
 
 .heading {
@@ -922,9 +937,14 @@ button {
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.02em;
-  overflow-wrap: anywhere;
-  -webkit-hyphens: auto;
-  hyphens: auto;
+  /* Seitentitel nie mitten im Wort trennen */
+  -webkit-hyphens: manual;
+  hyphens: manual;
+}
+
+/* Name in der Begrüßung: immer eine eigene, ungetrennte Zeile */
+.title--nowrap {
+  white-space: nowrap;
 }
 
 .session__meta {

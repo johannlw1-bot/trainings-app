@@ -7,7 +7,7 @@ import { formatChange, formatKg1, weightSummary } from '../lib/bodyWeight';
 import { loadBodyWeights } from '../lib/bodyWeightDb';
 import { addDays, toLocalDate } from '../lib/dates';
 import { elapsedMs, formatDurationShort, formatTimer, workoutDuration } from '../lib/duration';
-import { greeting } from '../lib/greeting';
+import { greeting, USER_NAME } from '../lib/greeting';
 import { calendarMonths, trainedDaysIn, trainingsThisWeek, type CalendarMonth } from '../lib/overview';
 import { loadPlan } from '../lib/planDb';
 import { TRAININGS_PER_WEEK, nextTraining, splitForDate, splitLabel } from '../lib/schedule';
@@ -222,7 +222,7 @@ export default function Uebersicht() {
 
   return (
     <div className="vivid home">
-      <PageHeader label={dateFormat.format(now)} title={greeting(now)} />
+      <PageHeader overline={greeting(now)} title={USER_NAME} label={dateFormat.format(now)} />
 
       <div className="tiles">
         {tile}

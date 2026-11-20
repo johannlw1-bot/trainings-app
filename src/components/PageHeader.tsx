@@ -1,12 +1,16 @@
 import { goBack } from '../nav';
 import Icon from './Icon';
 
-/** Kopf der beiden Tab-Seiten: Titel, darunter grau die Beschriftung, rechts das Zahnrad. */
-export function PageHeader({ label, title }: { label: string; title: string }) {
+/**
+ * Kopf der Startseite: optional klein und grau eine Zeile darüber (der Gruß), dann der Titel
+ * in einer eigenen Zeile ohne Umbruch (der Name), darunter grau die Beschriftung, rechts das Zahnrad.
+ */
+export function PageHeader({ overline, label, title }: { overline?: string; label: string; title: string }) {
   return (
     <header className="page-header page-header--row">
-      <div>
-        <h1 className="title">{title}</h1>
+      <div className="page-header__text--row">
+        {overline && <p className="label page-header__overline">{overline}</p>}
+        <h1 className="title title--nowrap">{title}</h1>
         <p className="label">{label}</p>
       </div>
       <a className="icon-btn" href="#/einstellungen" aria-label="Einstellungen">
